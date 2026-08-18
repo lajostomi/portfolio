@@ -316,6 +316,13 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.project-card:hover .project-link-icon,
+.project-card:focus-visible .project-link-icon {
+  opacity: 1;
 }
 
 .project-link-icon img { width: 15px; height: 15px; }
@@ -384,7 +391,6 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(24px, 8%, 105px);
   transition: transform 0.25s ease;
 }
 
@@ -393,7 +399,15 @@ section {
   transform: translateY(-4px);
 }
 
-.contact-icon img { width: 100%; height: 100%; object-fit: contain; }
+/* Fixed at the design's own 64px height (mail's SVG is naturally a touch
+   wider than tall) instead of filling the tile, so it reads as a small
+   centred icon on a card rather than scaling up with the tile itself. */
+.contact-icon img {
+  width: auto;
+  height: 64px;
+  max-width: 80%;
+  object-fit: contain;
+}
 
 .contact-text {
   margin: 0;
@@ -473,6 +487,4 @@ section {
   .contact-info {
     grid-template-columns: 1fr;
   }
-
-  .contact-icon { padding: 20%; }
 }
