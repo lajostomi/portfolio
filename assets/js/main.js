@@ -46,12 +46,13 @@
     const cards = Array.from(wheel.querySelectorAll('.wheel-card'));
     const baseAngle = cards.map((card) => Number(card.dataset.angle) || 0);
 
-    // Apothem radii (centre-to-edge distance) tuned to reproduce the
-    // original Figma resting coordinates: front card at (50%, 0%), side
-    // neighbours at (~12.8/87.4%, ~32%). Each card rides the midpoint of
-    // its own hexagon side, 60deg apart.
-    const RX = 43;   // horizontal apothem, in % of container width
-    const RY = 64.2; // vertical apothem, in % of container height
+    // Apothem radii (centre-to-edge distance). The vertical radius is
+    // pulled deeper than the original Figma coordinates so the arc reads
+    // as a proper round curve (front card at the top, side neighbours
+    // dipping well below it); the horizontal radius is pulled in slightly
+    // so a card's rotated corners never poke past the container's edges.
+    const RX = 38; // horizontal apothem, in % of container width
+    const RY = 95; // vertical apothem, in % of container height
 
     let currentRotation = 0; // accumulated wheel rotation, degrees
     let spinning = false;
@@ -87,6 +88,11 @@
         card.style.setProperty('--rot', angle.toFixed(2) + 'deg');
         card.style.setProperty('--op', opacity.toFixed(3));
         card.style.setProperty('--blur', blurPx.toFixed(2) + 'px');
+
+        // Depth-order the cards by how close to "front" they are, so a
+        // card sweeping past another always overlaps it correctly instead
+        // of popping in front/behind due to fixed DOM order.
+        card.style.zIndex = String(Math.round((Math.cos(rad) + 1) * 500));
       });
     }
 
@@ -142,19 +148,11 @@
     }
 
     function land(frontCard) {
-      const slug = frontCard.dataset.slug;
-      const name = frontCard.dataset.name || slug;
-
+      const name = frontCard.dataset.name || frontCard.dataset.slug;
       if (spinSubtitle) spinSubtitle.textContent = 'landed on ' + name;
 
-      if (!slug) return;
-      const match = document.querySelector('.project-card[data-slug="' + slug + '"]');
-      if (match) {
-        match.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        match.classList.remove('is-landed');
-        void match.offsetWidth; // restart animation
-        match.classList.add('is-landed');
-      }
+      // TODO: once each project has its own case-study page, navigate
+      // straight there instead: window.location.href = frontCard.href;
     }
 
     spinTrigger.addEventListener('click', spin);
