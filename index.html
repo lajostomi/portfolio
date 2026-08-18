@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lajos Tamás Jakab — Portfolio</title>
+<meta name="description" content="UX/UI portfolio of Lajos Tamás Jakab — product design, research and vibe coding projects.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-dark">
+
+  <header class="site-header" id="top">
+    <p class="logo">Lajos Tamás Jakab</p>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
+      <a href="#work" class="nav-link">WORK</a>
+      <a href="about.html" class="nav-link">ABOUT</a>
+      <a href="#contact" class="nav-link">CONTACT</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- SPIN -->
+    <section class="spin-section" aria-labelledby="spin-heading">
+      <div class="spin-info">
+        <h1 id="spin-heading" class="spin-title">SPIN</h1>
+        <p class="spin-subtitle">land on a&nbsp; random project</p>
+        <button type="button" class="spin-trigger" id="spinTrigger" aria-label="Spin the wheel and land on a random project">
+          <img src="assets/images/icons/arrow-down.svg" alt="" width="24" height="24">
+        </button>
+      </div>
+
+      <div class="wheel-container">
+        <div class="wheel" id="wheel">
+          <a class="wheel-card slot-1" data-slug="hachi-mobile-app" href="projects/hachi-mobile-app.html" style="--rot:-120deg; --x:12.79%; --y:131.5%;">
+            <img src="assets/images/projects/hachi.png" alt="Hachi Mobile App preview">
+          </a>
+          <a class="wheel-card slot-2" data-slug="mercedes-aura" href="projects/mercedes-aura.html" style="--rot:-120deg; --x:87.4%; --y:32.1%;">
+            <img src="assets/images/projects/mercedes-aura.png" alt="Mercedes Aura: In-car experience preview">
+          </a>
+          <a class="wheel-card slot-3" data-slug="mome-ulp" data-name="MOME ULP" data-year="2025" data-tags="Research, UX" href="projects/mome-ulp.html" style="--rot:-60deg; --x:12.8%; --y:32.3%;">
+            <img src="assets/images/projects/mome-ulp.png" alt="MOME ULP: Increasing interactions preview">
+          </a>
+          <a class="wheel-card slot-4" data-slug="project-teve" href="projects/project-teve.html" style="--rot:-60deg; --x:87.5%; --y:131.3%;">
+            <img src="assets/images/projects/project-teve.png" alt="Project TEVE preview">
+          </a>
+          <a class="wheel-card slot-5 is-front" data-slug="hachi-mobile-app" data-name="Hachi Mobile App" data-year="2025" data-tags="UX / UI, Research" href="projects/hachi-mobile-app.html" style="--rot:0deg; --x:50.07%; --y:0%;">
+            <img src="assets/images/projects/hachi.png" alt="Hachi Mobile App preview">
+          </a>
+          <a class="wheel-card slot-6" data-slug="fall-of-cozy-web" href="projects/fall-of-cozy-web.html" style="--rot:0deg; --x:50.15%; --y:198.5%;">
+            <img src="assets/images/projects/fall-of-cozy-web.png" alt="The Fall of Cozy Web preview">
+          </a>
+        </div>
+        <div class="wheel-fade" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section class="work-section" id="work" aria-labelledby="work-heading">
+      <h2 id="work-heading" class="section-title">WORK</h2>
+
+      <div class="project-grid">
+
+        <a class="project-card" href="projects/hachi-mobile-app.html" data-slug="hachi-mobile-app">
+          <div class="project-image"><img src="assets/images/projects/hachi.png" alt="Hachi Mobile App"></div>
+          <span class="project-link-icon"><img src="assets/images/icons/arrow-up-right.svg" alt="" width="15" height="15"></span>
+          <div class="project-info">
+            <div class="project-header">
+              <p class="project-name">Hachi Mobile App</p>
+              <p class="project-year">2025</p>
+            </div>
+            <p class="project-tags">UX / UI, Research</p>
+          </div>
+        </a>
+
+        <a class="project-card" href="projects/mercedes-aura.html" data-slug="mercedes-aura">
+          <div class="project-image"><img src="assets/images/projects/mercedes-aura.png" alt="Mercedes Aura: In-car experience"></div>
+          <span class="project-link-icon"><img src="assets/images/icons/arrow-up-right.svg" alt="" width="15" height="15"></span>
+          <div class="project-info">
+            <div class="project-header">
+              <p class="project-name">Mercedes Aura: In-car experience</p>
+              <p class="project-year">2026</p>
+            </div>
+            <p class="project-tags">UX / UI, Vibe coding</p>
+          </div>
+        </a>
+
+        <a class="project-card" href="projects/fall-of-cozy-web.html" data-slug="fall-of-cozy-web">
+          <div class="project-image"><img src="assets/images/projects/fall-of-cozy-web.png" alt="The Fall of Cozy Web: escape room game"></div>
+          <span class="project-link-icon"><img src="assets/images/icons/arrow-up-right.svg" alt="" width="15" height="15"></span>
+          <div class="project-info">
+            <div class="project-header">
+              <p class="project-name">The Fall of Cozy Web: escape room game</p>
+              <p class="project-year">2025</p>
+            </div>
+            <p class="project-tags">Vibe coding, Illustration, UX / UI</p>
+          </div>
+        </a>
+
+        <a class="project-card" href="projects/mome-ulp.html" data-slug="mome-ulp">
+          <div class="project-image"><img src="assets/images/projects/mome-ulp.png" alt="MOME ULP: Increasing interactions"></div>
+          <span class="project-link-icon"><img src="assets/images/icons/arrow-up-right.svg" alt="" width="15" height="15"></span>
+          <div class="project-info">
+            <div class="project-header">
+              <p class="project-name">MOME ULP: Increasing interactions</p>
+              <p class="project-year">2025</p>
+            </div>
+            <p class="project-tags">Research, UX</p>
+          </div>
+        </a>
+
+        <a class="project-card" href="projects/under-nda-banking.html" data-slug="under-nda-banking">
+          <div class="project-image"><img src="assets/images/projects/under-nda-banking.png" alt="Under NDA: Beyond Banking Product for SMEs"></div>
+          <span class="project-link-icon"><img src="assets/images/icons/arrow-up-right.svg" alt="" width="15" height="15"></span>
+          <div class="project-info">
+            <div class="project-header">
+              <p class="project-name">Under NDA: Beyond Banking Product for SMEs</p>
+              <p class="project-year">2026</p>
+            </div>
+            <p class="project-tags">UX / UI</p>
+          </div>
+        </a>
+
+        <a class="project-card" href="projects/project-teve.html" data-slug="project-teve">
+          <div class="project-image"><img src="assets/images/projects/project-teve.png" alt="Project TEVE: Easing the shopping for the elderly"></div>
+          <span class="project-link-icon"><img src="assets/images/icons/arrow-up-right.svg" alt="" width="15" height="15"></span>
+          <div class="project-info">
+            <div class="project-header">
+              <p class="project-name">Project TEVE: Easing the shopping for the elderly</p>
+              <p class="project-year">2026</p>
+            </div>
+            <p class="project-tags">Robot design, UX</p>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact-section" id="contact" aria-labelledby="contact-heading">
+      <h2 id="contact-heading" class="section-title">CONTACT</h2>
+
+      <div class="contact-info">
+        <a class="contact-method" href="mailto:lajostomi@gmail.com">
+          <div class="contact-icon"><img src="assets/images/icons/mail.svg" alt="" width="70" height="57"></div>
+          <p class="contact-text">If you want to reach out for opportunities, collaborations, or to say hi!</p>
+        </a>
+
+        <a class="contact-method" href="https://www.linkedin.com/" target="_blank" rel="noopener">
+          <div class="contact-icon"><img src="assets/images/icons/linkedin.svg" alt="" width="64" height="64"></div>
+          <p class="contact-text">If you want to see my professional journey and insights I've gathered so far!</p>
+        </a>
+
+        <a class="contact-method" href="https://www.instagram.com/" target="_blank" rel="noopener">
+          <div class="contact-icon"><img src="assets/images/icons/instagram.svg" alt="" width="64" height="64"></div>
+          <p class="contact-text">If you want to know more about my personal life or see my amateur&nbsp; photography!</p>
+        </a>
+
+        <div class="contact-photo">
+          <img src="assets/images/photos/contact-photo.png" alt="Coffee table with a photography setup">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>
