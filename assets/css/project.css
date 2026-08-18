@@ -19,6 +19,12 @@
 }
 
 .project-section {
+  /* Cancels the global `section { padding-inline: var(--gutter) }` rule
+     from style.css (written for the landing page's top-level sections) —
+     .project-container already supplies that gutter once; without this
+     override every .project-section on this page was doubling it, over-
+     narrowing the whole 1194px column and everything laid out inside it. */
+  padding-inline: 0;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -90,22 +96,35 @@
 }
 
 /* =========================
-   Problem / Solution
+   4-column grid system
+   ---------------------------------------------------------
+   The whole page is built on one shared grid: 4 tracks, 32px
+   gutters, 1194px total (274px per track at full width). Problem/
+   Solution each span 2 tracks, photo/method rows use 1 track per
+   item. Grid (not flex-wrap) is deliberate: flex-basis + wrap
+   reflows each row at its own width threshold, so a 4-item row and
+   a 2-item row can (and did) wrap to a different column count at
+   the same viewport width, breaking the alignment between rows.
+   `repeat(4, 1fr)` never reflows on its own — every row stays in
+   lockstep down to the single explicit mobile breakpoint below.
    ========================= */
 
-.problem-solution {
-  display: flex;
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 32px;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  width: 100%;
 }
 
-.problem-solution > div {
-  flex: 1 1 274px;
-  min-width: 274px;
+.span-2 {
+  grid-column: span 2;
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+
+.span-1 {
+  grid-column: span 1;
 }
 
 .text-block {
@@ -122,14 +141,7 @@
    Photo rows (4-up, 16px radius, landscape)
    ========================= */
 
-.photo-row {
-  display: flex;
-  gap: 32px;
-  flex-wrap: wrap;
-}
-
 .photo-row > div {
-  flex: 1 1 260px;
   aspect-ratio: 274 / 265;
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -141,15 +153,7 @@
    Research methods (label + tall image)
    ========================= */
 
-.method-row {
-  display: flex;
-  gap: 32px;
-  width: 100%;
-  flex-wrap: wrap;
-}
-
 .method-item {
-  flex: 1 1 200px;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -201,9 +205,14 @@
   background: var(--color-icon-bg);
 }
 
-.insight--top { grid-column: 2; grid-row: 1; flex-direction: column-reverse; text-align: center; }
+/* Directions verified against Figma metadata (node 52:260): text-then-icon
+   in the DOM, laid out with plain row/column so text always leads (top
+   text sits above its icon, left text sits left of its icon, etc.) —
+   no flex-direction reversal, which had put a few icon/text pairs in
+   the wrong order relative to the source. */
+.insight--top { grid-column: 2; grid-row: 1; flex-direction: column; text-align: center; }
 .insight--right { grid-column: 3; grid-row: 2; flex-direction: row; text-align: left; }
-.insight--left { grid-column: 1; grid-row: 2; flex-direction: row-reverse; text-align: right; }
+.insight--left { grid-column: 1; grid-row: 2; flex-direction: row; text-align: left; }
 .insight--bottom { grid-column: 2; grid-row: 3; flex-direction: column; text-align: center; }
 
 /* =========================
@@ -213,8 +222,8 @@
 .wireframe-collage {
   position: relative;
   width: 100%;
-  max-width: 989px;
-  aspect-ratio: 989 / 773;
+  max-width: 988px;
+  aspect-ratio: 988 / 744;
   margin-inline: auto;
 }
 
@@ -235,12 +244,20 @@
   align-items: center;
   justify-content: space-between;
   gap: 32px;
-  flex-wrap: wrap;
   width: 100%;
 }
 
+/* User groups: one image, then a separately-grouped pair — the big gap
+   belongs between the solo image and the pair, not evenly split three
+   ways, so the pair is its own flex item with its own 32px internal gap. */
+.detail-image-pair {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
 .detail-image {
-  flex: 1 1 220px;
+  flex: 0 1 274px;
   aspect-ratio: 274 / 608;
   max-width: 274px;
   border-radius: 32px;
@@ -263,6 +280,7 @@
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
+  padding-inline: var(--gutter);
   padding-block: 24px;
   pointer-events: none;
 }
@@ -327,6 +345,12 @@
     text-align: left;
   }
 
+  /* 4 tracks -> 2: a span-2 block still fills a full row on its own,
+     a span-1 item now pairs up two-to-a-row instead of four. */
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .insights-grid {
     grid-template-columns: 1fr;
     justify-items: stretch;
@@ -358,16 +382,38 @@
     box-shadow: 0 3px 3px rgba(0, 0, 0, 0.25);
   }
 
+  .detail-images {
+    flex-wrap: wrap;
+  }
+
   .detail-image {
     max-width: none;
     flex-basis: 45%;
+    flex-grow: 1;
+  }
+
+  .detail-image-pair {
+    flex-basis: 100%;
+    justify-content: center;
   }
 }
 
 @media (max-width: 560px) {
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .span-2 {
+    grid-column: span 1;
+  }
+
   .detail-image {
     flex-basis: 100%;
     max-width: 320px;
+  }
+
+  .detail-image-pair {
+    flex-direction: column;
   }
 
   .project-footer {
