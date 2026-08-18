@@ -27,15 +27,16 @@
   }
 
   /* ---------- SPIN wheel ----------
-     A flat hexagonal wheel: 6 project cards each ride the midpoint of one
-     hexagon side, 60deg apart. The hexagon's centre sits below the visible
-     container, so only its top point and two adjacent sides poke through —
-     one card dead-centre at the top (the "front" slot) with its two
-     neighbours peeking in at the sides, matching the resting composition
-     from the Figma design. Spinning rotates the whole hexagon; cards sweep
-     along its straight edges with a motion-blur that fades out as the
-     wheel decelerates and settles on a randomly chosen project. Clicking
-     the "SPIN" heading itself triggers it. */
+     A flat wheel: 6 project cards sit 60deg apart around a circle/ellipse
+     — six evenly spaced points already read as a hexagon composition
+     without the cards needing to travel a hexagon's straight edges. The
+     wheel's centre sits below the visible container, so only its top arc
+     pokes through — one card dead-centre at the top (the "front" slot)
+     with its two neighbours peeking in at the sides, matching the resting
+     composition from the Figma design. Spinning rotates the whole wheel;
+     cards sweep smoothly along that arc with a motion-blur that fades out
+     as the wheel decelerates and settles on a randomly chosen project.
+     Clicking the "SPIN" heading itself triggers it. */
 
   const spinTrigger = document.getElementById('spinTrigger');
   const wheel = document.getElementById('wheel');
@@ -46,13 +47,16 @@
     const cards = Array.from(wheel.querySelectorAll('.wheel-card'));
     const baseAngle = cards.map((card) => Number(card.dataset.angle) || 0);
 
-    // Apothem radii (centre-to-edge distance). The vertical radius is
+    // Apothem radii (centre-to-edge distance): six cards spaced 60deg
+    // apart already reads as a hexagon by virtue of their count, so the
+    // path each card actually travels stays a smooth circle/ellipse —
+    // no polygon bulge, which was introducing a kink (and a visible
+    // "jump") at every card's resting angle. The vertical radius is
     // pulled deeper than the original Figma coordinates so the arc reads
     // as a proper round curve (front card at the top, side neighbours
-    // dipping well below it); the horizontal radius is pulled in slightly
-    // so a card's rotated corners never poke past the container's edges.
-    const RX = 38; // horizontal apothem, in % of container width
-    const RY = 95; // vertical apothem, in % of container height
+    // dipping well below it).
+    const RX = 43; // horizontal radius, in % of the stage's width
+    const RY = 95; // vertical radius, in % of the stage's height
 
     let currentRotation = 0; // accumulated wheel rotation, degrees
     let spinning = false;
@@ -64,23 +68,12 @@
       return a > 180 ? a - 360 : a;
     }
 
-    // Polar equation of a regular hexagon (relative to its apothem = 1):
-    // the boundary sits at r=1 at each side's midpoint and bulges out to
-    // r=1/cos(30deg) at each vertex. Walking `angle` through a full turn
-    // therefore traces the hexagon's straight edges instead of a circle.
-    function hexRadius(angleDeg) {
-      const nearestSide = Math.round(angleDeg / 60) * 60;
-      const delta = angleDeg - nearestSide;
-      return 1 / Math.cos(toRad(delta));
-    }
-
     function applyFrame(rotation, blurPx) {
       cards.forEach((card, i) => {
         const angle = signedAngle(baseAngle[i] + rotation);
         const rad = toRad(angle);
-        const r = hexRadius(angle);
-        const x = 50 + RX * r * Math.sin(rad);
-        const y = RY * (1 - r * Math.cos(rad));
+        const x = 50 + RX * Math.sin(rad);
+        const y = RY * (1 - Math.cos(rad));
         const opacity = Math.pow(Math.max(0, Math.cos(rad / 2)), 0.4);
 
         card.style.setProperty('--x', x.toFixed(2) + '%');

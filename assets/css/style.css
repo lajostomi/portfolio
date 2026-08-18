@@ -182,12 +182,23 @@ section {
   50% { transform: translateY(6px); }
 }
 
+/* The container bleeds edge-to-edge so there's always dead space around
+   the design-width stage for a rotated card's corners to swing into
+   before the true clip boundary — the stage below keeps the original
+   1191px composition untouched. */
 .wheel-container {
   position: relative;
-  width: 100%;
-  max-width: 1191px;
-  aspect-ratio: 1191 / 517;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   overflow: hidden;
+}
+
+.wheel-stage {
+  position: relative;
+  width: calc(100vw - 48px);
+  max-width: 1191px;
+  margin-inline: auto;
+  aspect-ratio: 1191 / 517;
 }
 
 .wheel {
@@ -447,8 +458,6 @@ section {
   }
 
   .spin-subtitle { font-size: 16px; }
-
-  .wheel-container { max-width: 92vw; }
 
   .contact-info {
     grid-template-columns: 1fr;
