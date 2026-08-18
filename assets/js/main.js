@@ -41,11 +41,28 @@
   const spinTrigger = document.getElementById('spinTrigger');
   const wheel = document.getElementById('wheel');
   const wheelContainer = wheel ? wheel.closest('.wheel-container') : null;
+  const wheelStage = wheel ? wheel.closest('.wheel-stage') : null;
   const spinSubtitle = document.getElementById('spinSubtitle');
 
   if (spinTrigger && wheel && wheelContainer) {
     const cards = Array.from(wheel.querySelectorAll('.wheel-card'));
     const baseAngle = cards.map((card) => Number(card.dataset.angle) || 0);
+
+    // Card corner radius in the Figma design is a fixed 16px against a
+    // 306px-wide card (~5.23%). A flat 16px doesn't scale down with the
+    // card on small screens and starts looking like a pill instead of a
+    // rounded rectangle, so recompute it from the stage's real rendered
+    // width whenever it changes, keeping the same proportion at every size.
+    function updateCardRadius() {
+      if (!wheelStage) return;
+      const stageWidth = wheelStage.getBoundingClientRect().width;
+      if (!stageWidth) return;
+      const radius = stageWidth * 0.257 * (16 / 306);
+      wheel.style.setProperty('--wheel-card-radius', radius.toFixed(2) + 'px');
+    }
+
+    updateCardRadius();
+    window.addEventListener('resize', updateCardRadius);
 
     // Apothem radii (centre-to-edge distance): six cards spaced 60deg
     // apart already reads as a hexagon by virtue of their count, so the
