@@ -133,6 +133,12 @@
   gap: 24px;
   font-size: 16px;
   line-height: 1.5;
+  /* Figma caps every one of these paragraph blocks at 581px, the same
+     column width as the Problem/Solution copy — without this, a section
+     like "Additional features" (whose text sits in a plain, unconstrained
+     wrapper) stretches its body copy across the full page instead of
+     stopping at roughly half of it. */
+  max-width: 581px;
 }
 
 .text-block strong { font-weight: 700; }
@@ -191,7 +197,7 @@
 .insight {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
   max-width: 274px;
   font-size: 16px;
   line-height: 1.5;
