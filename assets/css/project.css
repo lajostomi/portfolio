@@ -233,12 +233,15 @@
   margin-inline: auto;
 }
 
+/* Each photo is exported pre-rotated and pre-cropped straight from
+   Figma (its tilt, transparent margin and drop shadow already baked
+   in) — sized and positioned per-image via inline left/top/width/height
+   rather than a single shared rule, since every card's rotated
+   bounding box is a different size. No CSS transform here: rotating
+   an already-rotated image was what made the sketches face the wrong
+   way in the frame. */
 .wireframe-collage img {
   position: absolute;
-  width: 32.3%;
-  aspect-ratio: 319 / 219;
-  object-fit: cover;
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.25);
 }
 
 /* =========================
@@ -383,9 +386,8 @@
 
   .wireframe-collage img {
     position: static;
-    width: 100%;
-    transform: none !important;
-    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.25);
+    width: 100% !important;
+    height: auto !important;
   }
 
   .detail-images {
