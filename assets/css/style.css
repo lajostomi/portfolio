@@ -142,11 +142,27 @@ section {
   text-align: center;
 }
 
+.spin-title-wrap {
+  margin: 0;
+  line-height: 1;
+}
+
 .spin-title {
   margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
   font-weight: 500;
   font-size: clamp(56px, 12vw, 128px);
   line-height: 1;
+  cursor: pointer;
+}
+
+.spin-title:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .spin-subtitle {
@@ -155,17 +171,11 @@ section {
   white-space: pre-wrap;
 }
 
-.spin-trigger {
-  background: none;
-  border: none;
-  padding: 4px;
+.spin-arrow {
   display: flex;
   color: var(--color-text);
   animation: bob 2s ease-in-out infinite;
 }
-
-.spin-trigger:hover,
-.spin-trigger:focus-visible { opacity: 0.75; }
 
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
@@ -214,12 +224,6 @@ section {
 
 .wheel-container.is-spinning .wheel-card {
   pointer-events: none;
-}
-
-.spin-trigger[disabled] {
-  opacity: 0.5;
-  cursor: default;
-  animation: none;
 }
 
 .wheel-fade {
