@@ -167,8 +167,13 @@
       const name = frontCard.dataset.name || frontCard.dataset.slug;
       if (spinSubtitle) spinSubtitle.textContent = 'landed on ' + name;
 
-      // TODO: once each project has its own case-study page, navigate
-      // straight there instead: window.location.href = frontCard.href;
+      // Give the "landed on …" text a beat to register before leaving
+      // the page for the chosen project's case study.
+      if (frontCard.href) {
+        window.setTimeout(() => {
+          window.location.href = frontCard.href;
+        }, 700);
+      }
     }
 
     spinTrigger.addEventListener('click', spin);
