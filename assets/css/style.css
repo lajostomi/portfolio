@@ -187,16 +187,18 @@ section {
 
 .wheel-card {
   position: absolute;
-  left: var(--x);
-  top: var(--y);
+  left: var(--x, 50%);
+  top: var(--y, 0%);
   width: 25.7%;
   aspect-ratio: 306 / 172;
-  transform: translate(-50%, 0) rotate(var(--rot));
+  transform: translate(-50%, 0) rotate(var(--rot, 0deg));
   border-radius: var(--radius-lg);
   overflow: hidden;
   display: block;
   box-shadow: 0 20px 40px rgba(0,0,0,0.35);
-  transition: filter 0.2s ease;
+  opacity: var(--op, 1);
+  filter: blur(var(--blur, 0px));
+  will-change: left, top, transform, filter;
 }
 
 .wheel-card img {
@@ -207,11 +209,17 @@ section {
 
 .wheel-card:hover,
 .wheel-card:focus-visible {
-  filter: brightness(1.08);
+  filter: blur(var(--blur, 0px)) brightness(1.08);
 }
 
-.wheel.is-spinning .wheel-card {
-  transition: left 0.9s cubic-bezier(.2,.9,.25,1), top 0.9s cubic-bezier(.2,.9,.25,1), transform 0.9s cubic-bezier(.2,.9,.25,1);
+.wheel-container.is-spinning .wheel-card {
+  pointer-events: none;
+}
+
+.spin-trigger[disabled] {
+  opacity: 0.5;
+  cursor: default;
+  animation: none;
 }
 
 .wheel-fade {
@@ -219,8 +227,8 @@ section {
   left: 0;
   right: 0;
   bottom: -1px;
-  height: 36%;
-  background: linear-gradient(to bottom, rgba(26,24,24,0) 0%, var(--color-bg) 85%);
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(26,24,24,0) 0%, var(--color-bg) 55%);
   pointer-events: none;
 }
 

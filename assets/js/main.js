@@ -26,81 +26,124 @@
     });
   }
 
-  /* ---------- SPIN wheel ---------- */
+  /* ---------- SPIN wheel ----------
+     A flat "roulette" wheel: 6 project cards sit on the rim of a circle,
+     60deg apart. The circle's centre sits below the visible container, so
+     only the top arc pokes through — one card dead-centre at the top
+     (the "front" slot) with its two neighbours peeking in at the sides,
+     matching the resting composition from the Figma design. Spinning
+     rotates the whole wheel; cards sweep through the visible arc with a
+     motion-blur that fades out as the wheel decelerates and settles on a
+     randomly chosen project. */
+
   const spinTrigger = document.getElementById('spinTrigger');
   const wheel = document.getElementById('wheel');
+  const wheelContainer = wheel ? wheel.closest('.wheel-container') : null;
+  const spinSubtitle = document.getElementById('spinSubtitle');
+  const IDLE_TEXT = 'land on a  random project';
 
-  if (spinTrigger && wheel) {
+  if (spinTrigger && wheel && wheelContainer) {
     const cards = Array.from(wheel.querySelectorAll('.wheel-card'));
+    const baseAngle = cards.map((card) => Number(card.dataset.angle) || 0);
 
-    // Capture each card's resting slot (position + rotation) so we can
-    // shuffle images between slots instead of physically moving elements.
-    const slots = cards.map((card) => ({
-      x: card.style.getPropertyValue('--x'),
-      y: card.style.getPropertyValue('--y'),
-      rot: card.style.getPropertyValue('--rot'),
-    }));
+    // Radii tuned to reproduce the original Figma resting coordinates:
+    // front card at (50%, 0%), side neighbours at (~12.8/87.4%, ~32%).
+    const RX = 43;   // horizontal radius, in % of container width
+    const RY = 64.2; // vertical radius, in % of container height
 
+    let currentRotation = 0; // accumulated wheel rotation, degrees
     let spinning = false;
 
-    function shuffle(array) {
-      const a = array.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
+    function toRad(deg) { return (deg * Math.PI) / 180; }
+
+    function signedAngle(deg) {
+      const a = ((deg % 360) + 360) % 360;
+      return a > 180 ? a - 360 : a;
     }
 
-    spinTrigger.addEventListener('click', () => {
+    function applyFrame(rotation, blurPx) {
+      cards.forEach((card, i) => {
+        const angle = signedAngle(baseAngle[i] + rotation);
+        const rad = toRad(angle);
+        const x = 50 + RX * Math.sin(rad);
+        const y = RY * (1 - Math.cos(rad));
+        const opacity = Math.pow(Math.max(0, Math.cos(rad / 2)), 0.4);
+
+        card.style.setProperty('--x', x.toFixed(2) + '%');
+        card.style.setProperty('--y', y.toFixed(2) + '%');
+        card.style.setProperty('--rot', angle.toFixed(2) + 'deg');
+        card.style.setProperty('--op', opacity.toFixed(3));
+        card.style.setProperty('--blur', blurPx.toFixed(2) + 'px');
+      });
+    }
+
+    // Initial resting layout (equivalent to rotation = 0).
+    applyFrame(currentRotation, 0);
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeOutCubicDerivative(t) { return 3 * Math.pow(1 - t, 2); }
+
+    function spin() {
       if (spinning) return;
       spinning = true;
-      wheel.classList.add('is-spinning');
+      spinTrigger.setAttribute('disabled', 'true');
+      wheelContainer.classList.add('is-spinning');
+      if (spinSubtitle) spinSubtitle.textContent = 'spinning…';
 
-      const order = shuffle(cards);
+      const targetIndex = Math.floor(Math.random() * cards.length);
+      const extraSpins = 4 + Math.floor(Math.random() * 3); // 4–6 full turns
+      const wrap = (((-baseAngle[targetIndex] - currentRotation) % 360) + 360) % 360;
+      const startRotation = currentRotation;
+      const deltaRotation = extraSpins * 360 + wrap;
+      const targetRotation = startRotation + deltaRotation;
 
-      // A couple of quick shuffles to sell the "spin", then a final
-      // settle where the randomly chosen project lands in the front slot.
-      let step = 0;
-      const totalSteps = 3;
+      const duration = 3200; // ms
+      const maxBlur = 9; // px
+      const start = performance.now();
 
-      const runStep = () => {
-        const arrangement = step === totalSteps - 1 ? order : shuffle(cards);
-        arrangement.forEach((card, i) => {
-          card.style.setProperty('--x', slots[i].x);
-          card.style.setProperty('--y', slots[i].y);
-          card.style.setProperty('--rot', slots[i].rot);
-          card.classList.toggle('is-front', i === 4); // slot-5 is the front slot
-        });
+      function tick(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = easeOutCubic(t);
+        const rotation = startRotation + deltaRotation * eased;
 
-        step += 1;
-        if (step < totalSteps) {
-          setTimeout(runStep, 260);
+        // Analytic angular speed from the easing derivative, used to
+        // drive a motion-blur that's strongest mid-spin and fades to
+        // zero as the wheel settles.
+        const speed = (deltaRotation * easeOutCubicDerivative(t)) / (duration / 1000);
+        const blurPx = Math.min(maxBlur, Math.abs(speed) / 260);
+
+        applyFrame(rotation, t < 1 ? blurPx : 0);
+
+        if (t < 1) {
+          requestAnimationFrame(tick);
         } else {
-          setTimeout(() => {
-            wheel.classList.remove('is-spinning');
-            spinning = false;
-            landOnFrontProject();
-          }, 900);
+          currentRotation = signedAngle(targetRotation);
+          spinning = false;
+          spinTrigger.removeAttribute('disabled');
+          wheelContainer.classList.remove('is-spinning');
+          land(cards[targetIndex]);
         }
-      };
+      }
 
-      runStep();
-    });
+      requestAnimationFrame(tick);
+    }
 
-    function landOnFrontProject() {
-      const front = wheel.querySelector('.wheel-card.is-front') || cards[4];
-      const slug = front.dataset.slug;
+    function land(frontCard) {
+      const slug = frontCard.dataset.slug;
+      const name = frontCard.dataset.name || slug;
+
+      if (spinSubtitle) spinSubtitle.textContent = 'landed on ' + name;
+
       if (!slug) return;
-
       const match = document.querySelector('.project-card[data-slug="' + slug + '"]');
       if (match) {
         match.scrollIntoView({ behavior: 'smooth', block: 'center' });
         match.classList.remove('is-landed');
-        // restart animation
-        void match.offsetWidth;
+        void match.offsetWidth; // restart animation
         match.classList.add('is-landed');
       }
     }
+
+    spinTrigger.addEventListener('click', spin);
   }
 })();
