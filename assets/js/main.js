@@ -53,16 +53,22 @@
     // card on small screens and starts looking like a pill instead of a
     // rounded rectangle, so recompute it from the stage's real rendered
     // width whenever it changes, keeping the same proportion at every size.
-    function updateCardRadius() {
+    //
+    // The stage also gets a small top margin here: near the front slot a
+    // rotated card's corners briefly swing above y=0 mid-spin (worst case
+    // is ~4% of the stage's width, around a 10-15deg tilt), which the
+    // container's top edge would otherwise clip.
+    function updateWheelMetrics() {
       if (!wheelStage) return;
       const stageWidth = wheelStage.getBoundingClientRect().width;
       if (!stageWidth) return;
       const radius = stageWidth * 0.257 * (16 / 306);
       wheel.style.setProperty('--wheel-card-radius', radius.toFixed(2) + 'px');
+      wheelStage.style.marginTop = (stageWidth * 0.045).toFixed(2) + 'px';
     }
 
-    updateCardRadius();
-    window.addEventListener('resize', updateCardRadius);
+    updateWheelMetrics();
+    window.addEventListener('resize', updateWheelMetrics);
 
     // Apothem radii (centre-to-edge distance): six cards spaced 60deg
     // apart already reads as a hexagon by virtue of their count, so the

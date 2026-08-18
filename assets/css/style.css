@@ -200,6 +200,12 @@ section {
   width: 100%;
   max-width: 1191px;
   margin-inline: auto;
+  /* Extra headroom above the design's own 1191x517 box: mid-spin, a
+     card near the front slot is rotated just enough that its corners
+     swing above y=0 before easing back to flat — margin-top (set by
+     JS, scaled with the stage) gives that swing somewhere to go instead
+     of being clipped by the container's top edge. */
+  margin-top: 0px;
   aspect-ratio: 1191 / 517;
 }
 
@@ -239,12 +245,15 @@ section {
   pointer-events: none;
 }
 
+/* Starts inside the two visible side cards (which sit at ~47.5%-80.8%
+   of the stage) so roughly their bottom quarter fades out softly
+   instead of being cut off hard by the container's clip edge. */
 .wheel-fade {
   position: absolute;
   left: 0;
   right: 0;
   bottom: -1px;
-  height: 40%;
+  height: 34%;
   background: linear-gradient(to bottom, rgba(26,24,24,0) 0%, var(--color-bg) 55%);
   pointer-events: none;
 }
