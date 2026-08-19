@@ -219,6 +219,15 @@
   background: rgba(237, 229, 229, 0.2);
 }
 
+/* Mercedes Aura's Problem gallery: same translucent wash, but no dark
+   backing box underneath (the source photo already fills the frame). */
+.gallery-wash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+}
+
 /* A gallery row can mix span-2 and span-1 cells in the same .grid-4 row
    (Project TEVE's Problem/Context/User-journey galleries: 581+274+274 or
    581+581) — span-1 keeps the 274/265 ratio above, span-2 needs its own
@@ -243,6 +252,7 @@
 }
 
 .method-item .method-image {
+  position: relative;
   width: 100%;
   aspect-ratio: 274 / 580;
   border-radius: var(--radius-lg);
@@ -462,6 +472,11 @@
   font-weight: 500;
 }
 
+/* Mercedes Aura's step labels are 16px, not TEVE's 20px. */
+.step-item--sm p {
+  font-size: 16px;
+}
+
 .step-image {
   width: 100%;
   aspect-ratio: 274 / 580;
@@ -543,6 +558,81 @@
   font-size: 16px;
   line-height: 1.5;
 }
+
+/* =========================
+   3-up object grid (Mercedes Aura: collected pinecone cards)
+   ========================= */
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  width: 100%;
+}
+
+.object-card {
+  aspect-ratio: 376 / 502;
+  border-radius: 26px;
+  overflow: hidden;
+}
+
+.object-card img { width: 100%; height: 100%; object-fit: cover; }
+
+/* =========================
+   Prototyping collage (Mercedes Aura: 1 tall image + 2 stacked pairs)
+   ========================= */
+
+.tall-image {
+  width: 100%;
+  aspect-ratio: 274 / 562;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.tall-image img { width: 100%; height: 100%; object-fit: cover; }
+
+.stacked-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  height: 100%;
+}
+
+.stacked-pair > div {
+  position: relative;
+  flex: 1 1 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.stacked-pair img { width: 100%; height: 100%; object-fit: cover; }
+
+/* =========================
+   Live demo row (274px image + 887px image, both 580 tall)
+   ========================= */
+
+.livedemo-row {
+  display: flex;
+  gap: 32px;
+  width: 100%;
+}
+
+.livedemo-row .step-image {
+  flex: 0 0 274px;
+  max-width: 274px;
+}
+
+.livedemo-image-lg {
+  flex: 1 1 auto;
+  min-width: 0;
+  aspect-ratio: 887 / 580;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.livedemo-image-lg img { width: 100%; height: 100%; object-fit: cover; }
 
 /* =========================
    Sticky footer — no background bar, buttons float on their own
@@ -708,6 +798,22 @@
     flex-basis: auto;
     width: 100%;
   }
+
+  /* Mercedes Aura: 3-up pinecone grid -> 2-up, live-demo row stacks
+     with the small image swapping its fixed 274px width for full-width
+     (its aspect-ratio keeps the shape correct at any width). */
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .livedemo-row {
+    flex-direction: column;
+  }
+
+  .livedemo-row .step-image {
+    flex-basis: auto;
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 560px) {
@@ -717,6 +823,10 @@
 
   .span-2 {
     grid-column: span 1;
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr;
   }
 
   .detail-image {

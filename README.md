@@ -24,8 +24,10 @@ assets/images/about/             About page's own images (profile + 4 photo grid
 assets/documents/                Drop the real resume PDF here as lajos-tamas-jakab-resume.pdf — the
                                   About page's DOWNLOAD RESUME button already points at this exact path
 
-projects/hachi-mobile-app.html   ✅ built (next project -> mercedes-aura.html, not built yet)
-projects/mercedes-aura.html      ❌ not built yet
+projects/hachi-mobile-app.html   ✅ built. Next project -> mercedes-aura.html
+projects/mercedes-aura.html      ✅ built — full case study (research grid, magnifying-glass step row,
+                                  transformation gallery, 3-up object cards, prototyping collage, live
+                                  demo row). Next project -> fall-of-cozy-web.html, not built yet
 projects/fall-of-cozy-web.html   ❌ not built yet
 projects/mome-ulp.html           ❌ not built yet
 projects/under-nda-banking.html  ✅ built — minimal page (NDA'd project): hero + meta + footer only,
@@ -49,7 +51,13 @@ Hachi's "NEXT PROJECT" pill) and will 404 until each page is built — that's ex
       (274px text column + image, used 3x), `.crop-img` (explicit Figma inset-% crops for source photos
       that aren't simple center-crops), `.feature-row`/`.step-item`/`.footer-detail-row`/`.feedback-row`
       for the page's other one-off layouts
-- [ ] 3 remaining project pages: Mercedes Aura, The Fall of Cozy Web, MOME ULP
+- [x] Mercedes Aura project page — reused `.media-row`/`.crop-img`/`.step-item` from TEVE, added
+      `.gallery-wash` (light-only overlay variant of `.gallery-tinted`), `.grid-3`/`.object-card` (3-up
+      pinecone cards), `.tall-image`/`.stacked-pair` (prototyping collage), `.livedemo-row`. Several
+      source photos were real phone photos with EXIF orientation tags that PowerShell's System.Drawing
+      doesn't auto-rotate — see the Environment gotchas section below before batch-converting photos
+      again.
+- [ ] 2 remaining project pages: The Fall of Cozy Web, MOME ULP
 
 ## Landing page notes
 
@@ -136,6 +144,15 @@ explain the *why* behind several non-obvious decisions, most of which came from 
 - Full-bleed/edge-to-edge CSS tricks must use a percentage of the parent (e.g.
   `calc(100% + 2*var(--gutter))` / `margin-inline:calc(-1*var(--gutter))`), never `100vw` — `100vw`
   ignores scrollbar width and silently miscenters the element.
+- When batch-resizing/re-encoding Figma photo exports with PowerShell's `System.Drawing`
+  (`[System.Drawing.Image]::FromFile`), check for an EXIF orientation tag (property id `274`) and apply
+  the matching `RotateFlip` **before** resizing — `System.Drawing` loads the raw pixel buffer as-is and
+  does *not* auto-rotate it the way browsers/Figma do, so real phone photos with that tag silently come
+  out sideways once re-saved (this happened to 6 of Mercedes Aura's research/prototyping photos — caught
+  by eyeballing the downloaded files with Read, not by the geometry checks, since crop-img percentages
+  stay numerically valid either way). 3D-rendered images (no camera EXIF) are unaffected. Deleting the
+  raw PNGs before checking for this loses the fix option — re-download from the original Figma asset URL
+  (still valid for ~7 days) if it's already too late.
 
 ## User's working style (for continuity)
 
