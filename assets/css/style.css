@@ -38,6 +38,13 @@ body {
 
 img { max-width: 100%; display: block; }
 
+/* Every paragraph's spacing is set deliberately via an explicit `gap`
+   on its flex container — the browser's default ~1em p margin doesn't
+   collapse inside a flex container the way it would in normal block
+   flow, so left alone it stacks on top of that gap and produces
+   inconsistent spacing between adjacent text blocks. */
+p { margin: 0; }
+
 a {
   color: inherit;
   text-decoration: none;
