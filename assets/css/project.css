@@ -324,12 +324,25 @@
 /* =========================
    Wireframe grid
    ---------------------------------------------------------
-   Replaced the earlier rotated paper-sketch collage (kept below, in
-   case a future page wants that treatment again) — the Hachi Wireframes
-   section now uses 6 flat scan photos in a plain 3-col/2-row grid, no
-   rotation, no border-radius (sharp corners, unlike every other image
-   on the site — verified against the Figma node, which has no
+   Replaced the earlier rotated paper-sketch collage — the Hachi
+   Wireframes section now uses 6 flat scan photos in a plain 3-col/2-row
+   grid, no border-radius (sharp corners, unlike every other image on
+   the site — verified against the Figma node, which has no
    rounded-corner class on these cells).
+
+   5 of the 6 source photos (wireframe-1 through -5) were shot/scanned
+   with the camera rotated 90° relative to the page — each raw file is
+   a tall portrait photo of 3 phone mockups stacked vertically, every
+   mockup individually drawn sideways on the paper. Matching Figma's
+   render needed the actual image FILES rotated 90° left (counter-
+   clockwise) so the mockups read left-to-right upright, same fix
+   applied at the asset level as the EXIF-orientation photos elsewhere
+   on the site (see README's Environment gotchas) — not a CSS
+   transform: a plain rotate() on an already object-fit:cover'd image
+   clips against the non-square frame, and there's no clean box-relative
+   way to pre-rotate a cover-fit crop without duplicating the image at
+   a second orientation. wireframe-6 (the matchmaking diagram) was
+   already landscape and needed no rotation.
    ========================= */
 
 .wireframe-grid {
