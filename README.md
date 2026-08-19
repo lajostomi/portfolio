@@ -24,11 +24,12 @@ assets/images/about/             About page's own images (profile + 4 photo grid
 assets/documents/                Drop the real resume PDF here as lajos-tamas-jakab-resume.pdf — the
                                   About page's DOWNLOAD RESUME button already points at this exact path
 
-projects/hachi-mobile-app.html   ✅ built
-projects/mercedes-aura.html      ❌ not built yet (linked from WORK grid + Hachi's "next project")
+projects/hachi-mobile-app.html   ✅ built (next project -> mercedes-aura.html, not built yet)
+projects/mercedes-aura.html      ❌ not built yet
 projects/fall-of-cozy-web.html   ❌ not built yet
 projects/mome-ulp.html           ❌ not built yet
-projects/under-nda-banking.html  ❌ not built yet
+projects/under-nda-banking.html  ✅ built — minimal page (NDA'd project): hero + meta + footer only,
+                                  no content sections. Next project -> project-teve.html, not built yet
 projects/project-teve.html       ❌ not built yet
 ```
 
@@ -41,8 +42,8 @@ Hachi's "NEXT PROJECT" pill) and will 404 until each page is built — that's ex
 - [x] Hachi Mobile App project page
 - [x] About page — profile intro + 4 photo grids + DOWNLOAD RESUME button (needs the actual PDF dropped
       into assets/documents/ before it'll download anything real)
-- [ ] 5 remaining project pages: Mercedes Aura, The Fall of Cozy Web, MOME ULP,
-      Under NDA: Beyond Banking, Project TEVE
+- [x] Under NDA: Beyond Banking Product project page — minimal (hero + meta + footer only)
+- [ ] 4 remaining project pages: Mercedes Aura, The Fall of Cozy Web, MOME ULP, Project TEVE
 
 ## Landing page notes
 
