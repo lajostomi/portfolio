@@ -8,17 +8,21 @@ Figma file: https://www.figma.com/design/BYzOswHghAAaQSCUNqVSwp/Portfolio_websit
 
 ```
 index.html                      Landing page (SPIN hero, WORK grid, CONTACT)
-about.html                       About page — NOT YET BUILT (Figma design not sent yet)
+about.html                       About page — ✅ built
 
 assets/css/style.css             Global tokens/reset + landing page styles
-assets/css/project.css           Shared styles for ALL project case-study pages
-assets/js/main.js                Mobile nav + SPIN wheel + (loaded on project pages too, no-ops safely there)
+assets/css/project.css           Shared styles for ALL project case-study pages (4-col grid, text-block, etc.)
+assets/css/about.css             About page's own styles — reuses project.css's grid-4/span-* classes
+assets/js/main.js                Mobile nav + SPIN wheel + (loaded on project/about pages too, no-ops safely there)
 
 assets/images/projects/          6 WORK-grid thumbnail images (landing page + SPIN wheel)
 assets/images/icons/             arrow-down, arrow-up-right, mail, linkedin, instagram, close, eye,
-                                  notification-message
+                                  notification-message, file-download
 assets/images/photos/            personal contact photo
 assets/images/hachi/             Hachi project's own images (hero, galleries, wireframes, etc.)
+assets/images/about/             About page's own images (profile + 4 photo grids)
+assets/documents/                Drop the real resume PDF here as lajos-tamas-jakab-resume.pdf — the
+                                  About page's DOWNLOAD RESUME button already points at this exact path
 
 projects/hachi-mobile-app.html   ✅ built
 projects/mercedes-aura.html      ❌ not built yet (linked from WORK grid + Hachi's "next project")
@@ -35,7 +39,8 @@ Hachi's "NEXT PROJECT" pill) and will 404 until each page is built — that's ex
 
 - [x] Landing page — SPIN hero, WORK grid (6 projects), CONTACT section, responsive nav
 - [x] Hachi Mobile App project page
-- [ ] About page (waiting on Figma design)
+- [x] About page — profile intro + 4 photo grids + DOWNLOAD RESUME button (needs the actual PDF dropped
+      into assets/documents/ before it'll download anything real)
 - [ ] 5 remaining project pages: Mercedes Aura, The Fall of Cozy Web, MOME ULP,
       Under NDA: Beyond Banking, Project TEVE
 
