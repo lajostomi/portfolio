@@ -28,7 +28,10 @@ projects/hachi-mobile-app.html   ✅ built. Next project -> mercedes-aura.html
 projects/mercedes-aura.html      ✅ built — full case study (research grid, magnifying-glass step row,
                                   transformation gallery, 3-up object cards, prototyping collage, live
                                   demo row). Next project -> fall-of-cozy-web.html, not built yet
-projects/fall-of-cozy-web.html   ❌ not built yet
+projects/fall-of-cozy-web.html   ✅ built — full case study (framed concept diagram, story row with
+                                  colored-border screen trio, 9-frame filmstrip, colored-border footer
+                                  galleries, cropped setup photos). Next project -> mome-ulp.html, not
+                                  built yet
 projects/mome-ulp.html           ❌ not built yet
 projects/under-nda-banking.html  ✅ built — minimal page (NDA'd project): hero + meta + footer only,
                                   no content sections. Next project -> project-teve.html
@@ -57,7 +60,17 @@ Hachi's "NEXT PROJECT" pill) and will 404 until each page is built — that's ex
       source photos were real phone photos with EXIF orientation tags that PowerShell's System.Drawing
       doesn't auto-rotate — see the Environment gotchas section below before batch-converting photos
       again.
-- [ ] 2 remaining project pages: The Fall of Cozy Web, MOME ULP
+- [x] The Fall of Cozy Web project page — reused `.media-row`/`.crop-img`/`.detail-images`/`.step-item`
+      from earlier pages, added `.media-row-image--framed` (white-backed, object-fit:contain, for a
+      diagram that must stay fully visible rather than cropped) and `.filmstrip` (9 narrow gameplay
+      frames in a row). `.detail-image` got a `--detail-aspect` custom property (was hardcoded to
+      Hachi's 274/608) and a real bug fix: it was sized via `flex-basis` through the `flex` shorthand,
+      which only means "width" in a row-direction flex parent — nesting it inside `.step-item` (column
+      direction, for this page's label-above-image layout) silently sized its *height* instead,
+      collapsing the aspect-ratio to a square. Fixed with a plain `width` property instead (axis-
+      independent) — verified both this page's 274×580 usage and Hachi's original 274×608 row usage
+      still measure correctly.
+- [ ] 1 remaining project page: MOME ULP
 
 ## Landing page notes
 

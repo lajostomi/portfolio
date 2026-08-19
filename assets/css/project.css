@@ -360,6 +360,25 @@
 .wireframe-grid img { width: 100%; height: 100%; object-fit: cover; }
 
 /* =========================
+   Filmstrip (The Fall of Cozy Web: 9 narrow gameplay frames in a row)
+   ========================= */
+
+.filmstrip {
+  display: flex;
+  gap: 32px;
+  width: 100%;
+}
+
+.filmstrip > div {
+  flex: 1 1 0;
+  aspect-ratio: 104 / 220;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.filmstrip img { width: 100%; height: 100%; object-fit: cover; }
+
+/* =========================
    Bordered detail rows (user groups / matchmaking / places / features)
    ========================= */
 
@@ -381,15 +400,34 @@
 }
 
 .detail-image {
-  flex: 0 1 274px;
-  aspect-ratio: 274 / 608;
+  /* A plain `width` (not `flex-basis`, via the `flex` shorthand) on
+     purpose: flex-basis only means "width" inside a ROW-direction flex
+     parent. The Fall of Cozy Web nests .detail-image inside .step-item
+     (a COLUMN container, for the label-above-image layout further
+     down) where flex-basis would size the main axis — i.e. height —
+     instead, silently fighting the aspect-ratio below and collapsing
+     it to a square. `width` is axis-independent and still gives
+     .detail-images (a row container) the same 274px sizing it needs,
+     since flex-basis:auto (the default) falls back to `width` anyway. */
+  width: 274px;
   max-width: 274px;
+  flex-shrink: 1;
+  /* Defaults to Hachi's 274/608 profile-card ratio; The Fall of Cozy
+     Web's game-screen rows are 274/580 instead — set inline via
+     `style="--detail-aspect:274/580"` rather than a whole new class. */
+  aspect-ratio: var(--detail-aspect, 274 / 608);
   border-radius: 32px;
   border: 4px solid var(--border-color, var(--color-text));
   overflow: hidden;
 }
 
 .detail-image img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Some rows (e.g. a game's plain "Starting screen", no player color
+   assigned yet) have no border at all. */
+.detail-image--no-border {
+  border: none;
+}
 
 /* =========================
    Media row (274px text column + 887px image, 562px tall)
@@ -443,6 +481,15 @@
 
 .media-row-image img,
 .media-row-image video { width: 100%; height: 100%; object-fit: cover; }
+
+/* The Fall of Cozy Web's "The concept" diagram is a white-background
+   illustration that needs to stay fully visible (letterboxed), not
+   cropped — object-fit:contain on a white backing instead of cover. */
+.media-row-image--framed {
+  background: #ffffff;
+}
+
+.media-row-image--framed img { object-fit: contain; }
 
 /* Some media-row images are cropped/zoomed via explicit inset percentages
    from Figma rather than a plain center-crop — see .crop-img below. */
@@ -839,6 +886,16 @@
     flex-basis: auto;
     max-width: 100%;
   }
+
+  /* The Fall of Cozy Web: 9-frame filmstrip wraps to 3 rows of 3 instead
+     of squeezing every frame to a sliver at narrower widths. */
+  .filmstrip {
+    flex-wrap: wrap;
+  }
+
+  .filmstrip > div {
+    flex: 1 1 calc(33.333% - 22px);
+  }
 }
 
 @media (max-width: 560px) {
@@ -856,6 +913,10 @@
 
   .wireframe-grid {
     grid-template-columns: 1fr;
+  }
+
+  .filmstrip > div {
+    flex: 1 1 calc(50% - 16px);
   }
 
   .detail-image {
