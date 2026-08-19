@@ -784,6 +784,407 @@
 .footer-pill img { display: block; }
 
 /* =========================
+   Method header (heading + right-aligned "method: X" label)
+   ---------------------------------------------------------
+   Repeats throughout MOME ULP: every research-method section opens
+   with a 581px heading on the left and a 581px right-aligned method
+   tag on the right, same 32px gap as everywhere else on the page.
+   ========================= */
+
+.method-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.method-header h2 {
+  margin: 0;
+  flex: 1 1 581px;
+  max-width: 100%;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.method-header .method-label {
+  margin: 0;
+  flex: 1 1 581px;
+  max-width: 100%;
+  font-size: 16px;
+  text-align: right;
+}
+
+/* =========================
+   MOME ULP: findings clusters (Communication / Student approach /
+   App issues / Student ideas — 4 uneven-width columns)
+   ========================= */
+
+.findings-grid {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.finding-category {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.finding-category h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.finding-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Communication is wide enough for a 2-up mini-grid of finding items */
+.finding-items--grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.finding-item p {
+  margin: 0;
+}
+
+.finding-item .finding-term {
+  font-size: 16px;
+  letter-spacing: -0.176px;
+  line-height: 1.5;
+}
+
+.finding-item .finding-quote {
+  font-size: 8px;
+  letter-spacing: -0.088px;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+/* =========================
+   MOME ULP: main-issues grid (4 square photo cards, text above image)
+   ========================= */
+
+.issue-grid .step-item .step-image {
+  aspect-ratio: 1 / 1;
+}
+
+.issue-grid .step-item p {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* =========================
+   MOME ULP: "How might we" question grid (2x2, icon + text)
+   ========================= */
+
+.hmw-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  width: 100%;
+}
+
+.hmw-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hmw-item img {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+}
+
+.hmw-item p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+}
+
+/* =========================
+   MOME ULP: navigation-priority matrix
+   ---------------------------------------------------------
+   A 6-column grid where every content cell keeps the exact column/row
+   Figma placed it in (frequency of use left-to-right, alphabetical
+   topic top-to-bottom isn't uniform — some cells span multiple rows
+   of empty space) plus 4 axis labels and 2 legend icons pinned to
+   their own explicit cells.
+   ========================= */
+
+.priority-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: minmax(0, auto);
+  gap: 32px;
+  width: 100%;
+}
+
+.priority-grid p { margin: 0; font-size: 16px; line-height: 1.5; }
+
+.priority-grid .axis-label {
+  color: #f1f11d;
+  font-size: 20px;
+  letter-spacing: -0.22px;
+}
+
+.priority-grid .axis-label--bottom {
+  align-self: end;
+}
+
+.priority-grid img {
+  width: 44px;
+  height: 44px;
+}
+
+/* =========================
+   MOME ULP: information-architecture boxes (Home / Resources / Contacts)
+   ========================= */
+
+.ia-row {
+  display: flex;
+  align-items: stretch;
+  gap: 32px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.ia-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 8px 16px;
+  border: 4px solid var(--color-text);
+  border-radius: var(--radius-lg);
+}
+
+.ia-box h3 {
+  margin: 0;
+  align-self: center;
+  font-size: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ia-links {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 16px;
+}
+
+.ia-links > p { margin: 0; white-space: nowrap; }
+
+.ia-link-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 120px;
+}
+
+.ia-link-col p { margin: 0; }
+
+/* =========================
+   MOME ULP: R.I.T.E. testing flow (repeat icon + Test -> Identify -> Fix)
+   ========================= */
+
+.rite-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+}
+
+.rite-legend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.rite-legend img { width: 44px; height: 44px; }
+
+.rite-legend p {
+  margin: 0;
+  color: #f1f11d;
+  font-size: 20px;
+}
+
+.rite-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 862px;
+}
+
+.rite-steps p {
+  margin: 0;
+  font-size: 20px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.rite-arrow {
+  flex: 1 1 auto;
+  min-width: 40px;
+  height: 12px;
+}
+
+/* =========================
+   MOME ULP: usability-test task cards (plain text, no image)
+   ========================= */
+
+.task-item h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.task-item p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* =========================
+   MOME ULP: absolute-positioned collage canvas
+   ---------------------------------------------------------
+   Used for the interview sticky-note board and the 3 usability-test
+   participant sections — every element's left/top/width/height is a
+   percentage of the canvas (converted 1:1 from Figma's own px
+   offsets), so the whole hand-arranged composition scales together
+   instead of the elements drifting apart at other viewport widths.
+   ========================= */
+
+.collage-canvas {
+  position: relative;
+  width: 100%;
+}
+
+.collage-item {
+  position: absolute;
+}
+
+.collage-item.collage-image {
+  border-radius: 32px;
+  border: 4px solid var(--collage-color, var(--color-text));
+  overflow: hidden;
+}
+
+.collage-item.collage-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.collage-item.collage-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: var(--collage-color, #1915f1);
+  color: var(--collage-note-text, var(--color-text));
+}
+
+.collage-item.collage-note p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.collage-item.collage-doodle img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.collage-item.collage-arrow img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Interview board: dark rounded backing behind the photo + sticky notes */
+.collage-canvas--interview {
+  aspect-ratio: 1194 / 580;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+}
+
+.collage-canvas--interview .collage-note {
+  padding: 8px;
+  font-size: 16px;
+  text-align: left;
+}
+
+.collage-canvas--interview .collage-note p { text-align: left; font-size: 16px; }
+
+/* Participant sections: taller canvases, sized per section */
+.collage-canvas--participant1 { aspect-ratio: 1193 / 1937; }
+.collage-canvas--participant2 { aspect-ratio: 1192 / 1248; }
+.collage-canvas--participant3 { aspect-ratio: 1192 / 769; }
+
+/* =========================
+   MOME ULP: usability-test results (colour-coded score cards)
+   ========================= */
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  width: 100%;
+}
+
+.results-grid .task-label {
+  margin: 0;
+  font-size: 16px;
+}
+
+.results-score {
+  padding: 16px;
+  color: #1a1818;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.results-score p { margin: 0; }
+
+.results-score--p1 { background: #1915f1; color: #ede5e5; }
+.results-score--p2 { background: #ff0000; }
+.results-score--p3 { background: #f1f11d; }
+.results-score--win { background: #16b364; }
+
+.results-compare-label {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 16px;
+}
+
+/* =========================
    Responsive
    ========================= */
 
@@ -896,6 +1297,35 @@
   .filmstrip > div {
     flex: 1 1 calc(33.333% - 22px);
   }
+
+  /* MOME ULP */
+  .findings-grid {
+    flex-direction: column;
+  }
+
+  .finding-category {
+    width: 100%;
+  }
+
+  .hmw-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .priority-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ia-row {
+    flex-direction: column;
+  }
+
+  .ia-box {
+    width: 100%;
+  }
+
+  .results-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 560px) {
@@ -935,5 +1365,14 @@
   .footer-group {
     justify-content: center;
     width: 100%;
+  }
+
+  /* MOME ULP */
+  .priority-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
   }
 }
