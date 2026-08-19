@@ -108,8 +108,15 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 24px;
-  width: 580px;
-  max-width: 100%;
+  /* Pushes flush to the right regardless of its own (usually much
+     narrower than 580px) content width — forcing a fixed 580px box
+     here was wrong: combined with hero-text's fixed 581px it left
+     almost no slack before the row wrapped, which then stranded this
+     block at the left edge of its own wrapped line instead of at the
+     right. max-width just keeps it from ever growing past the design's
+     column if a line is unexpectedly long. */
+  margin-left: auto;
+  max-width: 580px;
   font-size: 16px;
   text-align: right;
   white-space: nowrap;
@@ -372,6 +379,8 @@
   .hero-meta {
     align-items: flex-start;
     text-align: left;
+    white-space: normal;
+    max-width: 100%;
   }
 
   /* 4 tracks -> 2: a span-2 block still fills a full row on its own,
