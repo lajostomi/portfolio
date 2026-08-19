@@ -10,7 +10,15 @@
 }
 
 .project-container {
-  max-width: 1194px;
+  /* The gutter needs to sit OUTSIDE the 1194px design width, not eat
+     into it — otherwise the grid-4 columns (Problem/Solution) only
+     ever reach their true 274px/580px size at very wide viewports,
+     while flat max-width:580px text elsewhere hits it immediately,
+     so the two wrap at different points on any normal laptop screen.
+     Padding the max-width itself by 2x the gutter means content
+     reaches the full 1194px as soon as the viewport is wide enough,
+     same as everything else on the page. */
+  max-width: calc(1194px + 2 * var(--gutter));
   margin-inline: auto;
   padding-inline: var(--gutter);
   display: flex;
