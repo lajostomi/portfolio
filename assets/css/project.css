@@ -95,6 +95,12 @@
   margin: 0;
   font-size: 32px;
   font-weight: 500;
+  /* Default (browser "normal") line-height adds noticeably more
+     leading above a 32px line than the 16px meta text gets at its own
+     line-height, so even though both boxes start at the exact same
+     top (verified via getBoundingClientRect), the glyphs themselves
+     read as visually offset from the year/role text beside them. */
+  line-height: 1.2;
 }
 
 .hero-text p {
