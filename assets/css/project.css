@@ -322,27 +322,29 @@
 .insight--bottom { grid-column: 2; grid-row: 3; flex-direction: column; text-align: center; }
 
 /* =========================
-   Wireframe collage
+   Wireframe grid
+   ---------------------------------------------------------
+   Replaced the earlier rotated paper-sketch collage (kept below, in
+   case a future page wants that treatment again) — the Hachi Wireframes
+   section now uses 6 flat scan photos in a plain 3-col/2-row grid, no
+   rotation, no border-radius (sharp corners, unlike every other image
+   on the site — verified against the Figma node, which has no
+   rounded-corner class on these cells).
    ========================= */
 
-.wireframe-collage {
-  position: relative;
+.wireframe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 31px 32px;
   width: 100%;
-  max-width: 988px;
-  aspect-ratio: 988 / 744;
-  margin-inline: auto;
 }
 
-/* Each photo is exported pre-rotated and pre-cropped straight from
-   Figma (its tilt, transparent margin and drop shadow already baked
-   in) — sized and positioned per-image via inline left/top/width/height
-   rather than a single shared rule, since every card's rotated
-   bounding box is a different size. No CSS transform here: rotating
-   an already-rotated image was what made the sketches face the wrong
-   way in the frame. */
-.wireframe-collage img {
-  position: absolute;
+.wireframe-grid > div {
+  aspect-ratio: 376 / 274;
+  overflow: hidden;
 }
+
+.wireframe-grid img { width: 100%; height: 100%; object-fit: cover; }
 
 /* =========================
    Bordered detail rows (user groups / matchmaking / places / features)
@@ -762,17 +764,8 @@
     max-width: none;
   }
 
-  .wireframe-collage {
-    aspect-ratio: auto;
-    display: grid;
+  .wireframe-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-
-  .wireframe-collage img {
-    position: static;
-    width: 100% !important;
-    height: auto !important;
   }
 
   .detail-images {
@@ -845,6 +838,10 @@
   }
 
   .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .wireframe-grid {
     grid-template-columns: 1fr;
   }
 
