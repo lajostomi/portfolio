@@ -387,6 +387,12 @@
     text-align: left;
     white-space: normal;
     max-width: 100%;
+    /* On desktop this margin pushes the block to the right edge; once
+       the row wraps to a single mobile column that same auto margin
+       keeps shoving it inward from the left instead, so the now
+       left-aligned text sits indented under the title instead of
+       flush with it. */
+    margin-left: 0;
   }
 
   /* 4 tracks -> 2: a span-2 block still fills a full row on its own,
