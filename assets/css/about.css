@@ -1,0 +1,180 @@
+/* =========================================================
+   Lajos Tamás Jakab — Portfolio
+   About page
+   Design source: Figma "Portfolio_website" — About page (node 76:6)
+   Reuses .site-header/.nav-link/.section-title (style.css) and the
+   .grid-4/.span-1/.span-2/.text-block 4-column system (project.css)
+   for consistency with the rest of the site.
+   ========================================================= */
+
+.about-page {
+  padding-bottom: clamp(96px, 14vw, 160px);
+}
+
+.about-container {
+  max-width: calc(1194px + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Download button row: right-aligned, sits above the ABOUT title */
+.download-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.pill-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--color-icon-bg);
+  color: var(--color-bg);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.pill-button:hover,
+.pill-button:focus-visible {
+  transform: translateY(-3px);
+  background: #ffffff;
+}
+
+.pill-button img { display: block; }
+
+.about-content,
+.about-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+  width: 100%;
+}
+
+/* =========================
+   Introduction (profile photo + flowing bio text)
+   ========================= */
+
+/* project.css's .span-2 bakes in flex-column + 32px gap, which is right
+   for a column of separate paragraphs but wrong here — the photo is a
+   single child and the bio is one flowing text block, neither wants
+   that gap inserted between children. Grid placement only. */
+.grid-span-2 {
+  grid-column: span 2;
+}
+
+.profile-image {
+  width: 100%;
+  aspect-ratio: 580 / 478;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A single flowing bio, not a list of separate 32px-spaced paragraphs —
+   matches Figma's own text node, which uses one text box with plain
+   line breaks (including one intentional blank line) rather than gapped
+   paragraph blocks. */
+.intro-text {
+  font-size: 32px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.intro-text p {
+  margin: 0;
+}
+
+/* =========================
+   4-column photo grids (Recently / Not so long ago / Time off / The fur on my clothes)
+   ========================= */
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 32px;
+  width: 100%;
+  height: 562px;
+}
+
+.grid-img {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.grid-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.grid-text {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.grid-text h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.grid-text p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 900px) {
+  .about-grid {
+    height: auto;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .about-grid > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+
+  .grid-text {
+    grid-column: 1 / -1 !important;
+  }
+
+  .grid-img {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intro-text {
+    font-size: 24px;
+  }
+}
