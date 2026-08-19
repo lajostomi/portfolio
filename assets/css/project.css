@@ -236,6 +236,24 @@
   aspect-ratio: 581 / 265;
 }
 
+/* Mercedes Aura's Transformation section: 2 large SQUARE videos (581/580,
+   near-1:1), not the 581/265 gallery-row ratio above — a separate class
+   so it doesn't disturb .photo-row's other (landscape) galleries. Videos
+   autoplay/loop/muted in the markup; `poster` + the last-known static
+   frame keep a sane fallback if autoplay is blocked. */
+.transformation-row .span-2 {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.transformation-row video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* =========================
    Research methods (label + tall image)
    ========================= */
