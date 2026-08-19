@@ -109,6 +109,22 @@
   line-height: 1.5;
 }
 
+/* Short tagline block directly under the hero title (Project TEVE): a
+   bracketed uppercase label line immediately followed by a sentence, no
+   gap between them (same text block in Figma) — sits below the title
+   with the hero-text's own 8px gap, same as the title-to-subtitle gap
+   on every other project page. */
+.hero-tagline {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.hero-tagline .bracket-label {
+  text-transform: uppercase;
+}
+
 .hero-meta {
   display: flex;
   flex-direction: column;
@@ -181,12 +197,35 @@
    ========================= */
 
 .photo-row > div {
+  position: relative;
   aspect-ratio: 274 / 265;
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
 .photo-row img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Problem gallery's first image (Project TEVE): a dark backing box behind
+   a zoomed/offset graphic, with a translucent light wash over the top —
+   matches Figma's own layer stack (bg color -> cropped image -> overlay). */
+.gallery-tinted {
+  background: #0c0c0e;
+}
+
+.gallery-tinted::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(237, 229, 229, 0.2);
+}
+
+/* A gallery row can mix span-2 and span-1 cells in the same .grid-4 row
+   (Project TEVE's Problem/Context/User-journey galleries: 581+274+274 or
+   581+581) — span-1 keeps the 274/265 ratio above, span-2 needs its own
+   581/265 ratio so a doubled-width cell doesn't get stretched taller. */
+.photo-row .span-2 {
+  aspect-ratio: 581 / 265;
+}
 
 /* =========================
    Research methods (label + tall image)
@@ -308,6 +347,202 @@
 }
 
 .detail-image img { width: 100%; height: 100%; object-fit: cover; }
+
+/* =========================
+   Media row (274px text column + 887px image, 562px tall)
+   Used whenever a section pairs a short text block with one large photo
+   side by side (Project TEVE: Human-Robot Interaction Course, Solution,
+   "Which got us thinking..."). In Figma this is built as a 4-col grid
+   with the image spanning cols 2-4 and the text pinned to col 1 — but
+   since the text always sits left of the image in the actual DOM order
+   too, a plain flex row gives the identical visual result without the
+   grid-placement indirection.
+   ========================= */
+
+.media-row {
+  display: flex;
+  align-items: stretch;
+  gap: 32px;
+  width: 100%;
+}
+
+.media-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 0 0 274px;
+  max-width: 100%;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.media-row-text h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.64px;
+}
+
+.media-row-text p {
+  margin: 0;
+  letter-spacing: -0.32px;
+}
+
+.media-row-image {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 562px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.media-row-image img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Some media-row images are cropped/zoomed via explicit inset percentages
+   from Figma rather than a plain center-crop — see .crop-img below. */
+
+/* =========================
+   Crop image (explicit Figma inset percentages)
+   ---------------------------------------------------------
+   A handful of source photos on Project TEVE are exported uncropped, with
+   Figma's own crop expressed as left/top/width/height percentages instead
+   of a simple object-fit:cover center-crop. Reproducing those exact
+   percentages (rather than approximating with object-fit) is what keeps
+   the framing pixel-true to the design. Percentages are set inline per
+   image, same convention as the wireframe-collage on the Hachi page.
+   ========================= */
+
+.crop-img {
+  position: absolute;
+  max-width: none;
+}
+
+/* =========================
+   Feature row (Solution's 4 captioned square images)
+   ========================= */
+
+.feature-row .feature-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 32px;
+}
+
+.feature-item p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.feature-item .detail-square {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.detail-square img { width: 100%; height: 100%; object-fit: cover; }
+
+/* =========================
+   Step items (footer states row: tall 274x580 images, 20px label)
+   ========================= */
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.step-item p {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.step-image {
+  width: 100%;
+  aspect-ratio: 274 / 580;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.step-image img { width: 100%; height: 100%; object-fit: cover; }
+
+/* =========================
+   Footer detail row (886px image + 274px caption)
+   ========================= */
+
+.footer-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  width: 100%;
+}
+
+.footer-detail-image {
+  flex: 1 1 886px;
+  max-width: 886px;
+  aspect-ratio: 886 / 265;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.footer-detail-image img { width: 100%; height: 100%; object-fit: cover; }
+
+.footer-detail-row p {
+  margin: 0;
+  flex: 0 0 274px;
+  max-width: 100%;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* =========================
+   Feedback row (heading + 3 quote bubbles)
+   ========================= */
+
+.feedback-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.feedback-heading {
+  margin: 0;
+  flex: 0 0 269px;
+  max-width: 100%;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.feedback-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex: 0 0 274px;
+  max-width: 100%;
+}
+
+.feedback-bubble img {
+  width: 70px;
+  height: 70px;
+}
+
+.feedback-bubble p {
+  margin: 0;
+  width: 100%;
+  font-size: 16px;
+  line-height: 1.5;
+}
 
 /* =========================
    Sticky footer — no background bar, buttons float on their own
@@ -444,6 +679,34 @@
   .detail-image-pair {
     flex-basis: 100%;
     justify-content: center;
+  }
+
+  /* Text-beside-image rows stack: text on top, full-width image below,
+     with the image's fixed 562px height swapped for an aspect-ratio so
+     it scales down with the narrower viewport instead of staying 562px
+     tall on a much narrower box. */
+  .media-row {
+    flex-direction: column;
+  }
+
+  .media-row-text {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .media-row-image {
+    height: auto;
+    aspect-ratio: 887 / 562;
+  }
+
+  .footer-detail-row {
+    flex-direction: column;
+  }
+
+  .footer-detail-image {
+    max-width: 100%;
+    flex-basis: auto;
+    width: 100%;
   }
 }
 

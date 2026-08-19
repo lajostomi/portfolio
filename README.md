@@ -29,8 +29,10 @@ projects/mercedes-aura.html      ❌ not built yet
 projects/fall-of-cozy-web.html   ❌ not built yet
 projects/mome-ulp.html           ❌ not built yet
 projects/under-nda-banking.html  ✅ built — minimal page (NDA'd project): hero + meta + footer only,
-                                  no content sections. Next project -> project-teve.html, not built yet
-projects/project-teve.html       ❌ not built yet
+                                  no content sections. Next project -> project-teve.html
+projects/project-teve.html       ✅ built — full case study (media rows, feature grid, non-verbal
+                                  states, user journey, feedback bubbles). Next project -> loops back
+                                  to hachi-mobile-app.html (last card in the WORK-grid cycle)
 ```
 
 Links to not-yet-built project pages already exist site-wide (WORK grid thumbnails, SPIN wheel landing,
@@ -43,7 +45,11 @@ Hachi's "NEXT PROJECT" pill) and will 404 until each page is built — that's ex
 - [x] About page — profile intro + 4 photo grids + DOWNLOAD RESUME button (needs the actual PDF dropped
       into assets/documents/ before it'll download anything real)
 - [x] Under NDA: Beyond Banking Product project page — minimal (hero + meta + footer only)
-- [ ] 4 remaining project pages: Mercedes Aura, The Fall of Cozy Web, MOME ULP, Project TEVE
+- [x] Project TEVE project page — introduces 3 new reusable patterns in project.css: `.media-row`
+      (274px text column + image, used 3x), `.crop-img` (explicit Figma inset-% crops for source photos
+      that aren't simple center-crops), `.feature-row`/`.step-item`/`.footer-detail-row`/`.feedback-row`
+      for the page's other one-off layouts
+- [ ] 3 remaining project pages: Mercedes Aura, The Fall of Cozy Web, MOME ULP
 
 ## Landing page notes
 
