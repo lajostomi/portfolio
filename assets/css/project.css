@@ -793,25 +793,27 @@
 
 .method-header {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 32px;
   width: 100%;
-  flex-wrap: wrap;
+  /* flex-wrap:wrap looked like the obvious way to let this reflow on
+     narrow screens, but CSS decides line-breaks using each item's
+     unshrunk hypothetical (flex-basis) size, never the post-shrink
+     size — so anywhere the content column (gutter-padded, see
+     [[portfolio-design-rules]]) falls even 1px short of 581+32+581=
+     1194px, the label was kicked to its own line instead of shrinking
+     alongside the heading, and — worse — that second line stayed
+     full-width and *left*-aligned instead of tracking the heading's
+     right edge. nowrap forces real shrinking instead; the two items
+     stay a single right-aligned row all the way down to the 560px
+     breakpoint below, where they intentionally stack (see that rule). */
+  flex-wrap: nowrap;
 }
 
 .method-header h2 {
   margin: 0;
-  /* flex-grow MUST stay 0 — with grow:1, any viewport where the two
-     581px columns plus their 32px gap (1194px) don't fit the row but
-     also don't hit the mobile breakpoint (roughly 900-1440px) forces
-     a wrap to a second flex line, and a lone item on its own line
-     with grow:1 stretches to fill the FULL row width instead of
-     staying capped at 581px — the heading stops wrapping where the
-     580px design column says it should, and the label (now on its
-     own line below instead of beside it) loses its top alignment
-     with the heading entirely. flex-shrink:1 (the default) still lets
-     it shrink below 581px on genuinely narrow screens. */
   flex: 0 1 581px;
+  min-width: 0;
   max-width: 100%;
   font-size: 32px;
   font-weight: 500;
@@ -821,6 +823,7 @@
 .method-header .method-label {
   margin: 0;
   flex: 0 1 581px;
+  min-width: 0;
   max-width: 100%;
   font-size: 16px;
   text-align: right;
@@ -1404,6 +1407,19 @@
 }
 
 @media (max-width: 560px) {
+  .method-header {
+    flex-wrap: wrap;
+  }
+
+  .method-header h2,
+  .method-header .method-label {
+    flex-basis: 100%;
+  }
+
+  .method-header .method-label {
+    text-align: left;
+  }
+
   .grid-4 {
     grid-template-columns: 1fr;
   }
