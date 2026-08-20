@@ -1197,13 +1197,18 @@
   height: auto;
 }
 
-/* Interview board sticky notes + red connector lines: pixel-exact crops from Figma's own
-   flattened render, not reconstructed text/SVG -- see [[portfolio-figma-lessons]] for why
-   (get_metadata/get_design_context both omit these layers for this specific frame). */
-.collage-item.collage-note-img img {
+/* Interview board: a single flattened image supplied directly by the user, not a
+   reconstruction -- see [[portfolio-figma-lessons]]. The sticky notes + red connector
+   lines aren't real nodes in get_metadata/get_design_context's traversal for this frame,
+   and a first attempt at cropping them into individual PNGs came out visibly low-quality
+   (re-encoding artifacts) and duplicated the connector lines. One full-quality image is
+   simpler and looks correct. */
+.collage-flat-image {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
 }
 
 /* Interview board: dark rounded backing behind the photo + sticky notes */
