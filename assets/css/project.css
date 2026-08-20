@@ -1197,6 +1197,15 @@
   height: auto;
 }
 
+/* Interview board sticky notes + red connector lines: pixel-exact crops from Figma's own
+   flattened render, not reconstructed text/SVG -- see [[portfolio-figma-lessons]] for why
+   (get_metadata/get_design_context both omit these layers for this specific frame). */
+.collage-item.collage-note-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 /* Interview board: dark rounded backing behind the photo + sticky notes */
 .collage-canvas--interview {
   aspect-ratio: 1194 / 580;
