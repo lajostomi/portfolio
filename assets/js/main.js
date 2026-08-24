@@ -61,6 +61,80 @@
     }
   }
 
+  /* ---------- Looping background videos (.auto-video) ----------
+     Mercedes Aura carries three silent looping clips totalling ~22 MB.
+     They used to be plain `autoplay loop muted playsinline` with no
+     preload hint, so all 22 MB was fetched on page load.
+
+     `preload="none"` alone does NOT fix that: an `autoplay` attribute
+     outranks it, and the browser fetches anyway to satisfy autoplay.
+     Measured on this page — preload="none" with autoplay still issued
+     range requests for all three MP4s at load. So autoplay is gone from
+     the markup and playback is driven from here instead: nothing is
+     fetched until a clip is actually scrolled near, and the poster (now
+     WebP) holds the frame until then.
+
+     prefers-reduced-motion is honoured as a hard gate rather than a
+     pause-after-the-fact: when it is set nothing is ever observed, so
+     the videos neither play NOR download, and the poster is what the
+     user sees. The query is also watched live, so toggling the OS
+     setting mid-session pauses what is already running (and lets
+     playback resume if it is turned back off).
+
+     No-JS fallback: the poster still renders, so the section reads as a
+     still image rather than breaking. */
+  const autoVideos = Array.from(document.querySelectorAll('video.auto-video'));
+
+  if (autoVideos.length) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let observer = null;
+
+    const stopAll = () => {
+      if (observer) { observer.disconnect(); observer = null; }
+      autoVideos.forEach((v) => {
+        v.pause();
+        // Only reset a clip that actually has data. load() resets
+        // readyState to HAVE_NOTHING, which is what makes the poster
+        // render again instead of freezing on whatever frame was up when
+        // reduced-motion switched on. But calling it on an untouched
+        // video is not free: measured, load() on a preload="none"
+        // element still kicks off a fetch and leaves readyState at
+        // HAVE_ENOUGH_DATA, so the browser then paints the first frame
+        // rather than the poster — the exact opposite of what the
+        // reduced-motion path is for. Guarding on readyState keeps the
+        // common case (reduced motion set before load) at zero requests.
+        if (v.readyState > 0) v.load();
+      });
+    };
+
+    const startObserving = () => {
+      if (observer || !('IntersectionObserver' in window)) return;
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const v = entry.target;
+          if (entry.isIntersecting) {
+            // play() rejects on some browsers/policies; ignore, the
+            // poster simply stays put.
+            const p = v.play();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+          } else {
+            v.pause();
+          }
+        });
+      }, { rootMargin: '200px 0px' });
+      autoVideos.forEach((v) => observer.observe(v));
+    };
+
+    const apply = () => {
+      if (reduceMotion.matches) stopAll();
+      else startObserving();
+    };
+
+    apply();
+    if (reduceMotion.addEventListener) reduceMotion.addEventListener('change', apply);
+    else if (reduceMotion.addListener) reduceMotion.addListener(apply); // Safari < 14
+  }
+
   /* ---------- CLOSE button: back to carousel vs. WORK grid ----------
      A project page's CLOSE pill normally returns to index.html#work (the
      WORK grid), but if this page was reached by landing on a SPIN wheel
