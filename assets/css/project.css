@@ -927,10 +927,14 @@
   gap: 16px;
 }
 
+/* height:auto (not a fixed 44px): 3 of the 4 icon-hmw-*.svg source files
+   are square, but icon-hmw-4 is 35.17x40.67 — a fixed 44x44 box stretched
+   it into a square it was never drawn as, same bug as .rite-legend/
+   .priority-grid below. auto is a no-op for the already-square icons. */
 .hmw-item img {
   flex-shrink: 0;
   width: 44px;
-  height: 44px;
+  height: auto;
 }
 
 .hmw-item p {
@@ -970,9 +974,12 @@
   align-self: end;
 }
 
+/* height:auto (not a fixed 44px) lets the icon keep its own native
+   40.67x35.17 aspect ratio — the source SVG has preserveAspectRatio="none",
+   so forcing it into a 44x44 square stretched/squished it vertically. */
 .priority-grid img {
   width: 44px;
-  height: 44px;
+  height: auto;
 }
 
 /* =========================
@@ -981,7 +988,12 @@
 
 .ia-row {
   display: flex;
-  align-items: stretch;
+  /* flex-start (not stretch): each box now hugs its own content with
+     equal padding on every side, per explicit request — Home/Contacts
+     have far less content than Resources, so stretching them to match
+     Resources' height would just pile the extra space up at the bottom
+     of the shorter boxes and undo that symmetry. */
+  align-items: flex-start;
   gap: 32px;
   /* nowrap on purpose: Home/Resources/Contacts are sized to their exact
      Figma widths below and sum to the full 1194px row with zero slack —
@@ -1011,7 +1023,10 @@
      their own content's natural width even with flex-shrink:1 set. */
   min-width: 0;
   gap: 32px;
-  padding: 8px 20px;
+  /* Equal on all four sides, so the border sits the same distance from
+     the text whichever edge you measure from (was 8px top/bottom vs.
+     20px left/right, visibly tighter above/below than at the sides). */
+  padding: 24px;
   border: 4px solid var(--color-text);
   border-radius: var(--radius-lg);
 }
@@ -1022,7 +1037,13 @@
    summed a few px wider than the 1194px row actually has room for. */
 .ia-box--home { width: 340px; }
 .ia-box--resources { width: 637px; }
-.ia-box--contacts { width: 160px; }
+/* 160px was the exact Figma width, sized for the original 20px side
+   padding. The switch to a uniform 24px padding (+4px border) needs
+   28px clear on every side, and 160px is 16px too narrow for that
+   around the .ia-link-col's own fixed 120px column — bumped up just
+   enough to keep the same 28px gap on the right that the other two
+   sides already get, instead of the column overflowing into it. */
+.ia-box--contacts { width: 176px; }
 
 .ia-box h3 {
   margin: 0;
@@ -1042,6 +1063,7 @@
      .ia-box goes full-width at the mobile breakpoint. */
   flex-wrap: nowrap;
   font-size: 16px;
+  text-align: center;
 }
 
 .ia-links > p { margin: 0; white-space: nowrap; }
@@ -1054,7 +1076,7 @@
   min-width: 0;
 }
 
-.ia-link-col p { margin: 0; }
+.ia-link-col p { margin: 0; text-align: center; }
 
 /* =========================
    MOME ULP: R.I.T.E. testing flow (repeat icon + Test -> Identify -> Fix)
@@ -1075,7 +1097,10 @@
   gap: 8px;
 }
 
-.rite-legend img { width: 44px; height: 44px; }
+/* height:auto — repeat-icon.svg's native box is 35.17x42.13, not
+   square, so a fixed 44x44 was stretching it into a circle-that's-
+   actually-an-oval. Same fix as .priority-grid/.hmw-item img above. */
+.rite-legend img { width: 44px; height: auto; }
 
 .rite-legend p {
   margin: 0;
@@ -1281,6 +1306,40 @@
    Responsive
    ========================= */
 
+/* MOME ULP: Home/Resources/Contacts row (.ia-row) needs its full,
+   un-shrunk ~1194px to lay out its fixed-width columns — .project-container
+   only actually delivers that once the viewport is wide enough that its
+   own max-width (1194px + 2*gutter) is the binding constraint rather than
+   the viewport itself (works out to ~1357px; 1360px rounds up with a
+   couple px of slack). Below that, the row's own flex-shrink prorates the
+   deficit across all three boxes and, one level down, across .ia-links'
+   columns too — but .ia-link-col has min-width:0 while its sibling <p>
+   labels (Now+Next, Canteen, Library) are white-space:nowrap with no such
+   override, so they refuse to shrink at all and dump the entire deficit
+   onto the columns instead. Past a fairly narrow viewport that crushes a
+   column to a few px wide, wrapping every word onto its own line and
+   spilling text sideways into the neighbouring label/column. Rather than
+   trying to rebalance that shrink, this switches to the same stacked
+   single-column layout the 900px breakpoint below already uses for
+   narrower viewports still — proven layout, just switched on earlier so
+   the row is never asked to shrink past what it can actually hold. */
+@media (max-width: 1360px) {
+  .ia-row {
+    flex-direction: column;
+  }
+
+  .ia-box,
+  .ia-box--home,
+  .ia-box--resources,
+  .ia-box--contacts {
+    width: 100%;
+  }
+
+  .ia-links {
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 900px) {
   .hero-meta {
     align-items: flex-start;
@@ -1406,21 +1465,6 @@
 
   .priority-grid {
     grid-template-columns: repeat(3, 1fr);
-  }
-
-  .ia-row {
-    flex-direction: column;
-  }
-
-  .ia-box,
-  .ia-box--home,
-  .ia-box--resources,
-  .ia-box--contacts {
-    width: 100%;
-  }
-
-  .ia-links {
-    flex-wrap: wrap;
   }
 
   .results-grid {

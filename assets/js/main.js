@@ -26,6 +26,47 @@
     });
   }
 
+  /* ---------- Sticky header height ----------
+     .site-header is position:sticky, and #work/#contact use
+     scroll-margin-top: var(--header-height) so an anchor jump (from the
+     nav, or a cross-page index.html#work/#contact link) lands with the
+     section title clear of the header instead of tucked underneath it.
+     The header's real height shifts with the logo/gutter clamp() sizes
+     across breakpoints, so it's measured rather than hardcoded. */
+  const siteHeader = document.querySelector('.site-header');
+
+  if (siteHeader) {
+    const updateHeaderHeight = () => {
+      document.documentElement.style.setProperty(
+        '--header-height',
+        siteHeader.getBoundingClientRect().height + 'px'
+      );
+    };
+
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+  }
+
+  /* ---------- CLOSE button: back to carousel vs. WORK grid ----------
+     A project page's CLOSE pill normally returns to index.html#work (the
+     WORK grid), but if this page was reached by landing on a SPIN wheel
+     card — either by spinning and auto-navigating, or clicking a resting
+     card directly — index.html's wheel-card hrefs carry a #from-spin
+     fragment, and CLOSE should instead return to the carousel itself
+     (plain index.html, which is the SPIN section since it's the page's
+     first section) rather than jump straight past it to WORK. A hash
+     fragment is used instead of a ?query param specifically because it
+     survives the local dev server's clean-URL redirect (foo.html ->
+     foo): that redirect's Location header only rewrites the path, and a
+     fragment is never sent to the server in the first place, so the
+     browser reapplies it after following the redirect — a query string
+     would otherwise get silently dropped. */
+  const closeLink = document.querySelector('a.footer-pill--dark[href$="index.html#work"]');
+
+  if (closeLink && window.location.hash === '#from-spin') {
+    closeLink.href = closeLink.href.replace(/index\.html#work$/, 'index.html');
+  }
+
   /* ---------- SPIN wheel ----------
      A flat wheel: 6 project cards sit 60deg apart around a circle/ellipse
      — six evenly spaced points already read as a hexagon composition
@@ -57,14 +98,23 @@
     // The stage also gets a small top margin here: near the front slot a
     // rotated card's corners briefly swing above y=0 mid-spin (worst case
     // is ~4% of the stage's width, around a 10-15deg tilt), which the
-    // container's top edge would otherwise clip.
+    // container's top edge would otherwise clip. That headroom sits inside
+    // wheel-container (so it stays available for the swing to clip against
+    // instead of the section's flex gap), but it also pushes the resting
+    // card down visually, widening the SPIN-arrow-to-card gap past the
+    // section's own 32px gap. Pull wheel-container up by the same amount
+    // so the resting card lands exactly 32px below the arrow while the
+    // headroom itself — still inside the container's clip box — is
+    // untouched for mid-spin use.
     function updateWheelMetrics() {
-      if (!wheelStage) return;
+      if (!wheelStage || !wheelContainer) return;
       const stageWidth = wheelStage.getBoundingClientRect().width;
       if (!stageWidth) return;
       const radius = stageWidth * 0.257 * (16 / 306);
+      const headroom = stageWidth * 0.045;
       wheel.style.setProperty('--wheel-card-radius', radius.toFixed(2) + 'px');
-      wheelStage.style.marginTop = (stageWidth * 0.045).toFixed(2) + 'px';
+      wheelStage.style.marginTop = headroom.toFixed(2) + 'px';
+      wheelContainer.style.marginTop = (-headroom).toFixed(2) + 'px';
     }
 
     updateWheelMetrics();

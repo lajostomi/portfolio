@@ -26,7 +26,35 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Gentle opening animation: a quick, subtle fade-and-rise on every page
+   load so a project page (reached from the WORK grid or a SPIN wheel
+   card) settles in instead of just popping into view. Kept short and
+   understated on purpose — this should read as the page "arriving",
+   not as a showy transition. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 body {
+  /* No forwards/both fill-mode: keeping the "to" keyframe's computed
+     transform applied after the animation finishes (translateY(0), a
+     visual no-op) is exactly what broke the mobile nav overlay — any
+     element with a computed transform other than `none`, even a
+     no-op one, becomes the containing block for its position:fixed
+     descendants. With that lingering on body permanently, .nav-menu's
+     fixed inset:0 resolved against body's full page height instead of
+     the viewport, so it centered its links far down the page (out of
+     view) instead of in the visible screen. Once the animation ends
+     without a fill-mode, the browser drops back to body's own
+     (transform-free) styles, same end look, no lingering transform. */
+  animation: page-enter 0.45s ease-out;
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
@@ -34,6 +62,12 @@ body {
   font-weight: 500;
   line-height: normal;
   -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
 }
 
 img { max-width: 100%; display: block; }
@@ -78,6 +112,24 @@ section {
   justify-content: space-between;
   gap: 24px;
   padding: 24px var(--gutter);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--color-bg);
+}
+
+/* Anchor-jump targets that land directly under the sticky header (WORK,
+   CONTACT — reached via #work/#contact from any page, including a
+   cross-page link from about.html) need breathing room so their heading
+   doesn't sit flush against the header edge. scroll-margin-top offsets
+   the landing position by the header's own height plus a little extra
+   air, for both the smooth scroll-behavior animation and a plain
+   same-page hash jump. The header's real height is set as a CSS
+   variable by JS (site.js) since it varies with the logo/gutter clamp
+   sizes across breakpoints. */
+#work,
+#contact {
+  scroll-margin-top: calc(var(--header-height, 88px) + 24px);
 }
 
 .logo {
@@ -85,6 +137,12 @@ section {
   font-size: clamp(20px, 2.2vw, 32px);
   font-weight: 500;
   white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.logo:hover,
+.logo:focus-visible {
+  opacity: 0.7;
 }
 
 .nav-menu {
@@ -135,7 +193,7 @@ section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(32px, 5vw, 80px);
+  gap: 32px;
   padding-top: clamp(24px, 4vw, 40px);
   padding-bottom: 0;
   overflow: hidden;
@@ -197,6 +255,16 @@ section {
    scrollbar width, which 100vw does not account for. */
 .wheel-container {
   position: relative;
+  /* Establishes its own stacking context (z-index needs a value, not
+     auto, to do this) so the wheel cards' inline z-index — main.js sets
+     each card's z-index up to 1000 to layer them front-to-back around
+     the wheel — stays scoped inside this container instead of being
+     compared directly against .site-header's z-index:30 at the page's
+     root stacking context. Without this, a front-facing card (z-index
+     near 1000) paints straight over the sticky header, which is why the
+     header looked "unfilled"/see-through above the SPIN section: the
+     opaque background was there, a card was just drawn on top of it. */
+  z-index: 1;
   width: calc(100% + 2 * var(--gutter));
   margin-inline: calc(-1 * var(--gutter));
   overflow: hidden;
@@ -252,9 +320,19 @@ section {
   pointer-events: none;
 }
 
-/* Starts inside the two visible side cards (which sit at ~47.5%-80.8%
-   of the stage) so roughly their bottom quarter fades out softly
-   instead of being cut off hard by the container's clip edge. */
+/* Matches the Figma "Divider" layer's own box: 1440x185 against a
+   1440-wide page and the 517-tall wheel-stage (185/517 ≈ 34% height,
+   measuring from the stage since that 185px band sits entirely within
+   the stage's own bottom portion) — full page width, not the narrower
+   1191px stage. That's why this is a sibling of .wheel-stage (a child
+   of .wheel-container) rather than nested inside it: .wheel-stage caps
+   out at 1191px and centers with ~125px of empty space on each side at
+   wide viewports, and a card rotated near a side angle can swing its
+   corner past the stage's own edge into exactly that gap — sized to
+   the stage it left that gap uncovered and a corner would poke through
+   with a hard, unfaded edge. Sized to the full-width container instead,
+   the same plain bottom fade reaches all the way to the container's own
+   clip edge, so nothing between the stage and that edge goes unfaded. */
 .wheel-fade {
   position: absolute;
   left: 0;
@@ -263,6 +341,13 @@ section {
   height: 34%;
   background: linear-gradient(to bottom, rgba(26,24,24,0) 0%, var(--color-bg) 55%);
   pointer-events: none;
+  /* main.js gives each wheel card an inline z-index up to 1000 to layer
+     them front-to-back around the wheel (see .wheel-container's z-index
+     comment above) — this fade sits in that same stacking context as a
+     later sibling of .wheel-stage, so without its own z-index above that
+     range a front-facing card simply painted over it and the fade never
+     showed. */
+  z-index: 1001;
 }
 
 /* =========================
@@ -455,7 +540,6 @@ section {
   :root { --gutter: 24px; }
 
   .site-header {
-    position: relative;
     padding-block: 20px;
   }
 

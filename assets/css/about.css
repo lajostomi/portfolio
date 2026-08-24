@@ -8,6 +8,11 @@
    ========================================================= */
 
 .about-page {
+  /* Without this, .about-container's first child (the DOWNLOAD RESUME
+     button) sits flush against the sticky header's bottom edge with
+     zero gap — matches .project-page's own top padding for the same
+     breathing room other pages already get below their header/hero. */
+  padding-top: clamp(24px, 4vw, 40px);
   padding-bottom: clamp(96px, 14vw, 160px);
 }
 
