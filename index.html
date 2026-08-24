@@ -5,6 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lajos Tamás Jakab — Portfolio</title>
 <meta name="description" content="UX/UI portfolio of Lajos Tamás Jakab — product design, research and vibe coding projects.">
+<!-- Favicon. Files are not in the repo yet - see assets/favicon/README.md.
+     Relative, not root-relative, so they keep working if the site is ever
+     deployed to a subpath rather than a domain root. -->
+<link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
+
+<!-- Open Graph / X. og:url and og:image MUST be absolute - relative paths
+     are silently dropped by every scraper - so they are built from the
+     placeholder origin below. The site has no domain yet: find and replace
+     https://REPLACE-WITH-YOUR-DOMAIN.example
+     across all 8 pages once it does, and the cards start rendering. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lajos Tamás Jakab">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="Lajos Tamás Jakab — Portfolio">
+<meta property="og:description" content="UX/UI portfolio of Lajos Tamás Jakab — product design, research and vibe coding projects.">
+<meta property="og:url" content="https://REPLACE-WITH-YOUR-DOMAIN.example/">
+<meta property="og:image" content="https://REPLACE-WITH-YOUR-DOMAIN.example/assets/images/og/index.png">
+<meta property="og:image:alt" content="The Lajos Tamás Jakab portfolio landing page: the SPIN project wheel on a near-black background.">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lajos Tamás Jakab — Portfolio">
+<meta name="twitter:description" content="UX/UI portfolio of Lajos Tamás Jakab — product design, research and vibe coding projects.">
+<meta name="twitter:image" content="https://REPLACE-WITH-YOUR-DOMAIN.example/assets/images/og/index.png">
+<meta name="twitter:image:alt" content="The Lajos Tamás Jakab portfolio landing page: the SPIN project wheel on a near-black background.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
@@ -167,6 +194,11 @@
         <a class="contact-method" href="https://www.instagram.com/lajos_tomi/" target="_blank" rel="noopener">
           <div class="contact-icon"><img src="assets/images/icons/instagram.svg" alt="" width="64" height="64" loading="lazy" decoding="async"></div>
           <p class="contact-text">If you want to know more about my personal life or see my amateur&nbsp; photography!</p>
+        </a>
+
+        <a class="contact-method" href="assets/documents/lajos-tamas-jakab-resume.pdf" download="Lajos-Tamas-Jakab-Resume.pdf">
+          <div class="contact-icon"><img src="assets/images/icons/file-download.svg" alt="" width="20" height="24" loading="lazy" decoding="async"></div>
+          <p class="contact-text">If you want the short version — download my resume as a PDF.</p>
         </a>
 
         <div class="contact-photo">

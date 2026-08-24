@@ -5,6 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MOME ULP: Increasing interactions on the MOME University Life Platform — Lajos Tamás Jakab</title>
 <meta name="description" content="A case study on the MOME University Life Platform app and recommendations on its development based on real research data.">
+<!-- Favicon. Files are not in the repo yet - see assets/favicon/README.md.
+     Relative, not root-relative, so they keep working if the site is ever
+     deployed to a subpath rather than a domain root. -->
+<link rel="icon" href="../assets/favicon/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/favicon/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="../assets/favicon/apple-touch-icon.png">
+
+<!-- Open Graph / X. og:url and og:image MUST be absolute - relative paths
+     are silently dropped by every scraper - so they are built from the
+     placeholder origin below. The site has no domain yet: find and replace
+     https://REPLACE-WITH-YOUR-DOMAIN.example
+     across all 8 pages once it does, and the cards start rendering. -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lajos Tamás Jakab">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="MOME ULP: Increasing interactions on the MOME University Life Platform — Lajos Tamás Jakab">
+<meta property="og:description" content="A case study on the MOME University Life Platform app and recommendations on its development based on real research data.">
+<meta property="og:url" content="https://REPLACE-WITH-YOUR-DOMAIN.example/projects/mome-ulp.html">
+<meta property="og:image" content="https://REPLACE-WITH-YOUR-DOMAIN.example/assets/images/mome-ulp/hero-main.webp">
+<meta property="og:image:alt" content="MOME University Life Platform case study cover image.">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MOME ULP: Increasing interactions on the MOME University Life Platform — Lajos Tamás Jakab">
+<meta name="twitter:description" content="A case study on the MOME University Life Platform app and recommendations on its development based on real research data.">
+<meta name="twitter:image" content="https://REPLACE-WITH-YOUR-DOMAIN.example/assets/images/mome-ulp/hero-main.webp">
+<meta name="twitter:image:alt" content="MOME University Life Platform case study cover image.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
@@ -13,7 +40,23 @@
 </head>
 <body class="bg-dark project-page">
 
-  <main class="project-container">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="top">
+    <a class="logo" href="../index.html">Lajos Tamás Jakab</a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
+      <a href="../index.html#work" class="nav-link">WORK</a>
+      <a href="../about.html" class="nav-link">ABOUT</a>
+      <a href="../index.html#contact" class="nav-link">CONTACT</a>
+    </nav>
+  </header>
+
+  <main class="project-container" id="main" tabindex="-1">
 
     <!-- Hero -->
     <section class="project-section" aria-label="Overview">
@@ -534,7 +577,7 @@
   <footer class="project-footer">
     <div class="footer-group">
       <a class="footer-pill footer-pill--dark" href="../index.html#work">
-        CLOSE
+        BACK TO WORK
         <img src="../assets/images/icons/close.svg" alt="" width="14" height="14">
       </a>
       <a class="footer-pill footer-pill--dark" href="../index.html#contact">

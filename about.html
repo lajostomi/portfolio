@@ -5,6 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About — Lajos Tamás Jakab</title>
 <meta name="description" content="A bit about Lajos Tamás Jakab — background, interests, and his dog Migo.">
+<!-- Favicon. Files are not in the repo yet - see assets/favicon/README.md.
+     Relative, not root-relative, so they keep working if the site is ever
+     deployed to a subpath rather than a domain root. -->
+<link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
+
+<!-- Open Graph / X. og:url and og:image MUST be absolute - relative paths
+     are silently dropped by every scraper - so they are built from the
+     placeholder origin below. The site has no domain yet: find and replace
+     https://REPLACE-WITH-YOUR-DOMAIN.example
+     across all 8 pages once it does, and the cards start rendering. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lajos Tamás Jakab">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="About — Lajos Tamás Jakab">
+<meta property="og:description" content="A bit about Lajos Tamás Jakab — background, interests, and his dog Migo.">
+<meta property="og:url" content="https://REPLACE-WITH-YOUR-DOMAIN.example/about.html">
+<meta property="og:image" content="https://REPLACE-WITH-YOUR-DOMAIN.example/assets/images/og/about.png">
+<meta property="og:image:alt" content="The about page: portrait of Lajos Tamás Jakab beside a short introduction.">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="About — Lajos Tamás Jakab">
+<meta name="twitter:description" content="A bit about Lajos Tamás Jakab — background, interests, and his dog Migo.">
+<meta name="twitter:image" content="https://REPLACE-WITH-YOUR-DOMAIN.example/assets/images/og/about.png">
+<meta name="twitter:image:alt" content="The about page: portrait of Lajos Tamás Jakab beside a short introduction.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">

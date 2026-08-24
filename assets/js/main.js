@@ -143,17 +143,58 @@
     else if (reduceMotion.addListener) reduceMotion.addListener(apply); // Safari < 14
   }
 
-  /* ---------- CLOSE button: back to carousel vs. WORK grid ----------
-     A project page's CLOSE pill normally returns to index.html#work (the
-     WORK grid), but if this page was reached by landing on a SPIN wheel
-     card — either by spinning and auto-navigating, or clicking a resting
-     card directly — index.html's wheel-card hrefs carry a #from-spin
-     fragment, and CLOSE should instead return to the carousel itself
-     (plain index.html, which is the SPIN section since it's the page's
-     first section) rather than jump straight past it to WORK. A hash
-     fragment is used instead of a ?query param specifically because it
-     survives the local dev server's clean-URL redirect (foo.html ->
-     foo): that redirect's Location header only rewrites the path, and a
+  /* ---------- Sticky project-footer height ----------
+     .project-footer is position:sticky over the content, so .project-page
+     needs bottom padding at least as tall as the footer or the pills sit
+     on top of the last section. That padding used to be hand-tuned
+     numbers (a clamp, plus a flat 180px below 600px) measured against a
+     footer that happened to be 90px on one line and 147px on two.
+
+     Those numbers do not survive an edit. Renaming the CLOSE pill to
+     BACK TO WORK made the group wider, which pushed it to three lines on
+     small phones (205px, overrunning the 180px padding by 25px) and to
+     two lines around 700px (147px against ~98px of padding, a 50px
+     overrun) — a caption change silently reintroducing the exact overlap
+     bug the padding existed to prevent.
+
+     Measuring the real height instead means the padding tracks whatever
+     the footer actually does, at any width, after any future label or
+     breakpoint change. Same approach as --header-height above, including
+     the fonts.ready re-measure: the pills are text, so their wrap point
+     moves once the webfont replaces the fallback. */
+  const projectFooter = document.querySelector(".project-footer");
+
+  if (projectFooter) {
+    const updateFooterHeight = () => {
+      document.documentElement.style.setProperty(
+        "--footer-height",
+        projectFooter.getBoundingClientRect().height + "px"
+      );
+    };
+
+    updateFooterHeight();
+    window.addEventListener("resize", updateFooterHeight);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(updateFooterHeight);
+    }
+  }
+  /* ---------- "BACK TO WORK" pill: carousel vs. WORK grid ----------
+     Labelled CLOSE until the project pages gained a header: "close"
+     described a gesture, not a destination, and it was the only way back
+     to the rest of the site. The href is deliberately unchanged, so the
+     selector below still matches — and the new header’s WORK link points
+     at the same place but carries .nav-link, so it cannot be picked up by
+     this .footer-pill--dark selector by accident.
+
+     The pill normally returns to index.html#work (the WORK grid), but if
+     this page was reached from a SPIN wheel card — by spinning, or by
+     clicking a resting card directly — index.html’s wheel-card hrefs
+     carry a #from-spin fragment, and it should return to the carousel
+     itself (plain index.html, which is the SPIN section since it is the
+     page’s first section) rather than jump straight past it to WORK. A
+     hash fragment is used instead of a ?query param specifically because
+     it survives the local dev server’s clean-URL redirect (foo.html ->
+     foo): that redirect’s Location header only rewrites the path, and a
      fragment is never sent to the server in the first place, so the
      browser reapplies it after following the redirect — a query string
      would otherwise get silently dropped. */

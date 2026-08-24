@@ -15,7 +15,13 @@
   display: flex;
   flex-direction: column;
   padding-top: clamp(24px, 4vw, 40px);
-  padding-bottom: clamp(96px, 14vw, 160px);
+  /* Derived from the footer’s measured height (main.js sets
+     --footer-height), not a hand-tuned clamp. .project-footer is sticky
+     over the content, so this padding has to be at least as tall as the
+     footer really is — and “really is” changes with the viewport, the
+     webfont, and any edit to a pill’s label. The fallback covers the
+     no-JS case at the tallest the footer gets. */
+  padding-bottom: calc(var(--footer-height, 205px) + 24px);
 }
 
 .project-page > .project-container {
@@ -1425,6 +1431,57 @@
    Responsive
    ========================= */
 
+/* ---------- MOME ULP: R.I.T.E. flow stacks on phones ----------
+   Test → Identify → Fix is a nowrap flex row whose three labels are
+   themselves white-space:nowrap and whose two arrows hold a 40px floor, so
+   the row has a hard minimum around 350px of content. Below roughly 414px
+   it overruns its own box (12px at 390, 47px at 320) and by 360px that
+   became real horizontal scroll on the document.
+
+   Pre-existing — the component had no responsive treatment at all — and
+   found by the horizontal-scroll sweep once it was extended down to 320px.
+   Stacking keeps the sequence readable and keeps the arrows meaningful:
+   rotated a quarter turn they point down the column instead of across it,
+   so the flow still reads Test then Identify then Fix. */
+@media (max-width: 600px) {
+  .rite-steps {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .rite-arrow {
+    flex: 0 0 auto;
+    width: 12px;
+    height: 40px;
+    transform: rotate(90deg);
+  }
+}
+/* ---------- Project pages: header stops sticking below 768px ----------
+   Documented component-specific exception to the shared 900/600 set (see
+   BREAKPOINTS at the top of style.css), and the one place the site needs
+   a third number.
+
+   Project pages are the only pages carrying BOTH a sticky header and a
+   sticky footer, so they are the only pages where the two can close in on
+   the content together. Measured against an 844px phone viewport:
+
+     <=430px   header 72 + footer 205 = 33% of the viewport
+     ~480-700  header 72 + footer 147 = 26%
+     >=767px   header 72-89 + footer 90 = 19%
+
+   The step is the footer wrapping its three pills onto extra lines, which
+   stops just under 768px — so that is where the crowding actually ends,
+   not at 900 or 600. Below it the header scrolls away normally instead of
+   holding a third of a phone screen hostage; the sticky footer keeps BACK
+   TO WORK / CONTACT / NEXT PROJECT reachable throughout, so nothing
+   becomes unreachable. The header is not removed — it is still the first
+   thing on the page, with the logo and full nav.
+   ---------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .project-page .site-header {
+    position: static;
+  }
+}
 /* MOME ULP: Home/Resources/Contacts row (.ia-row) stacks only once it
    genuinely cannot hold three boxes side by side.
 
@@ -1784,13 +1841,6 @@
     width: 100%;
   }
 
-  /* .footer-group wraps to two lines at this width (~147px tall). The
-     base clamp() on .project-page bottoms out at 96px, which is shorter
-     than the real footer, so the sticky bar covers the end of the last
-     section. 180px comfortably clears the measured 147px. */
-  .project-page {
-    padding-bottom: 180px;
-  }
 
   /* MOME ULP: keep resetting the inline grid placement so nothing
      re-establishes implicit grid tracks at this breakpoint (the list
