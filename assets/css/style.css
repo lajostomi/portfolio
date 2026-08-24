@@ -26,34 +26,34 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Gentle opening animation: a quick, subtle fade-and-rise on every page
-   load so a project page (reached from the WORK grid or a SPIN wheel
-   card) settles in instead of just popping into view. Kept short and
-   understated on purpose — this should read as the page "arriving",
-   not as a showy transition. */
+/* Gentle opening animation: a quick, subtle fade on every page load so a
+   project page (reached from the WORK grid or a SPIN wheel card) settles
+   in instead of just popping into view. Kept short and understated on
+   purpose — this should read as the page "arriving", not as a showy
+   transition.
+   opacity-only, deliberately: an earlier version also animated
+   `transform: translateY(...)` on body. Any element with a computed
+   transform other than `none` — even mid-animation, even a momentary
+   no-op one — becomes the containing block for its position:fixed
+   descendants, so for the animation's full 0.45s .nav-menu's fixed
+   inset:0 resolved against body's animated box instead of the viewport
+   (offsetParent became BODY, height ~4210px instead of 900px, and the
+   page gained real horizontal scroll). Dropping the fill-mode only fixed
+   the state *after* the animation finished — the transform was still
+   live for the 450ms the animation was running, and on a backgrounded
+   tab (rAF throttled) it can sit part-way through indefinitely. Animating
+   opacity only means body's transform is `none` for the animation's
+   entire lifetime, so this containing-block bug can't happen at all. */
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 body {
-  /* No forwards/both fill-mode: keeping the "to" keyframe's computed
-     transform applied after the animation finishes (translateY(0), a
-     visual no-op) is exactly what broke the mobile nav overlay — any
-     element with a computed transform other than `none`, even a
-     no-op one, becomes the containing block for its position:fixed
-     descendants. With that lingering on body permanently, .nav-menu's
-     fixed inset:0 resolved against body's full page height instead of
-     the viewport, so it centered its links far down the page (out of
-     view) instead of in the visible screen. Once the animation ends
-     without a fill-mode, the browser drops back to body's own
-     (transform-free) styles, same end look, no lingering transform. */
   animation: page-enter 0.45s ease-out;
   margin: 0;
   background: var(--color-bg);

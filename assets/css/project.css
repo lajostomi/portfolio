@@ -5,8 +5,33 @@
    ========================================================= */
 
 .project-page {
+  /* min-height:100dvh + flex column so a page shorter than the viewport
+     still pushes .project-footer (position:sticky; bottom:0) down to the
+     bottom of the viewport instead of leaving it sticky over the middle
+     of the (too-short) content. main flex:1 absorbs the slack; on pages
+     tall enough to scroll this has no effect and the footer still sticks
+     to the viewport bottom as content scrolls past it. */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   padding-top: clamp(24px, 4vw, 40px);
   padding-bottom: clamp(96px, 14vw, 160px);
+}
+
+.project-page > .project-container {
+  /* width:100% is load-bearing, not decorative: .project-container already
+     centers itself with margin-inline:auto (below). Once .project-page is
+     a flex column, a flex item with auto cross-margins and an auto cross
+     size is sized to fit its content first and only THEN centered with
+     the leftover space (CSS Flexbox §8.1) — stretch is skipped entirely.
+     That silently discarded the 390px viewport constraint and let the
+     container's widest unshrinkable descendant win, reintroducing a
+     horizontal-scroll bug identical in spirit to bug 1. Giving it an
+     explicit width turns the cross size back into a definite value, so
+     margin-inline:auto goes back to plain centering within the leftover
+     space (min(100%, max-width), same as its pre-flex behaviour). */
+  width: 100%;
+  flex: 1 0 auto;
 }
 
 .project-container {
@@ -545,6 +570,24 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  min-width: 0;
+}
+
+/* .detail-image's own `width: 274px` (see that rule's comment) is a
+   definite size, and .step-item is a COLUMN flex container — so
+   .detail-image's `flex-shrink: 1` only ever acts on its main axis
+   (height) here, never on width. Cross-axis stretch (.step-item's
+   default align-items) can't override a definite width either, so even
+   with .step-item itself now free to shrink (min-width:0 above), the
+   274px-wide card just overflows its newly-narrower parent. Falling
+   back to `width: auto` only inside this nesting hands sizing to
+   stretch instead: it fills .step-item's real width, capped by
+   .detail-image's own max-width:274px — identical 274px result at full
+   design width, and it actually shrinks below that. Scoped to this
+   parent only so every other (row-nested) .detail-images usage, which
+   already shrinks correctly via its own flex-basis, is untouched. */
+.step-item > .detail-image {
+  width: auto;
 }
 
 .step-item p {
@@ -739,9 +782,24 @@
   padding-inline: var(--gutter);
   padding-block: 24px;
   pointer-events: none;
+  isolation: isolate;
 }
 
 .project-footer > * { pointer-events: auto; }
+
+/* Bottom-anchored scrim behind the floating pills. Without it the light
+   .footer-pill--light ("NEXT PROJECT") loses its edge over a light photo —
+   chose a gradient (over a flat background) so the pills keep floating
+   free of a hard bar on desktop and the scrim only earns its keep where
+   content can actually scroll underneath the sticky footer. */
+.project-footer::before {
+  content: "";
+  position: absolute;
+  inset: -64px 0 0 0;
+  background: linear-gradient(to bottom, transparent, var(--color-bg) 60%);
+  pointer-events: none;
+  z-index: -1;
+}
 
 .footer-group {
   display: flex;
@@ -1463,8 +1521,34 @@
     grid-template-columns: 1fr;
   }
 
+  /* Below 900px the 2-axis matrix no longer has room for both axes, so it
+     collapses to a single-column list grouped by the frequency axis
+     ("All of the time" ... "None of the time"). The inline grid-column/
+     grid-row placement (set for the desktop matrix) is reset the same way
+     .about-grid resets it in about.css, and the now-meaningless people-axis
+     labels/icons are hidden. */
   .priority-grid {
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .priority-grid > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+
+  .priority-grid .priority-icon,
+  .priority-grid .axis-label--people {
+    display: none;
+  }
+
+  .priority-grid .axis-label {
+    margin-top: 16px;
+  }
+
+  .priority-grid .axis-label:first-child {
+    margin-top: 0;
   }
 
   .results-grid {
@@ -1533,9 +1617,20 @@
     width: 100%;
   }
 
-  /* MOME ULP */
-  .priority-grid {
-    grid-template-columns: repeat(2, 1fr);
+  /* .footer-group wraps to two lines at this width (~147px tall). The
+     base clamp() on .project-page bottoms out at 96px, which is shorter
+     than the real footer, so the sticky bar covers the end of the last
+     section. 180px comfortably clears the measured 147px. */
+  .project-page {
+    padding-bottom: 180px;
+  }
+
+  /* MOME ULP: keep resetting the inline grid placement so nothing
+     re-establishes implicit grid tracks at this breakpoint (the list
+     layout itself is inherited from the 900px breakpoint above). */
+  .priority-grid > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
   }
 
   .results-grid {
