@@ -1,19 +1,41 @@
 # Social share images (og:image)
 
-The six project pages use their own hero image, which already exists — those
-cards work today.
+All eight pages point at a 1200x630 card in this folder. That is the size
+LinkedIn and X render a large summary card at.
 
-`index.html` and `about.html` are wired to the two files below, which are NOT
-yet present. Add them with these exact names and the cards start working:
+| File                        | Page                     |
+|-----------------------------|--------------------------|
+| `index.png`                 | index.html               |
+| `about.png`                 | about.html               |
+| `fall-of-cozy-web.jpg`      | projects/fall-of-cozy-web.html |
+| `hachi-mobile-app.jpg`      | projects/hachi-mobile-app.html |
+| `mercedes-aura.jpg`         | projects/mercedes-aura.html    |
+| `mome-ulp.jpg`              | projects/mome-ulp.html         |
+| `project-teve.jpg`          | projects/project-teve.html     |
+| `under-nda-banking.jpg`     | projects/under-nda-banking.html|
 
-| File        | Page         | Should show                                    |
-|-------------|--------------|------------------------------------------------|
-| `index.png` | index.html   | preview screenshot of the landing hero section |
-| `about.png` | about.html   | preview screenshot of the about intro section  |
+## Why these are not the WebP heroes
 
-Target 1200x630 (the size LinkedIn and X render at). Minimum useful is
-600x315; anything smaller gets downgraded to a small square card.
+The project cards were briefly pointed straight at each page's hero image,
+which is WebP. LinkedIn does not support WebP for og:image — it would have
+kept rendering bare links, which is the exact problem these tags exist to
+fix. Each card is therefore rendered from the pre-WebP original into JPEG.
+The pages themselves still serve WebP to browsers; only the share card
+differs.
 
-Take these from a real browser window at 1200px wide — they could not be
-captured from the build environment, whose preview pane only paints ~780px
-and returns screenshots to the console rather than to disk.
+PNG for index/about (UI screenshots, crisp text), JPEG q88 for the project
+cards (photographic — mercedes-aura alone went 830KB as PNG against 65KB
+as JPEG).
+
+## Regenerating
+
+`*-source.png` are the original full-window screenshots behind index/about,
+kept so those can be remade without re-shooting. Sources are ~1869x900
+(2.07:1) against the card's 1.905:1, so everything is fitted rather than
+cropped: scaled to fit inside 1200x630 and padded onto the site background
+`#1a1818`. The bars are invisible because the pages are that colour, and
+nothing gets clipped.
+
+All output is flattened to remove the alpha channel — several scrapers
+composite transparent PNGs onto white, which would put a white band across
+a dark card.
