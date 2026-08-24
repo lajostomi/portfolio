@@ -110,8 +110,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Reduced motion is honoured across the whole site, not just the page
+   fade. The four things that actually move here:
+     - body's page-enter fade (below)
+     - .spin-arrow's `bob`, which loops forever — the worst offender,
+       since an infinite animation never stops asking for attention
+     - html's smooth scrolling, which turns every anchor jump and every
+       "back to top" into a long animated travel
+     - the SPIN wheel's 3.2s spin with motion blur, and the three
+       Mercedes Aura videos: both live in main.js, which reads the same
+       query (the wheel jumps straight to its landed state; the videos
+       never autoplay or even download). */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   body {
+    animation: none;
+  }
+
+  .spin-arrow {
     animation: none;
   }
 }
@@ -146,6 +165,62 @@ section {
   margin: 0;
   line-height: 1;
   word-break: break-word;
+}
+
+/* =========================
+   Skip link
+   -------------------------
+   First focusable element on the page, so a keyboard or screen-reader
+   user can jump past the header/nav straight to the content instead of
+   tabbing through it on every page.
+
+   Hidden with the clip-path technique rather than display:none or
+   visibility:hidden — both of those would also remove it from the focus
+   order, which defeats the point. On :focus it switches to position:
+   fixed so it lands in the same top-left spot whatever the scroll
+   position, above the sticky header's z-index:30. No transition: it must
+   appear instantly on focus, and animating it in would be one more thing
+   to have to suppress for reduced motion.
+   ========================= */
+
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 12px 20px;
+  overflow: visible;
+  clip-path: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-icon-bg);
+  color: var(--color-bg);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* The landed SPIN card receives focus when the wheel stops (see
+   main.js), so it needs a focus ring that reads on top of a photo —
+   the brightness bump the cards already carry for hover is far too
+   subtle to serve as a keyboard focus indicator on its own. */
+.wheel-card:focus-visible {
+  outline: 3px solid var(--color-white);
+  outline-offset: 4px;
 }
 
 /* =========================

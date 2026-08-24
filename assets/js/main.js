@@ -6,6 +6,15 @@
 (function () {
   'use strict';
 
+  /* One shared query for every animated thing on the page. The CSS side
+     of reduced motion (the body fade, the .spin-arrow bob, smooth
+     scrolling) lives in style.css; this covers the two features CSS
+     cannot reach — the SPIN wheel, which is animated frame by frame in
+     JS, and the Mercedes Aura videos, whose playback has to be gated
+     rather than styled. Read live rather than cached as a boolean, so
+     toggling the OS setting mid-session takes effect. */
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   /* ---------- Mobile nav toggle ---------- */
   const navToggle = document.getElementById('navToggle');
   const navMenu = document.getElementById('navMenu');
@@ -86,7 +95,6 @@
   const autoVideos = Array.from(document.querySelectorAll('video.auto-video'));
 
   if (autoVideos.length) {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let observer = null;
 
     const stopAll = () => {
@@ -258,12 +266,28 @@
 
     function spin() {
       if (spinning) return;
+
+      const targetIndex = Math.floor(Math.random() * cards.length);
+
+      /* Reduced motion: no 3.2s sweep and no motion blur at all — jump
+         straight to the state the wheel would have landed in. The whole
+         point of the animation is the spinning sensation, which is
+         exactly what someone asking for reduced motion is asking not to
+         be shown, so degrading it (shorter, slower, less blur) would
+         miss the point. The outcome is identical: the chosen card ends
+         up in the front slot and land() announces it. */
+      if (reduceMotion.matches) {
+        currentRotation = signedAngle(-baseAngle[targetIndex]);
+        applyFrame(currentRotation, 0);
+        land(cards[targetIndex]);
+        return;
+      }
+
       spinning = true;
       spinTrigger.setAttribute('disabled', 'true');
       wheelContainer.classList.add('is-spinning');
       if (spinSubtitle) spinSubtitle.textContent = 'spinning…';
 
-      const targetIndex = Math.floor(Math.random() * cards.length);
       const extraSpins = 4 + Math.floor(Math.random() * 3); // 4–6 full turns
       const wrap = (((-baseAngle[targetIndex] - currentRotation) % 360) + 360) % 360;
       const startRotation = currentRotation;
@@ -301,17 +325,29 @@
       requestAnimationFrame(tick);
     }
 
+    /* Hands the result to the user instead of taking the decision away.
+       This used to set window.location.href on a 700ms timer, which is an
+       unannounced page change: the aria-live subtitle starts reading
+       "landed on X" and the page is gone before a screen reader finishes
+       the sentence, with no way to cancel and nothing explaining what
+       just happened. There is also no keyboard equivalent of "wait, not
+       that one".
+
+       Now the landed card simply takes focus. It is already an <a href>
+       to the project, so Enter opens it — the confirmation step is the
+       user's own keypress, and the subtitle says so. Focus lands on a
+       real link, so a screen reader announces the project name as part
+       of announcing the link, which is more reliable than depending on
+       the live region alone. Clicking a card directly is untouched: it
+       was always a plain link and still is. */
     function land(frontCard) {
       const name = frontCard.dataset.name || frontCard.dataset.slug;
-      if (spinSubtitle) spinSubtitle.textContent = 'landed on ' + name;
-
-      // Give the "landed on …" text a beat to register before leaving
-      // the page for the chosen project's case study.
-      if (frontCard.href) {
-        window.setTimeout(() => {
-          window.location.href = frontCard.href;
-        }, 700);
+      if (spinSubtitle) {
+        spinSubtitle.textContent = 'landed on ' + name + ' — press Enter to open';
       }
+      // Not preventScroll: if the wheel is off-screen (the user spun,
+      // then scrolled), bringing the landed card into view is the point.
+      frontCard.focus();
     }
 
     spinTrigger.addEventListener('click', spin);

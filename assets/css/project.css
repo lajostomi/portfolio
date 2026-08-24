@@ -900,12 +900,19 @@
    App issues / Student ideas — 4 uneven-width columns)
    ========================= */
 
+/* Proportional columns, not the four fixed Figma widths (348/174/156/
+   160px) these categories used to carry inline. Those widths were drawn
+   around 8px quote text; at a readable 14px the 156px and 160px columns
+   became unreadable ribbons about two words wide. 2fr for Communication
+   (it holds a 2-up mini-grid of six items, so it needs roughly double)
+   and 1fr for the three single-column lists keeps the same visual
+   hierarchy — widest first, narrower after — while letting every column
+   scale with the container instead of fighting it. */
 .findings-grid {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  align-items: start;
   gap: 32px;
-  flex-wrap: wrap;
   width: 100%;
 }
 
@@ -913,6 +920,9 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  /* Grid items default to min-width:auto; without this a long unbroken
+     quote sets the column's floor and blows the 2fr/1fr ratio apart. */
+  min-width: 0;
 }
 
 .finding-category h3 {
@@ -947,11 +957,16 @@
   line-height: 1.5;
 }
 
+/* 14px, not the 8px this used to carry, and at full opacity. 8px at 0.85
+   opacity is not "small print", it is unreadable — and it was 26 quotes
+   on this page at every viewport. The Figma column widths (348/174/156/
+   160px, previously set inline in mome-ulp.html) do not survive readable
+   type, so .findings-grid re-flows to proportional columns instead; the
+   type wins. */
 .finding-item .finding-quote {
-  font-size: 8px;
+  font-size: 14px;
   letter-spacing: -0.088px;
   line-height: 1.5;
-  opacity: 0.85;
 }
 
 /* =========================
@@ -1294,8 +1309,22 @@
      is what actually fixes the sticky notes overflowing their boxes:
      font size now shrinks in lockstep with the box instead of staying
      a fixed px size the box can no longer fit at narrower viewports. */
-  font-size: clamp(8px, 1.68cqw, 20px);
-  line-height: 1.5;
+  /* 12px floor, not 8px. Below 900px this whole canvas becomes a plain
+     list (see the breakpoint below), so the floor now only has to hold
+     for the narrow end of the canvas layout rather than propping up
+     illegible 8px text on a phone.
+
+     1.6cqw, down from 1.68, with line-height 1.4 rather than 1.5: the
+     old pair did not actually fit its boxes — measured 8px of text
+     spilling below the coloured note at 1360px and 4.6px at 1024px,
+     because line breaks land on whole lines and the box height does not.
+     1.6/1.4 is the largest of the combinations tried that gives zero
+     overflow at every width from 901 to 1920, so it keeps the notes as
+     large as they can be while staying inside their boxes. At the
+     design's own 1194px canvas that resolves to 19.1px against the
+     original 20px. */
+  font-size: clamp(12px, 1.6cqw, 20px);
+  line-height: 1.4;
   text-align: center;
 }
 
@@ -1373,7 +1402,16 @@
 .results-score p { margin: 0; }
 
 .results-score--p1 { background: #1915f1; color: #ede5e5; }
-.results-score--p2 { background: #ff0000; }
+/* #ff3333, not pure #ff0000: against this cell's #1a1818 text pure red
+   measures 4.42:1 — under the 4.5:1 AA floor for 16px text, i.e. failing
+   while looking like it passes. Note the fix is to LIGHTEN, not darken:
+   the text here is dark, so a darker red drops it further (#d20000 is
+   3.15:1), and flipping to cream on pure red is worse still at 3.23:1.
+   #ff3333 keeps the red colour-coding unmistakable and keeps the dark
+   text consistent with its yellow and green siblings.
+   Measured: 4.86:1. (p1 blue/cream 7.00:1, p3 yellow/dark 14.60:1,
+   win green/dark 6.45:1 — all already comfortable, left alone.) */
+.results-score--p2 { background: #ff3333; }
 .results-score--p3 { background: #f1f11d; }
 .results-score--win { background: #16b364; }
 
@@ -1579,13 +1617,88 @@
     flex: 1 1 calc(33.333% - 22px);
   }
 
-  /* MOME ULP */
+  /* MOME ULP: four proportional columns cannot hold 14px quotes at this
+     width — the 1fr columns land around 130px, roughly two words a line.
+     Two columns keeps the quotes readable; they go to one at 600px. */
   .findings-grid {
-    flex-direction: column;
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .finding-category {
-    width: 100%;
+  /* ---------- MOME ULP participant collages: canvas -> list ----------
+     Above this width the notes are hand-placed on an absolutely
+     positioned canvas, sized in cqw so they scale with it. That stops
+     working on a phone: the boxes get too small for their text at any
+     legible size, which is why the note font used to bottom out at 8px
+     and still overflowed its coloured box by 4-6px. Rather than trade
+     legibility against overflow, the canvas is abandoned here — the
+     screenshots stay (in a simple 2-up grid) and the same quotes are
+     rendered as a plain full-width list underneath at normal body size.
+     Nothing is hidden except the doodles and arrows, which are purely
+     connectors between positions that no longer exist. DOM order already
+     puts every image before every note, so no markup changes are needed. */
+  .collage-canvas--participant1,
+  .collage-canvas--participant2,
+  .collage-canvas--participant3 {
+    /* container-type:inline-size stays harmless, but the cqw font sizes
+       below are overridden outright so it no longer drives anything. */
+    aspect-ratio: auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .collage-canvas--participant1 .collage-item,
+  .collage-canvas--participant2 .collage-item,
+  .collage-canvas--participant3 .collage-item {
+    /* Cancels the inline left/top/width/height percentages, which are
+       meaningless once the items are back in normal flow. !important is
+       required, not decorative: the placement really is inline on every
+       item in mome-ulp.html, so a plain rule loses to it and the notes
+       stay pinned at their canvas percentages (measured: a note still
+       94x24px in list mode, with its text 264px tall spilling out). */
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* Every collage screenshot is the same 274x608 crop of its canvas,
+     whichever participant it belongs to — so one ratio covers all three. */
+  .collage-canvas--participant1 .collage-image,
+  .collage-canvas--participant2 .collage-image,
+  .collage-canvas--participant3 .collage-image {
+    aspect-ratio: 274 / 608;
+  }
+
+  .collage-canvas--participant1 .collage-note,
+  .collage-canvas--participant2 .collage-note,
+  .collage-canvas--participant3 .collage-note {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    padding: 12px 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .collage-canvas--participant1 .collage-note p,
+  .collage-canvas--participant2 .collage-note p,
+  .collage-canvas--participant3 .collage-note p {
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .collage-canvas--participant1 .collage-doodle,
+  .collage-canvas--participant2 .collage-doodle,
+  .collage-canvas--participant3 .collage-doodle,
+  .collage-canvas--participant1 .collage-arrow,
+  .collage-canvas--participant2 .collage-arrow,
+  .collage-canvas--participant3 .collage-arrow {
+    display: none;
+  }
+
+  .finding-items--grid {
+    grid-template-columns: 1fr;
   }
 
   .hmw-grid {
@@ -1629,6 +1742,10 @@
 
 /* ---------- mobile: <= 600px ---------- */
 @media (max-width: 600px) {
+  .findings-grid {
+    grid-template-columns: 1fr;
+  }
+
   .grid-4 {
     grid-template-columns: 1fr;
   }
