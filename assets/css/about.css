@@ -114,14 +114,20 @@
 .about-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  /* minmax(0, 1fr), not a bare 1fr: a bare 1fr row keeps an automatic
-     content-based minimum, which lets .grid-text's heading+paragraph
-     push the row taller than its share and drags the whole grid off the
-     aspect-ratio below (measured: 387px rows instead of 265px, cells
-     going 0.71 aspect instead of the design's 1.036). The old fixed
-     `height: 562px` masked this by force. A 0 minimum lets the ratio
-     actually govern, exactly as the fixed height used to. */
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  /* Bare 1fr, deliberately: these rows KEEP their automatic content
+     minimum so they can grow past the aspect-ratio below when the text
+     cell genuinely needs it. .grid-text spans both rows, and as the grid
+     narrows its copy gets taller while the proportional height gets
+     shorter — the two work against each other, and "Recently" (the
+     longest paragraph) overflowed its cell by up to 146px around 910px.
+     Letting the rows grow absorbs that instead of spilling text.
+     This only works because .grid-img's <img> is positioned absolutely
+     (see below) and so contributes nothing to the rows' intrinsic
+     height. With the image in normal flow its natural pixel height IS
+     the row's content minimum, which is what pinned this grid at 805px
+     tall (386px rows, cells at 0.71 aspect instead of the design's
+     1.036) before the images were taken out of flow. */
+  grid-template-rows: repeat(2, 1fr);
   gap: 32px;
   width: 100%;
   /* Proportional height, not the flat 562px this used to carry. The
@@ -136,22 +142,38 @@
      width, so the crops stay exactly as tuned. At >= the full 1194px
      measure this resolves to the same 562px as before. */
   aspect-ratio: 1194 / 562;
-  /* .about-grid is a flex item (.about-sections is a column flex
-     container), and a flex item's default `min-height: auto` resolves to
-     its content-based minimum — which outranks aspect-ratio and pinned
-     the grid at 805px tall (386px rows) whatever ratio was declared.
-     Zeroing the minimum lets the ratio govern. The old `height: 562px`
-     never hit this: a definite height isn't subject to the automatic
-     minimum in the first place. */
-  min-height: 0;
+  /* min-height is left at its `auto` default on purpose (.about-grid is a
+     flex item of .about-sections, so that resolves to its content-based
+     minimum). That minimum is what lets the grid outgrow the
+     aspect-ratio when the text cell needs more room than the proportion
+     allows — pin it to 0 and the ratio wins outright, the rows stay
+     short, and the copy spills out of its cell instead.
+     This was 0 while the images were still in normal flow, because back
+     then the content minimum came from their intrinsic pixel heights and
+     pinned the grid at 805px tall. With the images positioned absolutely
+     the only thing left feeding this minimum is the text, which is
+     exactly what it should track. */
 }
 
 .grid-img {
   border-radius: var(--radius-lg);
   overflow: hidden;
+  /* Containing block for the absolutely-positioned image below. */
+  position: relative;
 }
 
+/* Absolute, not in normal flow. An in-flow <img> with height:100% against
+   an indefinite row falls back to its own intrinsic pixel height for
+   intrinsic sizing, so a 1600px-tall photo became the grid row's content
+   minimum and blew the whole grid off its proportions. Out of flow it
+   contributes nothing to sizing, which is what lets .about-grid's rows
+   use a real content minimum (driven only by the text cell) while the
+   photos still fill their cell exactly as before. Painting is unchanged:
+   inset:0 + object-fit:cover fills the same box, and the per-image
+   object-position values in about.html still apply. */
 .grid-img img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -166,14 +188,29 @@
 
 .grid-text h2 {
   margin: 0;
-  font-size: 32px;
+  /* Scales instead of holding a flat 32px. .grid-text occupies one of
+     the four columns, so between 900px and the design width it is only
+     185-275px wide, and a fixed 32px heading wrapped "The fur on my
+     clothes" onto four lines in a sliver. clamp() tops out at the
+     design's own 32px, which is reached by ~1334px — i.e. everywhere
+     the container is at its full 1194px measure, so the desktop
+     appearance is unchanged. */
+  font-size: clamp(22px, 2.4vw, 32px);
   font-weight: 500;
   line-height: 1.5;
 }
 
 .grid-text p {
   margin: 0;
-  font-size: 20px;
+  /* Scales with the heading, and for a second reason beyond readability:
+     .grid-text is the only cell that can push .about-grid past its
+     aspect-ratio, and every pixel it grows makes the photo cells taller
+     than wide again — the exact crop distortion the ratio exists to
+     prevent. Shrinking the copy in step with the shrinking grid keeps
+     that growth small, so the cells stay near the design's 1.036 aspect
+     much further down. Tops out at the design's 20px by ~1176px, i.e.
+     wherever the container is at or near its full measure. */
+  font-size: clamp(16px, 1.7vw, 20px);
   line-height: 1.5;
 }
 
@@ -181,20 +218,17 @@
    Responsive
    ========================= */
 
-/* ---------- .about-grid: component-specific exception at 1360px ----------
-   Documented exception to the shared 900/600 set (see BREAKPOINTS at the
-   top of style.css). 1360px is the viewport width at which the 1194px
-   container finally reaches its full design width — below it, the 4
-   columns are all narrower than the 274px they were designed at, and
-   .grid-text is the cell that breaks first: it occupies a single column
-   carrying a 32px heading, so at a 950px viewport it is a ~185px sliver
-   with "The fur on my clothes" wrapping to four lines. The proportional
-   aspect-ratio above fixes the photo crops across this range but cannot
-   make that text column readable, so the grid reflows to 2 columns as
-   soon as it is asked to render below its design width.
-   (project.css's .ia-row takes the same 1360px exception, for the same
-   underlying reason: three fixed-width boxes that stop fitting.) */
-@media (max-width: 1360px) {
+/* ---------- tablet: <= 900px ----------
+   This reflow briefly lived at 1360px, to widen .grid-text (a single
+   column carrying a 32px heading, ~185px at a 950px viewport). That was
+   a bad trade and is reverted: at 1360 the 2-column fallback renders
+   574x574 photos and turns one section into a 1180x1957px wall of
+   squares, so every normal laptop got a far worse page than the mildly
+   tight text column it was meant to cure. The 4-column layout holds down
+   to 900px as it always did; the heading scales instead (see
+   .grid-text h2 above), which fixes the readability without touching
+   the composition. */
+@media (max-width: 900px) {
   .about-grid {
     /* Cancels the proportional height: once the cells are re-placed by
        the resets below, row heights come from content plus each

@@ -1398,8 +1398,16 @@
     width: 100%;
   }
 
+  /* Centred, not left-hugged. In the row layout each box is sized to its
+     own content, so the links fill it and read as a balanced block. Once
+     the boxes go full-width the same links kept their default
+     flex-start, leaving Home's three items stranded in the left third of
+     a ~1400px box with a lake of empty space beside them — the stacked
+     state looked broken even though the row layout it falls back from is
+     fine. Centring restores the composition at any box width. */
   .ia-links {
     flex-wrap: wrap;
+    justify-content: center;
   }
 }
 
