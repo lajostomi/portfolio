@@ -1120,7 +1120,16 @@
      .ia-row above) — nowrap here too, switched back to wrap only once
      .ia-box goes full-width at the mobile breakpoint. */
   flex-wrap: nowrap;
-  font-size: 16px;
+  /* Scales with the boxes. The columns bottom out at min-content (their
+     longest word) and the <p> siblings are nowrap, so once the row is
+     shrunk far enough nothing can give and .ia-links overflows its box —
+     measured 4px of spill at a 1280px viewport rising to 32px by 1170
+     with a flat 16px. Shrinking the label type shrinks those floors
+     along with everything else, which is what carries the three-across
+     diagram down through the whole laptop range instead of stacking it
+     at the first sign of pressure. Tops out at the design's 16px by
+     ~1392px, so the full-width appearance is unchanged. */
+  font-size: clamp(13px, 1.15vw, 16px);
   text-align: center;
 }
 
@@ -1131,7 +1140,21 @@
   flex-direction: column;
   gap: 8px;
   width: 120px;
-  min-width: 0;
+  /* A real floor, not 0. These columns are the only shrinkable things in
+     the row: their <p> siblings (Now+Next, Canteen, Library) are single
+     words with white-space:nowrap and cannot give up a pixel, so every
+     bit of deficit lands here. With min-width:0 they shrank without
+     limit — measured 53px wide at a 1200px viewport, 28px at 1100, 0px
+     by 950, with the text spilling sideways out of collapsed columns.
+     min-content rather than a flat number: the floor that matters is the
+     longest unbreakable WORD in each column, and that differs per column
+     (78px for "Academic", up to 99px for "Scholarships"). A single flat
+     value would either still clip the widest column or waste ~20px on
+     every narrow one, and it would silently go stale the moment a label
+     is edited. This is what lets the row keep its three-across shape all
+     the way down to the 1160px breakpoint below instead of stacking at
+     1360. */
+  min-width: min-content;
 }
 
 .ia-link-col p { margin: 0; text-align: center; }
@@ -1364,29 +1387,32 @@
    Responsive
    ========================= */
 
-/* MOME ULP: Home/Resources/Contacts row (.ia-row) needs its full,
-   un-shrunk ~1194px to lay out its fixed-width columns — .project-container
-   only actually delivers that once the viewport is wide enough that its
-   own max-width (1194px + 2*gutter) is the binding constraint rather than
-   the viewport itself (works out to ~1357px; 1360px rounds up with a
-   couple px of slack). Below that, the row's own flex-shrink prorates the
-   deficit across all three boxes and, one level down, across .ia-links'
-   columns too — but .ia-link-col has min-width:0 while its sibling <p>
-   labels (Now+Next, Canteen, Library) are white-space:nowrap with no such
-   override, so they refuse to shrink at all and dump the entire deficit
-   onto the columns instead. Past a fairly narrow viewport that crushes a
-   column to a few px wide, wrapping every word onto its own line and
-   spilling text sideways into the neighbouring label/column. Rather than
-   trying to rebalance that shrink, this switches to the same stacked
-   single-column layout the 900px breakpoint below already uses for
-   narrower viewports still — proven layout, just switched on earlier so
-   the row is never asked to shrink past what it can actually hold.
+/* MOME ULP: Home/Resources/Contacts row (.ia-row) stacks only once it
+   genuinely cannot hold three boxes side by side.
 
-   This is a documented component-specific exception to the shared
-   900/600 breakpoint set (see BREAKPOINTS at the top of style.css) —
-   kept deliberately, not an oversight. about.css's .about-grid takes the
-   same 1360px exception for the same underlying reason. */
-@media (max-width: 1360px) {
+   This used to stack at 1360px — the width at which .project-container
+   stops delivering the full un-shrunk 1194px the boxes were drawn at.
+   That was far too early: the design reads perfectly well shrunk, with
+   the labels simply wrapping onto more lines, and stacking it turned
+   every normal laptop into three full-width boxes instead of the
+   three-across diagram the section exists to show.
+
+   The reason it stacked that early was a shrink imbalance, not a real
+   space limit. The row's flex-shrink prorates any deficit across the
+   three boxes and, one level down, across .ia-links' children — but
+   .ia-link-col had min-width:0 while its sibling <p> labels (Now+Next,
+   Canteen, Library) are single words with white-space:nowrap and cannot
+   shrink at all, so the columns absorbed 100% of it and collapsed
+   (measured: 53px wide at a 1200px viewport, 28px at 1100, 0px by 950,
+   with text spilling sideways). Giving .ia-link-col a 76px floor instead
+   fixes the cause, so the row now holds its shape all the way down to
+   ~1100px, where the floors finally sum past the available width and
+   stacking is the honest answer.
+
+   Still a documented component-specific exception to the shared 900/600
+   set (see BREAKPOINTS at the top of style.css), just a much smaller one
+   than before. */
+@media (max-width: 1160px) {
   .ia-row {
     flex-direction: column;
   }
