@@ -150,12 +150,13 @@
      numbers (a clamp, plus a flat 180px below 600px) measured against a
      footer that happened to be 90px on one line and 147px on two.
 
-     Those numbers do not survive an edit. Renaming the CLOSE pill to
-     BACK TO WORK made the group wider, which pushed it to three lines on
-     small phones (205px, overrunning the 180px padding by 25px) and to
-     two lines around 700px (147px against ~98px of padding, a 50px
+     Those numbers do not survive an edit. Temporarily relabelling this
+     pill during the header work made the group wider and pushed it to
+     three lines on small phones (205px, overrunning the 180px padding by
+     25px) and to two lines around 700px (147px against ~98px, a 50px
      overrun) — a caption change silently reintroducing the exact overlap
-     bug the padding existed to prevent.
+     bug the padding existed to prevent. The label is back to CLOSE, but
+     the lesson stands and the measurement stays.
 
      Measuring the real height instead means the padding tracks whatever
      the footer actually does, at any width, after any future label or
@@ -178,13 +179,10 @@
       document.fonts.ready.then(updateFooterHeight);
     }
   }
-  /* ---------- "BACK TO WORK" pill: carousel vs. WORK grid ----------
-     Labelled CLOSE until the project pages gained a header: "close"
-     described a gesture, not a destination, and it was the only way back
-     to the rest of the site. The href is deliberately unchanged, so the
-     selector below still matches — and the new header’s WORK link points
-     at the same place but carries .nav-link, so it cannot be picked up by
-     this .footer-pill--dark selector by accident.
+  /* ---------- CLOSE pill: carousel vs. WORK grid ----------
+     The header added to these pages also links to index.html#work, but
+     it carries .nav-link, so it cannot be picked up by this
+     .footer-pill--dark selector by accident.
 
      The pill normally returns to index.html#work (the WORK grid), but if
      this page was reached from a SPIN wheel card — by spinning, or by
