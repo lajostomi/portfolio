@@ -43,7 +43,7 @@
      Padding the max-width itself by 2x the gutter means content
      reaches the full 1194px as soon as the viewport is wide enough,
      same as everything else on the page. */
-  max-width: calc(1194px + 2 * var(--gutter));
+  max-width: calc(var(--container-max) + 2 * var(--gutter));
   margin-inline: auto;
   padding-inline: var(--gutter);
   display: flex;
@@ -1380,7 +1380,12 @@
    trying to rebalance that shrink, this switches to the same stacked
    single-column layout the 900px breakpoint below already uses for
    narrower viewports still — proven layout, just switched on earlier so
-   the row is never asked to shrink past what it can actually hold. */
+   the row is never asked to shrink past what it can actually hold.
+
+   This is a documented component-specific exception to the shared
+   900/600 breakpoint set (see BREAKPOINTS at the top of style.css) —
+   kept deliberately, not an oversight. about.css's .about-grid takes the
+   same 1360px exception for the same underlying reason. */
 @media (max-width: 1360px) {
   .ia-row {
     flex-direction: column;
@@ -1398,7 +1403,39 @@
   }
 }
 
+/* ---------- tablet: <= 900px ---------- */
 @media (max-width: 900px) {
+  /* .method-header and .feedback-row stack here, not at their old 560px.
+     Both use flex-wrap:nowrap with shrinkable children on desktop — that
+     is deliberate and stays (see the long comment on .method-header for
+     why wrap misbehaves there) — but nowrap means they keep shrinking
+     instead of breaking, and .feedback-row has four items: a 32px
+     heading plus three quote bubbles. At ~600px that was ~114px each.
+     Stacking at the same width the rest of the page reflows keeps the
+     desktop behaviour intact and stops the shrink well before it gets
+     that far. */
+  .method-header {
+    flex-wrap: wrap;
+  }
+
+  .method-header h2,
+  .method-header .method-label {
+    flex-basis: 100%;
+  }
+
+  .method-header .method-label {
+    text-align: left;
+  }
+
+  .feedback-row {
+    flex-wrap: wrap;
+  }
+
+  .feedback-heading,
+  .feedback-bubble {
+    flex-basis: 100%;
+  }
+
   .hero-meta {
     align-items: flex-start;
     text-align: left;
@@ -1556,29 +1593,8 @@
   }
 }
 
-@media (max-width: 560px) {
-  .method-header {
-    flex-wrap: wrap;
-  }
-
-  .method-header h2,
-  .method-header .method-label {
-    flex-basis: 100%;
-  }
-
-  .method-header .method-label {
-    text-align: left;
-  }
-
-  .feedback-row {
-    flex-wrap: wrap;
-  }
-
-  .feedback-heading,
-  .feedback-bubble {
-    flex-basis: 100%;
-  }
-
+/* ---------- mobile: <= 600px ---------- */
+@media (max-width: 600px) {
   .grid-4 {
     grid-template-columns: 1fr;
   }

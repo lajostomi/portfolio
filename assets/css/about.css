@@ -17,7 +17,9 @@
 }
 
 .about-container {
-  max-width: calc(1194px + 2 * var(--gutter));
+  /* Shared container measure — see the CONTAINER note at the top of
+     style.css. Was the 1194px literal; --container-max now holds it. */
+  max-width: calc(var(--container-max) + 2 * var(--gutter));
   margin-inline: auto;
   padding-inline: var(--gutter);
   display: flex;
@@ -112,10 +114,36 @@
 .about-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  /* minmax(0, 1fr), not a bare 1fr: a bare 1fr row keeps an automatic
+     content-based minimum, which lets .grid-text's heading+paragraph
+     push the row taller than its share and drags the whole grid off the
+     aspect-ratio below (measured: 387px rows instead of 265px, cells
+     going 0.71 aspect instead of the design's 1.036). The old fixed
+     `height: 562px` masked this by force. A 0 minimum lets the ratio
+     actually govern, exactly as the fixed height used to. */
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: 32px;
   width: 100%;
-  height: 562px;
+  /* Proportional height, not the flat 562px this used to carry. The
+     columns are 1fr and shrink with the container, but a fixed height
+     kept the rows at 265px regardless: at a 910px viewport the cells
+     measured 172x265, turning the design's near-square 274x265 crop
+     strongly portrait. object-fit: cover then discarded most of each
+     photo, and the per-image object-position values hand-tuned in
+     about.html no longer framed what they were tuned to frame.
+     Deriving the height from the width via the design's own 1194x562
+     box keeps every cell's aspect ratio constant at any container
+     width, so the crops stay exactly as tuned. At >= the full 1194px
+     measure this resolves to the same 562px as before. */
+  aspect-ratio: 1194 / 562;
+  /* .about-grid is a flex item (.about-sections is a column flex
+     container), and a flex item's default `min-height: auto` resolves to
+     its content-based minimum — which outranks aspect-ratio and pinned
+     the grid at 805px tall (386px rows) whatever ratio was declared.
+     Zeroing the minimum lets the ratio govern. The old `height: 562px`
+     never hit this: a definite height isn't subject to the automatic
+     minimum in the first place. */
+  min-height: 0;
 }
 
 .grid-img {
@@ -153,9 +181,25 @@
    Responsive
    ========================= */
 
-@media (max-width: 900px) {
+/* ---------- .about-grid: component-specific exception at 1360px ----------
+   Documented exception to the shared 900/600 set (see BREAKPOINTS at the
+   top of style.css). 1360px is the viewport width at which the 1194px
+   container finally reaches its full design width — below it, the 4
+   columns are all narrower than the 274px they were designed at, and
+   .grid-text is the cell that breaks first: it occupies a single column
+   carrying a 32px heading, so at a 950px viewport it is a ~185px sliver
+   with "The fur on my clothes" wrapping to four lines. The proportional
+   aspect-ratio above fixes the photo crops across this range but cannot
+   make that text column readable, so the grid reflows to 2 columns as
+   soon as it is asked to render below its design width.
+   (project.css's .ia-row takes the same 1360px exception, for the same
+   underlying reason: three fixed-width boxes that stop fitting.) */
+@media (max-width: 1360px) {
   .about-grid {
-    height: auto;
+    /* Cancels the proportional height: once the cells are re-placed by
+       the resets below, row heights come from content plus each
+       .grid-img's own 1/1 ratio, not from the grid's outer box. */
+    aspect-ratio: auto;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
   }
@@ -174,7 +218,8 @@
   }
 }
 
-@media (max-width: 560px) {
+/* ---------- mobile: <= 600px ---------- */
+@media (max-width: 600px) {
   .about-grid {
     grid-template-columns: 1fr;
   }

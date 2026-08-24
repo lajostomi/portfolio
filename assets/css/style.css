@@ -2,6 +2,47 @@
    Lajos Tamás Jakab — Portfolio
    Landing page styles
    Design source: Figma "Portfolio_website" — Landing page (node 199:523)
+   =========================================================
+
+   BREAKPOINTS — the one set every stylesheet in this project uses.
+   Declared here because style.css loads first on every page.
+
+     desktop   > 900px    full design layout
+     tablet   <= 900px    multi-column grids collapse (4->2, 2->1), the
+                          nav becomes the hamburger overlay
+     mobile   <= 600px    everything is a single column, --gutter stops
+                          scaling and pins to 24px, type steps down
+
+   These two numbers are it. style.css, project.css and about.css all
+   break at exactly 900px and 600px, so the nav, the landing grids and
+   the project grids always agree on where "tablet" and "mobile" begin.
+   (Before this was consolidated the three files broke at 1023/900/767,
+   1360/900/560 and 900/560 respectively, which is why at ~780px the nav
+   was still in its desktop form while project grids had already
+   collapsed to 2 columns.)
+
+   COMPONENT-SPECIFIC EXCEPTIONS — a component may add ONE extra
+   breakpoint of its own when a real measured constraint forces it, but
+   it must be commented with the reason at the @media rule. Current
+   exceptions, both at 1360px (the viewport width at which the 1194px
+   container finally reaches its full design width, so both are really
+   "the design width no longer fits"):
+     - project.css  .ia-row      — 3 fixed-width boxes stop fitting
+     - about.css    .about-grid  — the 4-col photo grid's text column
+                                   drops under ~274px and stops reading
+
+   CONTAINER — one shared centered measure, --container-max (1194px),
+   used by .site-header, .work-section, .contact-section, .wheel-stage,
+   .project-container and .about-container so every page's content sits
+   on the same left and right edge. Two ways to apply it, both landing
+   on an identical (100% - 1194px) / 2 inset once the viewport is wide
+   enough:
+     - block containers:  max-width: calc(var(--container-max) + 2 * var(--gutter));
+                          margin-inline: auto; padding-inline: var(--gutter);
+     - full-bleed bars:   padding-inline: max(var(--gutter), calc((100% - var(--container-max)) / 2));
+   The second form is for elements whose own background must still span
+   the full viewport (the sticky header), where a max-width would cut
+   the background short.
    ========================================================= */
 
 :root {
@@ -13,7 +54,12 @@
 
   --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  --container-max: 1192px;
+  /* 1194px, not the 1192px this used to say: 1194 is the number the
+     project and about pages were already hardcoding as a literal, and
+     the landing grids divide into it exactly (4 columns + 3x32px gaps
+     = 4 x 274.5px, the design's 274px card). The old 1192 token was
+     referenced by nothing at all, so nothing depended on it. */
+  --container-max: 1194px;
   --gutter: clamp(24px, 6vw, 124px);
 
   --radius-lg: 16px;
@@ -111,7 +157,17 @@ section {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 24px var(--gutter);
+  padding-block: 24px;
+  /* Full-bleed form of the shared container (see the CONTAINER note at
+     the top of this file). The header's own background has to reach both
+     viewport edges — it's the sticky bar everything scrolls under — so
+     it can't take a max-width; instead the padding grows past --gutter
+     once the viewport exceeds the 1194px measure, landing the logo and
+     the nav on exactly the same left/right edge as the page content
+     below. Previously this was a flat `var(--gutter)`, which at 1920px
+     put the logo at x=115 while about/project content started at x=355 —
+     the nav sat 240px to the left of the content it belongs to. */
+  padding-inline: max(var(--gutter), calc((100% - var(--container-max)) / 2));
   position: sticky;
   top: 0;
   z-index: 30;
@@ -273,7 +329,13 @@ section {
 .wheel-stage {
   position: relative;
   width: 100%;
-  max-width: 1191px;
+  /* The shared 1194px measure rather than the Figma frame's own 1191px:
+     3px wider, but it puts the stage's left edge on the same number as
+     the WORK cards directly below it. At 1920px the 1191px stage started
+     at x=357 against the grid's x=355 — close enough to look like a
+     misalignment rather than a decision. The composition is driven by
+     aspect-ratio below, so it just scales by 0.25%. */
+  max-width: var(--container-max);
   margin-inline: auto;
   /* Extra headroom above the design's own 1191x517 box: mid-spin, a
      card near the front slot is rotated just enough that its corners
@@ -360,6 +422,14 @@ section {
   align-items: flex-start;
   gap: clamp(32px, 5vw, 80px);
   margin-top: clamp(48px, 8vw, 120px);
+  /* Shared container (see CONTAINER at the top of this file). The
+     `section` rule already supplies padding-inline: var(--gutter);
+     these two lines add the cap. Without it the grid ran the full
+     viewport width minus gutters — 1675px at 1920px — while the SPIN
+     wheel directly above it stayed at its ~1191px design width, so the
+     wheel read as a narrow island floating 242px inside the cards. */
+  max-width: calc(var(--container-max) + 2 * var(--gutter));
+  margin-inline: auto;
 }
 
 .project-grid {
@@ -460,6 +530,9 @@ section {
   gap: clamp(32px, 5vw, 80px);
   margin-top: clamp(48px, 8vw, 120px);
   margin-bottom: clamp(48px, 8vw, 120px);
+  /* Shared container — same as .work-section above. */
+  max-width: calc(var(--container-max) + 2 * var(--gutter));
+  margin-inline: auto;
 }
 
 .contact-info {
@@ -477,6 +550,21 @@ section {
 
 .contact-icon {
   width: 100%;
+  /* Capped at the design's own 274px column. Uncapped, this square grew
+     with its grid column while the icon inside stayed a fixed 64px: 375px
+     at the 2-column breakpoint and 537px at 1 column, i.e. a 537x537 slab
+     of cream holding one small icon, three times down the page — and
+     these are the highest-contrast elements on a dark page, so at that
+     size they swallowed the section. Capping keeps the icon-to-tile
+     proportion at the design's 64/274 all the way down, since below
+     274px the tile and icon shrink together. The 4-column desktop layout
+     is untouched: with the container fix above, a desktop column is
+     (1194 - 3x32) / 4 = 274.5px, so the cap is already a no-op there. */
+  max-width: 274px;
+  /* Explicit, though flex's default stretch would also start here once
+     max-width binds — states the intent that a capped tile hugs the
+     left edge of its column rather than centering in it. */
+  align-self: flex-start;
   aspect-ratio: 1 / 1;
   background: var(--color-icon-bg);
   border-radius: var(--radius-lg);
@@ -491,12 +579,20 @@ section {
   transform: translateY(-4px);
 }
 
-/* Fixed at the design's own 64px height (mail's SVG is naturally a touch
-   wider than tall) instead of filling the tile, so it reads as a small
-   centred icon on a card rather than scaling up with the tile itself. */
+/* Sized as a proportion of the tile rather than a flat 64px, so the
+   icon-to-tile relationship stays at the design's 64/274 = 23.36% at
+   every tile size. The tile is square (aspect-ratio above) and has a
+   definite height, so the percentage resolves against it directly.
+   A flat 64px was right only at the design's own 274px tile: once the
+   tile is capped at 274px it can still come out *smaller* than that in
+   a 4-column layout on a mid-size screen (170px at a 905px viewport),
+   where a fixed 64px icon jumps to 37% of the tile and reads as
+   oversized. max-height keeps 64px as the ceiling so the icon never
+   exceeds the design size even if a tile is ever wider. */
 .contact-icon img {
   width: auto;
-  height: 64px;
+  height: 23.36%;
+  max-height: 64px;
   max-width: 80%;
   object-fit: contain;
 }
@@ -524,25 +620,26 @@ section {
    Responsive
    ========================= */
 
-@media (max-width: 1023px) {
-  .contact-info {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
+/* ---------- tablet: <= 900px ---------- */
 @media (max-width: 900px) {
   .project-grid {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 767px) {
-  :root { --gutter: 24px; }
+  /* Was its own 1023px breakpoint; folded into the shared tablet tier. */
+  .contact-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   .site-header {
     padding-block: 20px;
   }
 
+  /* The nav becomes the hamburger overlay at the same width the grids
+     collapse, rather than at its own old 767px. It still physically fits
+     as a row down to ~600px, but a desktop-style nav sitting above a
+     page whose every grid has already reflowed was the most visible
+     symptom of the three stylesheets disagreeing. */
   .nav-toggle { display: flex; }
 
   .nav-menu {
@@ -572,6 +669,16 @@ section {
   .nav-toggle[aria-expanded="true"] span:nth-child(3) {
     transform: translateY(-7px) rotate(-45deg);
   }
+}
+
+/* ---------- mobile: <= 600px ---------- */
+@media (max-width: 600px) {
+  /* --gutter stops scaling here rather than at the tablet boundary: at
+     600px the clamp is already down to 36px, so pinning it to 24px is a
+     12px step. Pinning it at 900px instead would have dropped it from
+     54px to 24px in one jump, which reads as the page lurching sideways
+     at the breakpoint. */
+  :root { --gutter: 24px; }
 
   .spin-subtitle { font-size: 16px; }
 

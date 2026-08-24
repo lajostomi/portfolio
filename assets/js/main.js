@@ -45,6 +45,20 @@
 
     updateHeaderHeight();
     window.addEventListener('resize', updateHeaderHeight);
+
+    /* Measuring once at parse time reads the header while it is still
+       laid out in the fallback font. Plus Jakarta Sans arrives from
+       Google Fonts afterwards, the logo's line box grows, and the header
+       settles ~11px taller than the number already written to
+       --header-height (measured: variable 72px, real height 83px). That
+       stale value feeds #work/#contact's scroll-margin-top, so every
+       anchor jump landed 11px high and the intended 24px of air under
+       the sticky header became 13px. Re-measure once the webfonts are
+       actually in. Guarded because document.fonts is unavailable in a
+       few older browsers, where the initial measurement stands. */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(updateHeaderHeight);
+    }
   }
 
   /* ---------- CLOSE button: back to carousel vs. WORK grid ----------
