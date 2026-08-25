@@ -2206,18 +2206,25 @@
   position: relative;
 }
 
-/* The button is a bare 32x32 box: the supplied artwork draws its own dark
-   rounded plate, so there is no background, radius or shadow here to fight
-   with it, and no optical nudge — the glyph is already positioned inside its
-   own 32x32 frame. */
+/* The button is a bare box: the supplied artwork draws its own dark rounded
+   plate, so there is no background, radius or shadow here to fight with it,
+   and no optical nudge — the glyph is already positioned inside its own
+   frame.
+
+   Drawn at 32px, rendered at 44px. That is the minimum comfortable touch
+   target, and these pages are mostly read on a phone, so the whole control
+   is scaled to it rather than padding an invisible hit area around a 32px
+   graphic — the press target and the thing you aim at are then the same
+   object. It is vector on a 32x32 viewBox, so it scales exactly; the plate's
+   6px corner radius scales with it, to 8.25px. */
 .video-play {
   position: absolute;
   /* inset + auto margins centres it without a transform, which keeps it out
      of the way of the containing-block rules that transforms impose. */
   inset: 0;
   margin: auto;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2234,15 +2241,6 @@
   display: block;
 }
 
-/* The artwork is 32px, which is below a comfortable touch target, and this
-   control lives on pages that are mostly read on a phone. Rather than scale
-   the artwork past the size it was drawn at, an invisible pseudo-element
-   pads the hit area out to 44px square around it. */
-.video-play::after {
-  content: "";
-  position: absolute;
-  inset: -6px;
-}
 
 .video-play:hover,
 .video-play:focus-visible {
