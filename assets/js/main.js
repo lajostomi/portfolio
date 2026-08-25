@@ -364,31 +364,57 @@
       requestAnimationFrame(tick);
     }
 
-    /* Hands the result to the user instead of taking the decision away.
-       This used to set window.location.href on a 700ms timer, which is an
-       unannounced page change: the aria-live subtitle starts reading
-       "landed on X" and the page is gone before a screen reader finishes
-       the sentence, with no way to cancel and nothing explaining what
-       just happened. There is also no keyboard equivalent of "wait, not
-       that one".
+    /* SPIN is a slot machine: it opens the project it landed on rather
+       than asking permission. The delay below exists purely so the result
+       is readable before the page changes.
 
-       Now the landed card simply takes focus. It is already an <a href>
-       to the project, so Enter opens it — the confirmation step is the
-       user's own keypress, and the subtitle says so. Focus lands on a
-       real link, so a screen reader announces the project name as part
-       of announcing the link, which is more reliable than depending on
-       the live region alone. Clicking a card directly is untouched: it
-       was always a plain link and still is. */
+       History, so it isn't re-litigated: the first version navigated on a
+       700ms timer, which is too fast to read a project name — the result
+       flashed and was gone. That was replaced by requiring a keypress
+       ("press Enter to open"), which fixed the speed but told touch users
+       to press a key their device doesn't have, and put friction on the
+       one interaction meant to feel effortless. This version keeps the
+       automatic open and fixes the readability instead: the subtitle
+       states what's happening in plain language, and OPEN_DELAY gives it
+       time to be read.
+
+       Known trade-off, accepted deliberately: there is no visible way to
+       stop the pending navigation. Escape works but is undiscoverable, so
+       it's a safety valve rather than a real affordance. */
+    const OPEN_DELAY = 3000; // ms — time to read the result before opening
+    let openTimer = null;
+
+    function clearPendingOpen() {
+      if (!openTimer) return;
+      clearTimeout(openTimer);
+      openTimer = null;
+    }
+
     function land(frontCard) {
       const name = frontCard.dataset.name || frontCard.dataset.slug;
-      if (spinSubtitle) {
-        spinSubtitle.textContent = 'landed on ' + name + ' — press Enter to open';
-      }
+      if (spinSubtitle) spinSubtitle.textContent = 'opening ' + name + '…';
+
       // Not preventScroll: if the wheel is off-screen (the user spun,
       // then scrolled), bringing the landed card into view is the point.
       frontCard.focus();
+
+      openTimer = setTimeout(function () {
+        openTimer = null;
+        window.location.href = frontCard.href;
+      }, OPEN_DELAY);
     }
 
-    spinTrigger.addEventListener('click', spin);
+    spinTrigger.addEventListener('click', function () {
+      // Spinning again during the delay means "not that one" — drop the
+      // pending navigation or it fires mid-sweep and opens the old result.
+      clearPendingOpen();
+      spin();
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape' || !openTimer) return;
+      clearPendingOpen();
+      if (spinSubtitle) spinSubtitle.textContent = 'land on a\u00a0random project';
+    });
   }
 })();

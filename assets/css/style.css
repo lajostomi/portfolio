@@ -361,10 +361,21 @@ section {
   cursor: default;
 }
 
+/* Two lines of reserved height. The subtitle swaps between a short idle
+   label and "opening <project name>…", and the longest project name
+   ("Under NDA: Beyond Banking Product for SMEs") wraps to a second line.
+   Without a floor here that swap resizes the element and shoves the
+   whole wheel down at the exact moment the user is trying to read it. */
 .spin-subtitle {
   margin: 0;
   font-size: 20px;
   white-space: pre-wrap;
+  /* line-height is pinned rather than left at `normal` so the reservation
+     below is exact; `normal` varies with font and platform. 2.8em is two
+     of these lines, and being in em it follows the smaller mobile
+     font-size instead of reserving desktop space on a phone. */
+  line-height: 1.4;
+  min-height: 2.8em;
 }
 
 .spin-arrow {
