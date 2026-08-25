@@ -2105,22 +2105,11 @@
   }
 
   .results-participant-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: block;
     grid-column: 1 / -1;
     margin: 20px 0 0;
     font-size: 18px;
     font-weight: 500;
-  }
-
-  .results-participant-label::before {
-    content: "";
-    flex-shrink: 0;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--collage-color, currentColor);
   }
 
   .results-participant-label:first-child {
