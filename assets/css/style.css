@@ -144,6 +144,42 @@ img { max-width: 100%; display: block; }
    inconsistent spacing between adjacent text blocks. */
 p { margin: 0; }
 
+/* =========================
+   Line breaking
+   -------------------------
+   The browser's default greedy wrap fills each line to the brim and dumps
+   whatever is left on the last one, which is what produced the stranded
+   single words all over the site — "flow.", "them", "software.", "(P1)" —
+   and first lines noticeably shorter than the ones under them.
+
+   Two different tools, because they solve different halves of it:
+
+     text-wrap: pretty   looks ahead so the last line is never left with a
+                         lone word. Correct for running copy: it only
+                         adjusts the tail, so long paragraphs keep their
+                         even colour.
+     text-wrap: balance  evens the length of every line in the block. Right
+                         for short display text, wrong for long copy — and
+                         it self-limits anyway, since browsers stop
+                         balancing past about six lines.
+
+   Headings and short labels get `balance`; running copy gets `pretty`.
+   The narrow 274px columns override to `balance` in project.css — see the
+   note there for why `pretty` cannot help at that measure.
+
+   Chosen over nudging letter-spacing to force better breaks: a spacing
+   tweak only holds at the one width it was tuned for, and every other
+   viewport re-wraps somewhere else. These two properties re-solve the
+   break at every width instead. Both degrade to the old greedy wrap on a
+   browser that lacks them, so nothing breaks. */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+p, li {
+  text-wrap: pretty;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -724,6 +760,9 @@ section {
   margin: 0;
   font-size: 20px;
   line-height: 1.5;
+  /* One short sentence in a 274px column — balance evens all three lines
+     rather than only rescuing the last, which is what `pretty` would do. */
+  text-wrap: balance;
 }
 
 /* =========================

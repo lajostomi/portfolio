@@ -705,7 +705,18 @@
   flex: 0 1 269px;
   min-width: 0;
   max-width: 100%;
-  font-size: 32px;
+  /* Scales instead of holding a flat 32px, for the same reason
+     .grid-text h2 does in about.css, and to the same curve. This is a
+     shrinkable flex item: at the design width its column is 269px and
+     32px type fits about fourteen characters to the line, but the column
+     shrinks with the container, and by 1090px it is 209px — eleven
+     characters — which broke the heading into five stumps,
+     "Feedback / we received / from / potential / users". No wrap
+     setting can fix that; the type is simply too big for the measure.
+     At 26px the same heading sets as "Feedback we / received from /
+     potential users". Tops out at the design's 32px by ~1334px, so the
+     desktop appearance is unchanged. */
+  font-size: clamp(22px, 2.4vw, 32px);
   font-weight: 500;
   line-height: normal;
 }
@@ -1937,4 +1948,51 @@
   .results-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* =========================
+   Line breaking in the narrow columns
+   -------------------------
+   style.css sets `pretty` on running copy and `balance` on headings. These
+   selectors are the exceptions: every one of them is a short block sitting
+   in a 274px-or-narrower column (a step caption, a sticky note, an IA link,
+   a quote bubble, an insight), and at that measure `pretty` does almost
+   nothing — it only rescues a lone last word, and with five or six words to
+   a line there is rarely one to rescue. What actually reads as broken there
+   is the ragged first line, which only `balance` addresses.
+
+   Measured on fall-of-cozy-web at 1090px, the concept paragraph in a 274px
+   column:
+
+     pretty  "It presents the challenge to the / players whether they can /
+              differentiate between their partner / and Ai."
+     balance "It presents the challenge to / the players whether they /
+              can differentiate between / their partner and Ai."
+
+   Same four lines either way, but the second has an even rag and a last
+   line that carries its weight.
+
+   One caveat learned the hard way, so it does not get re-broken: only put
+   a block here if it reliably stays under about six lines. Past that the
+   browser silently stops balancing, and because this declaration also
+   overrides the `pretty` inherited from style.css, the block ends up on
+   the plain greedy wrap with no orphan protection at all — worse than if
+   it had been left alone. .finding-quote was in this list and runs to
+   seven lines on the longest quote, which is exactly how it ended up
+   stranding "that.”" on a line by itself. It is deliberately not here now;
+   the global `pretty` sets it as "...students aren't really / like
+   that.”" instead. */
+.media-row-text p,
+.step-item p,
+.method-label,
+.insight p,
+.ia-box p,
+.ia-link-col p,
+.collage-note p,
+.object-card p,
+.hmw-item p,
+.feedback-bubble p,
+.priority-grid p,
+.task-label {
+  text-wrap: balance;
 }
