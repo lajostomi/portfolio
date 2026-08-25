@@ -1978,6 +1978,20 @@
     width: 100%;
   }
 
+  /* NEXT PROJECT above CLOSE once the pills stack. Side by side the
+     left-to-right order reads fine, but stacked it put the way out of the
+     page above the way onward — the primary action should be the one under
+     the thumb and the one met first. Selected structurally (the pill that
+     is a direct child, rather than the one wrapped in .footer-group) so it
+     stays correct if the pills are ever restyled.
+     `order` moves the box, not the DOM, so a keyboard user still reaches
+     CLOSE first here. Left as is: correcting it would mean flipping the
+     markup on all six pages and pushing the same mismatch onto the desktop
+     row, and with two adjacent controls this is the smaller cost. */
+  .project-footer > .footer-pill {
+    order: -1;
+  }
+
 
   /* MOME ULP: keep resetting the inline grid placement so nothing
      re-establishes implicit grid tracks at this breakpoint (the list
