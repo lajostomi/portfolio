@@ -607,6 +607,33 @@
   font-size: 16px;
 }
 
+/* Keeps a row of captioned images on one top edge.
+
+   These columns are [label, image]. Grid stretches every .step-item in a
+   row to the tallest one, but the item packs from the top, so a column
+   whose label wraps to an extra line pushes its own image down and the
+   row's image edges step out of line — 20px on Mercedes Aura's four
+   steps at 1090px, 24px on ULP's issue grid, both invisible at 1440px
+   where those labels happen to fit on one line. Since every .step-image
+   in a row is the same width and shares one aspect-ratio, they are all
+   the same height, so sending the free space above the image instead of
+   below it lines the images up by their tops.
+
+   The cost is that the label-to-image gap is then 32px only in the
+   tallest-label column and larger in the others. That is the right thing
+   to give up: uneven whitespace reads as breathing room, whereas a 20px
+   step in a row of image edges reads as broken. Aligning the labels
+   instead would fix the images but leave the paragraph tops ragged,
+   which is worse for columns holding five and six lines of body copy.
+
+   No-op wherever the labels already match (no free space to distribute)
+   or the item is not stretched, so it costs nothing on the rows that
+   were already fine and protects the ones that only misalign at widths
+   nobody happened to test. */
+.step-item > .step-image {
+  margin-top: auto;
+}
+
 .step-image {
   width: 100%;
   aspect-ratio: 274 / 580;
@@ -865,7 +892,15 @@
 
 .method-header {
   display: flex;
-  align-items: stretch;
+  /* baseline, not stretch. The heading is 32px on a 48px line and the
+     label is 16px on `normal` — stretched, both boxes ran the full row
+     height and each started its text at its own box top, which put the
+     label's first baseline 20px ABOVE the heading's (measured, on all 11
+     of these on mome-ulp). It read as the label floating loose above the
+     line it belongs to. Aligning the first baselines is what makes them
+     look like one row, and it stays right whatever either font-size or
+     line-height becomes. */
+  align-items: baseline;
   gap: 32px;
   width: 100%;
   /* flex-wrap:wrap looked like the obvious way to let this reflow on
