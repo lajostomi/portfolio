@@ -1556,6 +1556,17 @@
   font-size: 16px;
 }
 
+/* Per-card "Task I."-style tag and the "Participant N" group heading only
+   exist to keep a score readable once the grid collapses to one column on
+   phones -- desktop already conveys both via the grid's own row/column
+   position, so both are hidden by default and switched on inside the
+   mobile results-grid rules below. */
+.task-tag,
+.results-participant-label,
+.collage-frame-label {
+  display: none;
+}
+
 /* =========================
    Responsive
    ========================= */
@@ -1894,18 +1905,36 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* ---------- MOME ULP participant collages: canvas -> list ----------
+  /* ---------- MOME ULP participant collages: canvas -> captioned list ----------
      Above this width the notes are hand-placed on an absolutely
      positioned canvas, sized in cqw so they scale with it. That stops
      working on a phone: the boxes get too small for their text at any
      legible size, which is why the note font used to bottom out at 8px
      and still overflowed its coloured box by 4-6px. Rather than trade
-     legibility against overflow, the canvas is abandoned here — the
-     screenshots stay (in a simple 2-up grid) and the same quotes are
-     rendered as a plain full-width list underneath at normal body size.
-     Nothing is hidden except the doodles and arrows, which are purely
-     connectors between positions that no longer exist. DOM order already
-     puts every image before every note, so no markup changes are needed. */
+     legibility against overflow, the canvas is abandoned here.
+
+     A flat "every screenshot, then every quote" list was tried first and
+     rejected: the DOM only groups quotes by participant, not by which
+     specific screen they were pinned next to on the desktop board, so a
+     reader had no way to tell "hide my saved events" apart from "this is
+     a lot of words" once both were loose at the bottom of the same list.
+     Each collage-item still carries its original left/top position (kept
+     for the desktop canvas), so every note here has an explicit inline
+     `order` matching it to whichever screenshot it sat closest to on that
+     canvas (nearest by column, computed from those same coordinates) —
+     the grid runs single-column so a note in reading position always
+     falls directly under its screen instead of beside an unrelated one.
+     Each screenshot also gets a visible caption (a `.collage-frame-label`
+     paragraph placed right after it in markup, hidden on desktop, given
+     the same `order` as its screenshot here) naming the screen, since
+     colour and position are the only things that identified it on the
+     desktop canvas and neither survives the drop to a list. A generated
+     ::after on the image div was tried first and discarded: that div also
+     carries `overflow:hidden` for its rounded border, which clipped the
+     caption invisible instead of letting it grow the box. Doodles and
+     arrows are still hidden — they're
+     connectors between positions that no longer exist now that order,
+     not position, carries the association. */
   .collage-canvas--participant1,
   .collage-canvas--participant2,
   .collage-canvas--participant3 {
@@ -1913,8 +1942,24 @@
        below are overridden outright so it no longer drives anything. */
     aspect-ratio: auto;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .collage-canvas--participant1 .collage-image,
+  .collage-canvas--participant2 .collage-image,
+  .collage-canvas--participant3 .collage-image {
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  .collage-frame-label {
+    display: block;
+    margin: -4px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
   }
 
   .collage-canvas--participant1 .collage-item,
@@ -1975,6 +2020,32 @@
     grid-template-columns: 1fr;
   }
 
+  /* ---------- MOME ULP: Resources box reads as one row of categories ----------
+     Resources is the only one of the three IA boxes with sub-groups (7
+     short lists under one heading). .ia-links wraps its 5 columns two-to-a-
+     line once the box goes full width, but nothing distinguished a group's
+     own first item ("Wellness and sport") from the items under it, so a
+     wrapped pair like "Wellness and sport / Freshmen info" read as two
+     items from the same list rather than two separate group headings.
+     Below 900px the columns stack one under another instead of wrapping
+     into pairs, and each group's first item becomes a real, underlined
+     heading -- so the box reads top-to-bottom as a small table of contents
+     (Wellness and sport: Booking, Counseling... / Freshmen info: ...)
+     instead of one flat, ambiguously-grouped list. Scoped to mobile only:
+     the desktop row conveys the same grouping for free via column
+     position, and doesn't need the extra emphasis. */
+  .ia-box--resources .ia-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .ia-category {
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   /* Below 900px the 2-axis matrix no longer has room for both axes, so it
      collapses to a single-column list grouped by the frequency axis
      ("All of the time" ... "None of the time"). The inline grid-column/
@@ -2005,8 +2076,85 @@
     margin-top: 0;
   }
 
+  /* ---------- MOME ULP results grids: read as a chart, not a wall ----------
+     Desktop tells a score apart by its grid position (row = participant,
+     column = task). Collapsing that same grid to one column threw both
+     axes away at once -- every card became "Success: X / Time: Ys" with no
+     task and no participant attached to it, which is why the mobile view
+     read as an unlabelled stack of coloured blocks rather than a table.
+     Below 900px the DOM's own grouping (task-label row, then every card
+     already in participant order) is put back on screen: a "Participant N"
+     heading (colour-matched to the collage boards above) opens each group,
+     and every card grows a small "Task I." tag of its own. The original
+     4-across task-label row is redundant once every card carries its own
+     tag, so it's hidden rather than left floating with nothing to point
+     at. */
   .results-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .results-grid .task-label {
+    display: none;
+  }
+
+  .task-tag {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  .results-score {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: var(--radius-md, 12px);
+  }
+
+  .results-participant-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    grid-column: 1 / -1;
+    margin: 20px 0 0;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .results-participant-label::before {
+    content: "";
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--collage-color, currentColor);
+  }
+
+  .results-participant-label:first-child {
+    margin-top: 0;
+  }
+
+  .results-compare-label {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .results-compare-label:first-child {
+    margin-top: 0;
+  }
+
+  /* The plain (non-winning) cells in the compare grid carry the same
+     task-tag but no coloured box -- keep their tag left-aligned with the
+     Success/Time line under it rather than inline, so it reads as a label
+     over a value like every other card here instead of a fragment glued
+     to the front of a sentence. */
+  .results-grid > p .task-tag {
+    display: block;
   }
 }
 
