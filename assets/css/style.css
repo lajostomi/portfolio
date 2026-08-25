@@ -299,6 +299,14 @@ section {
   scroll-margin-top: calc(var(--header-height, 88px) + 24px);
 }
 
+/* A project page's CLOSE pill returns to the exact card the user opened
+   (id="work-<slug>", see main.js), not just the top of #work — same
+   clearance as the section anchors above so the card doesn't land flush
+   under the sticky header. */
+.project-card {
+  scroll-margin-top: calc(var(--header-height, 88px) + 24px);
+}
+
 .logo {
   margin: 0;
   font-size: clamp(20px, 2.2vw, 32px);

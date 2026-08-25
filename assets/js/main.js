@@ -350,27 +350,42 @@
       document.fonts.ready.then(updateFooterHeight);
     }
   }
-  /* ---------- CLOSE pill: carousel vs. WORK grid ----------
+  /* ---------- CLOSE pill: carousel vs. WORK grid vs. the exact card ----------
      The header added to these pages also links to index.html#work, but
      it carries .nav-link, so it cannot be picked up by this
      .footer-pill--dark selector by accident.
 
-     The pill normally returns to index.html#work (the WORK grid), but if
-     this page was reached from a SPIN wheel card — by spinning, or by
-     clicking a resting card directly — index.html’s wheel-card hrefs
-     carry a #from-spin fragment, and it should return to the carousel
-     itself (plain index.html, which is the SPIN section since it is the
-     page’s first section) rather than jump straight past it to WORK. A
-     hash fragment is used instead of a ?query param specifically because
-     it survives the local dev server’s clean-URL redirect (foo.html ->
-     foo): that redirect’s Location header only rewrites the path, and a
-     fragment is never sent to the server in the first place, so the
-     browser reapplies it after following the redirect — a query string
-     would otherwise get silently dropped. */
+     The pill normally returns to index.html#work (the WORK grid). Two
+     origins override that:
+
+     - Reached from a SPIN wheel card — by spinning, or by clicking a
+       resting card directly — index.html's wheel-card hrefs carry a
+       #from-spin fragment, and it should return to the carousel itself
+       (plain index.html, the page's first section) rather than jump
+       straight past it to WORK.
+     - Reached from a WORK grid card directly, every card's own href
+       carries #from-work, and CLOSE should land back on that exact card
+       (id="work-<slug>", set alongside each card's existing data-slug in
+       index.html) rather than the top of #work — on a page with more
+       cards than fit one screen, jumping to the section top instead of
+       back to where the user actually was reads as losing your place.
+       The slug isn't passed along explicitly; it's read back off this
+       very page's own filename (this page IS projects/<slug>.html), so
+       there's exactly one place per project that has to stay in sync.
+
+     A hash fragment is used instead of a ?query param specifically
+     because it survives the local dev server's clean-URL redirect
+     (foo.html -> foo): that redirect's Location header only rewrites the
+     path, and a fragment is never sent to the server in the first place,
+     so the browser reapplies it after following the redirect — a query
+     string would otherwise get silently dropped. */
   const closeLink = document.querySelector('a.footer-pill--dark[href$="index.html#work"]');
 
   if (closeLink && window.location.hash === '#from-spin') {
     closeLink.href = closeLink.href.replace(/index\.html#work$/, 'index.html');
+  } else if (closeLink && window.location.hash === '#from-work') {
+    const slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+    closeLink.href = closeLink.href.replace(/index\.html#work$/, `index.html#work-${slug}`);
   }
 
   /* ---------- SPIN wheel ----------
