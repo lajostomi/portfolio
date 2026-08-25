@@ -279,8 +279,14 @@
 
 /* ---------- mobile: <= 600px ---------- */
 @media (max-width: 600px) {
+  /* Stays two-up rather than collapsing to one column, with a tighter
+     gutter. Four sections of five photos each, full-width and stacked, is
+     twenty screens of scrolling to get past a photo grid — the set reads as
+     a contact sheet, and a compact grid says that where a column of large
+     singles does not. Same reasoning as the Mercedes prototyping grid. */
   .about-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 
   .intro-text {

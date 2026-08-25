@@ -1850,6 +1850,17 @@
     width: 100%;
   }
 
+  /* The caption needs the same release the image just got, and for the same
+     reason. `flex: 0 0 274px` means 274px along the MAIN axis, and the row
+     above has just become a column — so the paragraph was reserving 274px of
+     HEIGHT for three lines of text and leaving ~200px of blank page under
+     it. (Third time this trap has bitten in this file: see .detail-image and
+     .stacked-pair. In a container whose direction changes with the
+     breakpoint, size with `width`, never `flex-basis`.) */
+  .footer-detail-row p {
+    flex-basis: auto;
+  }
+
   /* Mercedes Aura: 3-up pinecone grid -> 2-up, live-demo row stacks
      with the small image swapping its fixed 274px width for full-width
      (its aspect-ratio keeps the shape correct at any width). */

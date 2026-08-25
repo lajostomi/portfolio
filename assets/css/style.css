@@ -621,7 +621,24 @@ section {
   transition: transform 0.4s ease;
 }
 
-.project-card:hover .project-image img,
+/* Hover effects are gated behind a real hovering pointer.
+
+   Unguarded, they cost a tap: a touch browser has no hover, so it emulates
+   one — the first tap on a card resolves the :hover state instead of
+   activating the link, and only a second tap follows it. On a grid of six
+   cards that reads as the site ignoring you. (It also leaves the state stuck
+   afterwards, which is why a card's arrow icon sits visible on a phone long
+   after the tap.) `hover: hover` is false on touch, so those devices get the
+   resting appearance and a single tap navigates.
+
+   :focus-visible stays outside the guard — it is keyboard-only and has
+   nothing to do with the pointer. */
+@media (hover: hover) {
+  .project-card:hover .project-image img {
+    transform: scale(1.04);
+  }
+}
+
 .project-card:focus-visible .project-image img {
   transform: scale(1.04);
 }
@@ -641,7 +658,12 @@ section {
   transition: opacity 0.2s ease;
 }
 
-.project-card:hover .project-link-icon,
+@media (hover: hover) {
+  .project-card:hover .project-link-icon {
+    opacity: 1;
+  }
+}
+
 .project-card:focus-visible .project-link-icon {
   opacity: 1;
 }
@@ -733,7 +755,14 @@ section {
   transition: transform 0.25s ease;
 }
 
-.contact-method:hover .contact-icon,
+/* Same guard as the project cards above: these tiles are links too, and an
+   emulated hover on the first tap would cost them a tap in the same way. */
+@media (hover: hover) {
+  .contact-method:hover .contact-icon {
+    transform: translateY(-4px);
+  }
+}
+
 .contact-method:focus-visible .contact-icon {
   transform: translateY(-4px);
 }
