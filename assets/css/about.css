@@ -101,6 +101,14 @@
   font-size: 32px;
   line-height: 1.5;
   margin: 0;
+  /* Sits beside .profile-image, whose top is a hard image edge. Aligning
+     the two boxes — which is what the grid does on its own — is not the
+     same as aligning what you see: line-height 1.5 puts 12px of leading
+     and font ascent above the first line's ascenders at 32px, so the
+     copy read as starting a third of a line below the photo. Giving that
+     back lines the text up with the picture. Ratio of the font-size
+     (12/32), not a flat pixel value, so it holds if the size changes. */
+  margin-top: -0.375em;
 }
 
 .intro-text p {
@@ -198,6 +206,13 @@
   font-size: clamp(22px, 2.4vw, 32px);
   font-weight: 500;
   line-height: 1.5;
+  /* Same leading trim as .intro-text above, and for the same reason:
+     .grid-text sits in a row of photos and this heading is the first
+     thing in it, so its ascender line — not its box top — is what has to
+     meet the photo edges. Measured 10.13px of dead space at the 26.17px
+     size this lands on around 1090px; the ratio is the same 0.387 at
+     every clamp step because line-height stays 1.5. */
+  margin-top: -0.387em;
 }
 
 .grid-text p {
@@ -249,6 +264,16 @@
 
   .grid-img {
     aspect-ratio: 1 / 1;
+  }
+
+  /* Drop the leading trims. They exist to line these blocks up with a
+     photo sitting beside them, and from here down both are full-width
+     with the photos above or below instead — so there is no edge left to
+     align to and the negative margin would just eat 10-12px out of the
+     gap above. */
+  .intro-text,
+  .grid-text h2 {
+    margin-top: 0;
   }
 }
 

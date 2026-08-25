@@ -494,6 +494,14 @@
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: -0.64px;
+  /* Leading trim, so this heading starts level with the photo it sits
+     beside rather than a third of a line below it. The flex row already
+     aligns the two BOXES; what the eye reads is the ascender line, and
+     line-height 1.5 puts 12px of leading plus font ascent above it at
+     32px. Measured 12px on all five .media-row headings across four
+     project pages, identical because they share this rule. Same trim and
+     same reasoning as .intro-text / .grid-text h2 in about.css. */
+  margin-top: -0.375em;
 }
 
 .media-row-text p {
@@ -1699,6 +1707,14 @@
   .media-row-text {
     flex-basis: auto;
     width: 100%;
+  }
+
+  /* Drop the leading trim with the side-by-side layout that justified
+     it: stacked, this heading has the previous section above it rather
+     than a photo edge to meet, so the negative margin would only shave
+     12px off that gap. */
+  .media-row-text h2 {
+    margin-top: 0;
   }
 
   .media-row-image {
