@@ -15,12 +15,25 @@
   display: flex;
   flex-direction: column;
   padding-top: clamp(24px, 4vw, 40px);
+
+  /* How far the footer's scrim reaches ABOVE the pills. Declared here
+     rather than written into the gradient, because two rules depend on
+     it and they must not drift apart: .project-footer::before draws the
+     scrim this tall, and the padding below has to clear it. */
+  --footer-scrim: 64px;
+
   /* Derived from the footer’s measured height (main.js sets
      --footer-height), not a hand-tuned clamp. .project-footer is sticky
      over the content, so this padding has to be at least as tall as the
      footer really is — and “really is” changes with the viewport, the
      webfont, and any edit to a pill’s label. The fallback covers the
-     no-JS case at the tallest the footer gets. */
+     no-JS case at the tallest the footer gets.
+
+     Note what this padding does and does not do. It sits BELOW the footer
+     — footer and main are adjacent siblings, so it never separates them —
+     which is what gives the sticky footer somewhere to unstick to at the
+     end of the scroll. Keeping the last section clear of the footer is a
+     different job, done by .project-container's own padding-bottom. */
   padding-bottom: calc(var(--footer-height, 205px) + 24px);
 }
 
@@ -55,6 +68,15 @@
   display: flex;
   flex-direction: column;
   gap: clamp(56px, 8vw, 96px);
+  /* Clears the sticky footer's scrim at the end of the page. main and the
+     footer are adjacent siblings with nothing between them, so at the
+     bottom of the scroll the last section's final line ended exactly at
+     the footer's top edge — and the scrim starts 64px ABOVE that edge, so
+     the closing line of every project came out washed grey. (.project-
+     page's padding-bottom does not help here: it lands below the footer,
+     not between the two.) Reserving the scrim's own height plus a 32px
+     breath is what actually lifts the last line clear of the gradient. */
+  padding-bottom: calc(var(--footer-scrim, 64px) + 32px);
 }
 
 .project-section {
@@ -741,6 +763,13 @@
   width: 100%;
   font-size: 16px;
   line-height: 1.5;
+  /* The avatar above is centred by .feedback-bubble's align-items, so
+     left-ranged text under it read as slipped to one side — most obviously
+     on the one-line quote, where a short line sat hard left under a
+     centred circle. Centring pairs with the text-wrap:balance these
+     already carry: balanced lines centre into a tidy block rather than a
+     lopsided one. */
+  text-align: center;
 }
 
 /* =========================
@@ -831,7 +860,17 @@
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  padding-inline: var(--gutter);
+  /* Line the pills up with the page's own left and right edges instead of
+     with the raw gutter. The gutter alone is only the content edge while
+     the container is still narrower than its max — past that the content
+     stops at --container-max and centres, but the pills kept tracking the
+     gutter and drifted outboard of everything above them (measured at
+     1600px: content 195-1389, pills 96 and 1489, so about 100px adrift on
+     each side). This is the full-bleed form of the shared container
+     measure documented at the top of style.css: same inset the header
+     already uses, so the pills, the logo and the content now share one
+     edge at every width. */
+  padding-inline: max(var(--gutter), calc((100% - var(--container-max)) / 2));
   padding-block: 24px;
   pointer-events: none;
   isolation: isolate;
@@ -847,7 +886,10 @@
 .project-footer::before {
   content: "";
   position: absolute;
-  inset: -64px 0 0 0;
+  /* Height comes from --footer-scrim (set on .project-page) so that the
+     page's bottom padding, which must clear this, is computed from the
+     same number. */
+  inset: calc(-1 * var(--footer-scrim, 64px)) 0 0 0;
   background: linear-gradient(to bottom, transparent, var(--color-bg) 60%);
   pointer-events: none;
   z-index: -1;
