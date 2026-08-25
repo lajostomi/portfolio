@@ -2206,38 +2206,42 @@
   position: relative;
 }
 
+/* The button is a bare 32x32 box: the supplied artwork draws its own dark
+   rounded plate, so there is no background, radius or shadow here to fight
+   with it, and no optical nudge — the glyph is already positioned inside its
+   own 32x32 frame. */
 .video-play {
   position: absolute;
   /* inset + auto margins centres it without a transform, which keeps it out
      of the way of the containing-block rules that transforms impose. */
   inset: 0;
   margin: auto;
-  width: 72px;
-  height: 72px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   border: none;
-  border-radius: var(--radius-pill);
-  background: var(--color-icon-bg);
-  color: var(--color-icon-fg);
+  background: none;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
   transition: opacity 0.25s ease, transform 0.2s ease;
 }
 
 .video-play svg {
-  width: 28px;
-  height: 28px;
+  width: 100%;
+  height: 100%;
   display: block;
 }
 
-/* The play triangle looks left-heavy when its bounding box is centred, so
-   it is nudged onto its optical centre. The pause bars are symmetrical and
-   need no such nudge. */
-.video-holder:not(.is-playing) .video-play svg {
-  margin-left: 4px;
+/* The artwork is 32px, which is below a comfortable touch target, and this
+   control lives on pages that are mostly read on a phone. Rather than scale
+   the artwork past the size it was drawn at, an invisible pseudo-element
+   pads the hit area out to 44px square around it. */
+.video-play::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
 }
 
 .video-play:hover,

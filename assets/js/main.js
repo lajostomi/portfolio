@@ -175,12 +175,27 @@
        click-through — so tabbing to it still works when it cannot be seen. */
     const AUTO_HIDE_MS = 1600;
 
-    /* The two glyphs, in one place: these are placeholders and are meant to
-       be swapped for supplied artwork. Keep the 24x24 viewBox (the CSS sizes
-       the <svg>, not the path) and keep `fill="currentColor"` so the glyph
-       keeps taking its colour from the button. */
-    const ICON_PLAY = 'M8 5v14l11-7z';
-    const ICON_PAUSE = 'M7 5h4v14H7zM13 5h4v14h-4z';
+    /* The supplied artwork, inlined. The design source of truth is
+       assets/images/icons/video-play.svg and video-pause.svg — these strings
+       are the inside of those two files and must be kept in step with them.
+
+       Inlined rather than referenced as <img src>, because this file is
+       shared by pages at two different depths (/index.html and
+       /projects/*.html) and a relative icon path correct for one is broken
+       on the other. Inline markup has no path to get wrong, and costs two
+       fewer requests.
+
+       Each icon draws its own rounded plate as well as its glyph, so the
+       button underneath is a bare 32x32 box — see project.css. Colours are
+       baked (#1A1818 plate, #EDE5E5 glyph) exactly as exported, rather than
+       inheriting currentColor, so the control keeps its intended contrast
+       over any frame of any clip. */
+    const ICON_PLAY =
+      '<path d="M0 6C0 2.68629 2.68629 0 6 0H26C29.3137 0 32 2.68629 32 6V26C32 29.3137 29.3137 32 26 32H6C2.68629 32 0 29.3137 0 26V6Z" fill="#1A1818"/>' +
+      '<path fill-rule="evenodd" clip-rule="evenodd" d="M13.3373 9.86812C13.3453 9.87344 13.3533 9.87877 13.3613 9.88411L20.3938 14.5724C20.5973 14.7081 20.786 14.8338 20.9309 14.9507C21.0821 15.0726 21.2603 15.2418 21.3629 15.4892C21.4986 15.8162 21.4986 16.1837 21.3629 16.5107C21.2603 16.7581 21.0821 16.9272 20.9309 17.0492C20.786 17.166 20.5973 17.2918 20.3938 17.4274L13.3374 22.1317C13.0886 22.2975 12.865 22.4467 12.6752 22.5495C12.4853 22.6524 12.2246 22.77 11.9204 22.7519C11.5312 22.7286 11.1717 22.5362 10.9365 22.2253C10.7526 21.9822 10.7059 21.7001 10.6862 21.485C10.6665 21.2701 10.6665 21.0013 10.6665 20.7023L10.6665 11.3263C10.6665 11.3167 10.6665 11.3071 10.6665 11.2975C10.6665 10.9986 10.6665 10.7298 10.6862 10.5148C10.7059 10.2997 10.7526 10.0176 10.9365 9.77452C11.1717 9.4636 11.5312 9.2712 11.9204 9.24796C12.2246 9.2298 12.4853 9.34741 12.6752 9.45033C12.865 9.55317 13.0886 9.70229 13.3373 9.86812Z" fill="#EDE5E5"/>';
+    const ICON_PAUSE =
+      '<path d="M0 6C0 2.68629 2.68629 0 6 0H26C29.3137 0 32 2.68629 32 6V26C32 29.3137 29.3137 32 26 32H6C2.68629 32 0 29.3137 0 26V6Z" fill="#1A1818"/>' +
+      '<path fill-rule="evenodd" clip-rule="evenodd" d="M12 9C13.1046 9 14 9.89543 14 11V21C14 22.1046 13.1046 23 12 23C10.8954 23 10 22.1046 10 21V11C10 9.89543 10.8954 9 12 9ZM20 9C21.1046 9 22 9.89543 22 11V21C22 22.1046 21.1046 23 20 23C18.8954 23 18 22.1046 18 21V11C18 9.89543 18.8954 9 20 9Z" fill="#EDE5E5"/>';
 
     const controlled = [];
 
@@ -195,8 +210,8 @@
         button.type = 'button';
         button.className = 'video-play';
         button.innerHTML =
-          '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-          '<path class="video-play-icon" d="' + ICON_PLAY + '" fill="currentColor"/></svg>';
+          '<svg class="video-play-icon" viewBox="0 0 32 32" aria-hidden="true" ' +
+          'focusable="false">' + ICON_PLAY + '</svg>';
 
         let hideTimer = null;
         const clearHideTimer = () => {
@@ -220,18 +235,38 @@
           const playing = !video.paused;
           holder.classList.toggle('is-playing', playing);
           button.setAttribute('aria-label', (playing ? 'Pause ' : 'Play ') + label);
-          button.querySelector('.video-play-icon')
-            .setAttribute('d', playing ? ICON_PAUSE : ICON_PLAY);
+          button.querySelector('.video-play-icon').innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+        };
+
+        /* One retry, because the FIRST press on a clip reliably lost.
+           preload="none" means there is no buffered data yet, so that first
+           play() runs while the file is still being fetched — and Chrome's
+           power-saving rule aborts a video-only play() in that window. The
+           rejection is silent, so the press simply did nothing and only a
+           second press worked, by which time enough had buffered. Worse, if
+           the user pressed twice (as they would), the second press landed
+           after the first had finally started and paused it again.
+
+           Retrying once shortly after covers the buffering gap without
+           giving up preload="none", which is what keeps 22MB of video off
+           the initial page load. */
+        const requestPlay = () => {
+          const first = video.play();
+          if (first && typeof first.catch === 'function') {
+            first.catch(() => {
+              setTimeout(() => {
+                if (!video.paused) return;
+                const retry = video.play();
+                if (retry && typeof retry.catch === 'function') retry.catch(() => {});
+              }, 250);
+            });
+          }
         };
 
         button.addEventListener('click', (event) => {
           event.stopPropagation();
-          if (video.paused) {
-            const p = video.play();
-            if (p && typeof p.catch === 'function') p.catch(() => {});
-          } else {
-            video.pause();
-          }
+          if (video.paused) requestPlay();
+          else video.pause();
         });
 
         /* Inside the frame toggles the control rather than playback. Playback
