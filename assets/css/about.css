@@ -279,49 +279,51 @@
 
 /* ---------- mobile: <= 600px ---------- */
 @media (max-width: 600px) {
-  /* Stays two-up rather than collapsing to one column, with a tighter
-     gutter. Four sections of five photos each, full-width and stacked, is
-     twenty screens of scrolling to get past a photo grid — the set reads as
-     a contact sheet, and a compact grid says that where a column of large
-     singles does not. Same reasoning as the Mercedes prototyping grid. */
-  /* Heading on its own line, then one 2x3 grid holding the section's five
-     photos and its copy — the copy takes the sixth cell that the five photos
-     leave empty, instead of sitting in a full-width block above them.
+  /* Title and copy full width, then the five photos as a filled 2x3 grid.
 
-     .grid-text stops generating a box (display: contents) so its heading and
-     paragraph become grid items in their own right; without that they are
-     one cell and cannot be split across the layout. `order` then puts them
-     first regardless of source order — two of these four sections have their
-     copy AFTER the photos in the markup (that is what makes the desktop
-     layout alternate sides), and left alone the heading would land at the
-     bottom of the grid on those two.
+     Two-up rather than one column: four sections of five full-width photos
+     is a very long scroll for what reads as a contact sheet. Same reasoning
+     as the Mercedes prototyping grid.
 
-     align-items: start so the photos keep their 1/1 ratio: the copy cell is
-     the tall one in its row and a stretched photo beside it would come out
-     a different shape from every other photo on the page. */
+     Five photos do not fill six cells, so rather than leave a hole (or wedge
+     the copy into it — tried, and the copy is so much taller than a 155px
+     photo that its row came out ragged) each section's double-size photo
+     keeps being double-size here. That is exactly one photo per section on
+     desktop, so the count works out: 2 + 4 singles = the full 6 cells.
+
+     `order` is load-bearing, not tidiness. Two of the four sections have
+     their copy AFTER the photos in the markup — that is what makes the
+     desktop layout alternate sides — so without it the text would sit at
+     the BOTTOM on those two. The double-size photo leads the grid for the
+     same reason: placed anywhere else, auto-placement cannot fit it beside
+     a single and leaves gaps around it. */
   .about-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-    align-items: start;
   }
 
   .grid-text {
-    display: contents;
+    order: -2;
   }
 
-  .about-grid h2 {
-    grid-column: 1 / -1;
+  .grid-img--wide,
+  .grid-img--tall {
     order: -1;
   }
 
-  /* Copy goes in the LAST cell — the one the five photos leave empty —
-     rather than the first. It is the taller cell in whichever row it lands
-     in (up to 312px against a 155px photo, on the longest section), so its
-     row is the ragged one either way; at the end that reads as the grid
-     closing out, whereas at the top it reads as the grid failing to line up
-     from the very first photo. */
-  .grid-text p {
-    order: 1;
+  /* Spans both columns, so its row is one photo tall. 2/1 rather than the
+     exact (2 col + gap) / col ratio: that ratio shifts with the viewport,
+     and the few px of difference is not worth a magic number. */
+  .grid-img--wide {
+    grid-column: span 2 !important;
+    aspect-ratio: 2 / 1;
+  }
+
+  /* Spans both rows instead, keeping the tall portrait shape it has on
+     desktop. aspect-ratio released so the two rows it straddles size it. */
+  .grid-img--tall {
+    grid-row: span 2 !important;
+    aspect-ratio: auto;
   }
 
   .intro-text {
