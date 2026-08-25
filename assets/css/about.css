@@ -284,9 +284,44 @@
      twenty screens of scrolling to get past a photo grid — the set reads as
      a contact sheet, and a compact grid says that where a column of large
      singles does not. Same reasoning as the Mercedes prototyping grid. */
+  /* Heading on its own line, then one 2x3 grid holding the section's five
+     photos and its copy — the copy takes the sixth cell that the five photos
+     leave empty, instead of sitting in a full-width block above them.
+
+     .grid-text stops generating a box (display: contents) so its heading and
+     paragraph become grid items in their own right; without that they are
+     one cell and cannot be split across the layout. `order` then puts them
+     first regardless of source order — two of these four sections have their
+     copy AFTER the photos in the markup (that is what makes the desktop
+     layout alternate sides), and left alone the heading would land at the
+     bottom of the grid on those two.
+
+     align-items: start so the photos keep their 1/1 ratio: the copy cell is
+     the tall one in its row and a stretched photo beside it would come out
+     a different shape from every other photo on the page. */
   .about-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+    align-items: start;
+  }
+
+  .grid-text {
+    display: contents;
+  }
+
+  .about-grid h2 {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+
+  /* Copy goes in the LAST cell — the one the five photos leave empty —
+     rather than the first. It is the taller cell in whichever row it lands
+     in (up to 312px against a 155px photo, on the longest section), so its
+     row is the ragged one either way; at the end that reads as the grid
+     closing out, whereas at the top it reads as the grid failing to line up
+     from the very first photo. */
+  .grid-text p {
+    order: 1;
   }
 
   .intro-text {
