@@ -133,11 +133,77 @@
       autoVideos.forEach((v) => observer.observe(v));
     };
 
+    /* A real play control on every clip, because autoplay is not reliable
+       and its failure is silent.
+
+       Measured cause: Chrome rejects the play() above with "AbortError: the
+       play() request was interrupted because video-only background media was
+       paused to save power" — its power-saving rule for muted, audio-less
+       video, which fires on battery and on unfocused tabs. The catch() there
+       swallowed it, so all three clips sat on their posters looking like
+       stills and nothing appeared in the console. Same on a phone in battery
+       saver, which is where this was reported from.
+
+       So autoplay stays as the nice-to-have and this becomes the guarantee:
+       a press is a user gesture, which no autoplay or power policy blocks.
+       Built here rather than in the markup so that with JS off the page
+       keeps its current behaviour (poster only) instead of showing a button
+       that cannot work.
+
+       The button stays in the DOM while playing rather than being removed —
+       it fades out, but hover and keyboard focus bring it back, so there is
+       still a way to pause that does not depend on knowing the video itself
+       is clickable. */
+    const buildControls = () => {
+      autoVideos.forEach((video) => {
+        const holder = video.parentElement;
+        if (!holder || holder.querySelector('.video-play')) return;
+        holder.classList.add('video-holder');
+
+        const label = video.getAttribute('aria-label') || 'video';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'video-play';
+        button.innerHTML =
+          '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+          '<path class="video-play-icon" d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+
+        const sync = () => {
+          const playing = !video.paused;
+          holder.classList.toggle('is-playing', playing);
+          button.setAttribute('aria-label', (playing ? 'Pause ' : 'Play ') + label);
+          button.querySelector('.video-play-icon').setAttribute(
+            'd', playing ? 'M7 5h4v14H7zM13 5h4v14h-4z' : 'M8 5v14l11-7z'
+          );
+        };
+
+        const toggle = () => {
+          if (video.paused) {
+            const p = video.play();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+          } else {
+            video.pause();
+          }
+        };
+
+        button.addEventListener('click', toggle);
+        // Clicking the clip itself toggles too, so a playing video can be
+        // stopped without hunting for the faded button.
+        video.addEventListener('click', toggle);
+        video.addEventListener('play', sync);
+        video.addEventListener('pause', sync);
+
+        holder.appendChild(button);
+        sync();
+      });
+    };
+
     const apply = () => {
       if (reduceMotion.matches) stopAll();
       else startObserving();
     };
 
+    buildControls();
     apply();
     if (reduceMotion.addEventListener) reduceMotion.addEventListener('change', apply);
     else if (reduceMotion.addListener) reduceMotion.addListener(apply); // Safari < 14

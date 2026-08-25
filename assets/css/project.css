@@ -1734,6 +1734,46 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* Mercedes Aura: four of the five prototyping photos were invisible from
+     here down — not missing from the page, rendered at height 0.
+
+     .stacked-pair is `height: 100%` holding `flex: 1 1 0` children, which
+     only resolves while the pair shares a grid row with the tall photo that
+     gives the row its height. Once the grid drops below four tracks the two
+     pairs end up in a row of their own, the percentage has nothing to
+     resolve against, and the whole pair collapses to its 32px gap. Four
+     photos gone, no error, nothing in the console.
+
+     So from here the section becomes a compact two-up grid instead: the
+     pairs stop being grid items (display: contents lifts their children up
+     into the same grid) and every photo takes an explicit aspect-ratio
+     rather than a share of a height that does not exist. The rig photo,
+     which is the establishing shot, keeps the full width above the rest. */
+  /* .grid-4.<name>, not .<name>: the mobile block below sets .grid-4 to a
+     single column, and at equal specificity that later rule would win. */
+  .grid-4.prototyping-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .prototyping-grid > .media-row-text {
+    grid-column: 1 / -1;
+  }
+
+  .prototyping-grid > .span-1:not(.media-row-text) {
+    display: contents;
+  }
+
+  .prototyping-grid .tall-image {
+    grid-column: 1 / -1;
+    aspect-ratio: 4 / 3;
+  }
+
+  .prototyping-grid .stacked-pair > div {
+    flex: none;
+    aspect-ratio: 1 / 1;
+  }
+
   /* Hand the six children back to auto-placement so they stack in source
      order — Problem, its photos, Solution, its photos.
      !important because the desktop placement is set per position
@@ -2115,12 +2155,26 @@
    in the pair that decides the column; :nth-child beats .span-2's own
    grid-column on specificity, which is what lets the copy blocks keep that
    class for its flex-column-with-32px-gap. */
-.problem-solution > :nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
-.problem-solution > :nth-child(2) { grid-column: 1 / 2; grid-row: 2; }
-.problem-solution > :nth-child(3) { grid-column: 2 / 3; grid-row: 2; }
-.problem-solution > :nth-child(4) { grid-column: 3 / 5; grid-row: 1; }
-.problem-solution > :nth-child(5) { grid-column: 3 / 4; grid-row: 2; }
-.problem-solution > :nth-child(6) { grid-column: 4 / 5; grid-row: 2; }
+.problem-solution--quad > :nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+.problem-solution--quad > :nth-child(2) { grid-column: 1 / 2; grid-row: 2; }
+.problem-solution--quad > :nth-child(3) { grid-column: 2 / 3; grid-row: 2; }
+.problem-solution--quad > :nth-child(4) { grid-column: 3 / 5; grid-row: 1; }
+.problem-solution--quad > :nth-child(5) { grid-column: 3 / 4; grid-row: 2; }
+.problem-solution--quad > :nth-child(6) { grid-column: 4 / 5; grid-row: 2; }
+
+/* Mercedes Aura's variant: one wide photo under each half rather than two
+   narrow ones, so four children instead of six. Source order is the same
+   idea — copy, its photo, copy, its photo. */
+.problem-solution--duo > :nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+.problem-solution--duo > :nth-child(2) { grid-column: 1 / 3; grid-row: 2; }
+.problem-solution--duo > :nth-child(3) { grid-column: 3 / 5; grid-row: 1; }
+.problem-solution--duo > :nth-child(4) { grid-column: 3 / 5; grid-row: 2; }
+
+/* A photo spanning two tracks is the wide 581x265 crop, not the square-ish
+   274x265 one — mirrors .photo-row .span-2. */
+.ps-photo.span-2 {
+  aspect-ratio: 581 / 265;
+}
 
 /* Same treatment .photo-row gives its children. Applied by its own class
    rather than by reusing .photo-row on the grid, because that selector is
@@ -2134,3 +2188,82 @@
 }
 
 .ps-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* =========================
+   Video play control
+   -------------------------
+   Autoplay of these muted clips is blocked by Chrome's power-saving rule for
+   video-only media (see the note in main.js), so every clip carries a real
+   press-to-play control. Injected by JS, so with JS off the poster still
+   stands on its own rather than a dead button sitting on it.
+
+   Styled from the same palette as the CONTACT tiles and the NEXT PROJECT
+   pill — cream plate, near-black glyph, fully rounded — so it reads as part
+   of the site rather than a browser default.
+   ========================= */
+
+.video-holder {
+  position: relative;
+}
+
+.video-play {
+  position: absolute;
+  /* inset + auto margins centres it without a transform, which keeps it out
+     of the way of the containing-block rules that transforms impose. */
+  inset: 0;
+  margin: auto;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-icon-bg);
+  color: var(--color-icon-fg);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  transition: opacity 0.25s ease, transform 0.2s ease;
+}
+
+.video-play svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+/* The play triangle looks left-heavy when its bounding box is centred, so
+   it is nudged onto its optical centre. The pause bars are symmetrical and
+   need no such nudge. */
+.video-holder:not(.is-playing) .video-play svg {
+  margin-left: 4px;
+}
+
+.video-play:hover,
+.video-play:focus-visible {
+  transform: scale(1.06);
+}
+
+/* Out of the way while the clip runs, but still reachable: hovering the
+   clip or tabbing to the button brings it straight back, so pausing never
+   depends on guessing that the video itself is clickable. */
+.is-playing .video-play {
+  opacity: 0;
+}
+
+.video-holder:hover .video-play,
+.video-play:focus-visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-play {
+    transition: none;
+  }
+
+  .video-play:hover,
+  .video-play:focus-visible {
+    transform: none;
+  }
+}

@@ -79,7 +79,12 @@
 
     <!-- Problem / Solution -->
     <section class="project-section" aria-label="Problem and solution">
-      <div class="grid-4">
+      <!-- One grid so each photo stays with the argument it illustrates:
+           the child in the car belongs to Problem, the family collecting
+           trinkets to Solution. Source order is that reading order; the
+           .problem-solution--duo rules put the four back into the design's
+           two rows on desktop. See the Hachi page for the same pattern. -->
+      <div class="grid-4 problem-solution problem-solution--duo">
         <div class="span-2">
           <h2 class="project-section-title">Problem</h2>
           <div class="text-block" style="gap:24px;">
@@ -87,6 +92,8 @@
             <p>On the other hand humans are getting distanced from nature which plays an essential part in the development of human brain activity.</p>
           </div>
         </div>
+        <div class="span-2 ps-photo gallery-wash"><img src="../assets/images/mercedes-aura/problem-gallery-1.webp" alt="Child looking out of a car window into the forest" width="783" height="340" loading="lazy" decoding="async"></div>
+
         <div class="span-2">
           <h2 class="project-section-title">Solution</h2>
           <div class="text-block" style="gap:24px;">
@@ -95,11 +102,7 @@
             <p>We rummaged the forest, riverside and fields for little trinkets: pinecones, sticks, little rocks. Touching these tactile surfaces created essential neural networks in our brain. (Kolb,2012)</p>
           </div>
         </div>
-      </div>
-
-      <div class="grid-4 photo-row">
-        <div class="span-2 gallery-wash"><img src="../assets/images/mercedes-aura/problem-gallery-1.webp" alt="Child looking out of a car window into the forest" width="783" height="340" loading="lazy" decoding="async"></div>
-        <div class="span-2"><img src="../assets/images/mercedes-aura/problem-gallery-2.webp" alt="Family collecting natural trinkets outdoors" width="783" height="340" loading="lazy" decoding="async"></div>
+        <div class="span-2 ps-photo"><img src="../assets/images/mercedes-aura/problem-gallery-2.webp" alt="Family collecting natural trinkets outdoors" width="783" height="340" loading="lazy" decoding="async"></div>
       </div>
     </section>
 
@@ -195,7 +198,7 @@
 
     <!-- Prototyping challenges -->
     <section class="project-section" aria-label="Prototyping challenges">
-      <div class="grid-4">
+      <div class="grid-4 prototyping-grid">
         <div class="media-row-text span-1">
           <h2>Prototyping<br>challenges</h2>
           <p>We had to come up with a smart workaround due to our unique screen shape.</p>
