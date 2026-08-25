@@ -1562,8 +1562,7 @@
    position, so both are hidden by default and switched on inside the
    mobile results-grid rules below. */
 .task-tag,
-.results-participant-label,
-.collage-frame-label {
+.results-participant-label {
   display: none;
 }
 
@@ -1907,7 +1906,7 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* ---------- MOME ULP participant collages: canvas -> captioned list ----------
+  /* ---------- MOME ULP participant collages: canvas -> grouped list ----------
      Above this width the notes are hand-placed on an absolutely
      positioned canvas, sized in cqw so they scale with it. That stops
      working on a phone: the boxes get too small for their text at any
@@ -1926,17 +1925,21 @@
      canvas (nearest by column, computed from those same coordinates) —
      the grid runs single-column so a note in reading position always
      falls directly under its screen instead of beside an unrelated one.
-     Each screenshot also gets a visible caption (a `.collage-frame-label`
-     paragraph placed right after it in markup, hidden on desktop, given
-     the same `order` as its screenshot here) naming the screen, since
-     colour and position are the only things that identified it on the
-     desktop canvas and neither survives the drop to a list. A generated
-     ::after on the image div was tried first and discarded: that div also
-     carries `overflow:hidden` for its rounded border, which clipped the
-     caption invisible instead of letting it grow the box. Doodles and
-     arrows are still hidden — they're
-     connectors between positions that no longer exist now that order,
-     not position, carries the association. */
+
+     A named caption per screenshot was tried next and reverted: it
+     duplicated what proximity alone can say, and the names it had to
+     invent for screens with no on-page title read as guesses rather than
+     fact. What actually reads as "these quotes go with that screen" is
+     Gestalt proximity — closer to its own screen than to the next one —
+     so the uniform 8px gap is replaced with two distances doing two
+     different jobs: 12px within a group (screenshot to its first note,
+     note to note) stays close enough to read as one unit, and every new
+     screenshot after the first adds an extra 20px on top of that gap
+     (12+20=32px) so the jump to an unrelated screen is unmistakably
+     bigger than the jump between two notes about the same one. Doodles
+     and arrows are still hidden — they're connectors between positions
+     that no longer exist now that order, not position, carries the
+     association. */
   .collage-canvas--participant1,
   .collage-canvas--participant2,
   .collage-canvas--participant3 {
@@ -1945,7 +1948,7 @@
     aspect-ratio: auto;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 12px;
   }
 
   .collage-canvas--participant1 .collage-image,
@@ -1953,15 +1956,13 @@
   .collage-canvas--participant3 .collage-image {
     width: 100%;
     max-width: 220px;
-    margin: 0 auto;
+    margin: 20px auto 0;
   }
 
-  .collage-frame-label {
-    display: block;
-    margin: -4px 0 0;
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
+  .collage-canvas--participant1 .collage-image:first-child,
+  .collage-canvas--participant2 .collage-image:first-child,
+  .collage-canvas--participant3 .collage-image:first-child {
+    margin-top: 0;
   }
 
   .collage-canvas--participant1 .collage-item,
