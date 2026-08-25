@@ -3,6 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Loading with a hash (e.g. CLOSE returning to #work-<slug>, see main.js)
+     also triggers the browser's own scroll-to-fragment-on-load, which
+     obeys style.css's html{scroll-behavior:smooth} same as any other
+     scroll -- so instead of landing on the card, it animates there over
+     the full page height, which reads as dizzying rather than helpful on
+     a page this tall. This has to be a blocking inline script, not
+     something in main.js: it must run (and this element's own inline
+     style, which always wins regardless of stylesheet load order, must
+     already be set) before the browser performs that scroll, which
+     happens as soon as the target element and layout are ready -- a
+     deferred script cannot be guaranteed to win that race. main.js turns
+     smooth scrolling back on after load, once this one jump is done, so
+     in-page anchor clicks (WORK/CONTACT nav, footer pills) keep it. -->
+<script>
+  if (location.hash) { document.documentElement.style.scrollBehavior = 'auto'; }
+</script>
 <title>Lajos Tamás Jakab — Portfolio</title>
 <meta name="description" content="UX/UI portfolio of Lajos Tamás Jakab — product design, research and vibe coding projects.">
 <!-- Favicon. Files are not in the repo yet - see assets/favicon/README.md.

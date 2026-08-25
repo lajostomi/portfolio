@@ -15,6 +15,23 @@
      toggling the OS setting mid-session takes effect. */
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  /* ---------- Restore smooth scrolling after the initial hash jump ----------
+     index.html's own inline <head> script turns scroll-behavior off before
+     the browser's scroll-to-fragment-on-load runs, so a page loaded with a
+     hash (CLOSE returning to #work-<slug>, a cross-page #contact link, ...)
+     jumps straight there instead of animating down the full page height.
+     That inline style wins over style.css's html{scroll-behavior:smooth}
+     regardless of load order, so it has to be cleared again once that one
+     jump is done, or every later in-page anchor click (WORK/CONTACT nav,
+     footer pills) would lose its smooth animation too. `load` (not
+     DOMContentLoaded) because the browser keeps re-scrolling to the
+     fragment target as late-loading images/fonts shift the layout, right
+     up to the load event; a no-op on any page that started without a
+     hash, since the inline style was never set. */
+  window.addEventListener('load', () => {
+    document.documentElement.style.scrollBehavior = '';
+  });
+
   /* ---------- Mobile nav toggle ---------- */
   const navToggle = document.getElementById('navToggle');
   const navMenu = document.getElementById('navMenu');
