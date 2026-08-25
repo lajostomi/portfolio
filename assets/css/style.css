@@ -718,7 +718,19 @@ section {
 
 .contact-info {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* minmax(0, 1fr), not a bare 1fr: a bare 1fr track still carries an
+     implicit min-width:auto, i.e. its content's min-content size, so the
+     four tracks only distribute space evenly while every card's longest
+     unbreakable text run happens to be shorter than an equal share. The
+     Instagram card's copy has a &nbsp; joining "amateur photography!" —
+     the longest unbreakable run of the four — so once the viewport got
+     tight enough for that run to exceed 274.5px (measured: a visibly
+     wider third column at 1000px, 215px against the other three's 184px)
+     that one track alone refused to shrink with its siblings. minmax(0,…)
+     removes the auto floor so every track truly divides the row equally,
+     same fix as project.css's [[portfolio-design-rules]] flex min-width
+     traps, just the grid-track equivalent. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 32px;
   width: 100%;
 }
@@ -804,9 +816,10 @@ section {
     grid-template-columns: 1fr;
   }
 
-  /* Was its own 1023px breakpoint; folded into the shared tablet tier. */
+  /* Was its own 1023px breakpoint; folded into the shared tablet tier.
+     minmax(0, 1fr) for the same reason as the desktop rule above. */
   .contact-info {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .site-header {
