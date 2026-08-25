@@ -2259,8 +2259,14 @@
   pointer-events: none;
 }
 
+/* Deliberately NO :hover reveal. There used to be one, and it silently beat
+   every tap-to-hide: the pointer is by definition over the frame right after
+   you tap it, so hover pinned the control back to opacity 1 the instant the
+   class came off. Permanent with a mouse, and sticky-hover reproduces it on
+   touch until you tap elsewhere. Visibility is the interaction state's job
+   alone now — :focus-visible is the one exception, so a keyboard user can
+   still find a control they cannot see. */
 .video-holder.controls-visible .video-play,
-.video-holder:hover .video-play,
 .video-play:focus-visible {
   opacity: 1;
   pointer-events: auto;

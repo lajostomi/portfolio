@@ -154,18 +154,24 @@
        tied to playback: the control shows itself when there is a decision to
        make and gets out of the way when there is not.
 
-         - paused: shown, and it stays shown. A paused clip with no visible
-           way to start it is a dead end.
          - playing: shown just long enough to read the state change, then
            faded out after AUTO_HIDE_MS.
-         - tapping inside the frame: toggles it back on or off. Tapping on
-           while playing restarts the auto-hide countdown, so it does not
-           linger after being summoned.
-         - tapping anywhere outside: dismisses it, same as tapping off a
-           menu.
+         - paused: shown, and no timer runs — nothing takes it away on its
+           own, because a clip that is not running has a decision pending.
+         - tapping inside the frame: toggles it, whatever the playback state.
+           Tapping it on while playing restarts the countdown, so a summoned
+           control does not linger.
+         - tapping anywhere outside: dismisses it, the way tapping off a menu
+           does — including on a paused clip. That can leave a paused clip
+           with nothing on screen, which is fine: a tap on the frame brings
+           it straight back, and every clip starts out showing its control.
 
-       Hover and keyboard focus also reveal it, and it is never removed from
-       the DOM or made unfocusable while hidden — only faded and made
+       Note there is deliberately no hover reveal in the CSS. One used to be
+       there and it quietly beat every tap-to-hide, since the pointer is over
+       the frame by definition right after you tap it.
+
+       Keyboard focus does still reveal it, and it is never removed from the
+       DOM or made unfocusable while hidden — only faded and made
        click-through — so tabbing to it still works when it cannot be seen. */
     const AUTO_HIDE_MS = 1600;
 
@@ -251,17 +257,14 @@
       });
     };
 
-    /* Anywhere outside a clip dismisses whatever is showing. Both handlers
-       above stop propagation, so this only ever sees genuine outside taps. */
+    /* Anywhere outside a clip dismisses whatever is showing, paused or not.
+       Both handlers above stop propagation, so this only ever sees genuine
+       outside taps. A paused clip can therefore end up with no control on
+       screen — that is intended, since a tap on the frame brings it back,
+       and every clip starts with its control showing. */
     if (autoVideos.length) {
       document.addEventListener('click', () => {
-        controlled.forEach((c) => {
-          // Leave a paused clip's control alone: hiding it would strand the
-          // clip with no visible way to start.
-          const video = c.holder.querySelector('video');
-          if (video && video.paused) return;
-          c.hide();
-        });
+        controlled.forEach((c) => c.hide());
       });
     }
 
