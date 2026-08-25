@@ -17,7 +17,7 @@ assets/js/main.js                Mobile nav + SPIN wheel + (loaded on project/ab
 
 assets/images/projects/          6 WORK-grid thumbnail images (landing page + SPIN wheel)
 assets/images/icons/             arrow-down, arrow-up-right, mail, linkedin, instagram, close, eye,
-                                  notification-message, file-download
+                                  file-download
 assets/images/photos/            personal contact photo
 assets/images/hachi/             Hachi project's own images (hero, galleries, wireframes, etc.)
 assets/images/about/             About page's own images (profile + 4 photo grids)
