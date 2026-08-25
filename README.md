@@ -70,7 +70,28 @@ Hachi's "NEXT PROJECT" pill) and will 404 until each page is built — that's ex
       collapsing the aspect-ratio to a square. Fixed with a plain `width` property instead (axis-
       independent) — verified both this page's 274×580 usage and Hachi's original 274×608 row usage
       still measure correctly.
-- [ ] 1 remaining project page: MOME ULP
+- [x] MOME ULP project page — the last of the 6 WORK-grid projects, and structurally the most complex.
+      Two absolute-positioned collage layouts preserved pixel-exact via `.collage-canvas`/`.collage-item`
+      (every child's left/top/width/height is a *percentage* of the canvas, converted 1:1 from Figma's px
+      offsets, so the hand-arranged composition scales as one unit). Also added `.method-header`,
+      `.findings-grid`, `.issue-grid`, `.hmw-grid`, `.priority-grid`, `.ia-row`/`.ia-box`, `.rite-flow`,
+      `.results-grid`.
+- [x] All 6 project pages + index.html + about.html built; every internal link resolves.
+- [x] Site-wide UX/perf/a11y audit (2026-08-25, branch `fix/ux-audit-2026-08`, merged to master as a
+      fast-forward). 15 commits: horizontal-scroll and overflow fixes, one unified container measure
+      (`--container-max` was declared and never used), consolidated breakpoints, all photos converted to
+      WebP with below-the-fold lazy-loading (killed a 22 MB eager video preload), readable body text
+      (`.finding-quote` was 8px), reduced-motion coverage, cancellable SPIN, skip links, a real header +
+      nav on all six project pages, favicons, 1200x630 social share cards for all 8 pages, and a round of
+      copy fixes. Afterwards the 166 pre-WebP source images were deleted (196 MB -> 38 MB in
+      `assets/images`); they remain recoverable from git history.
+
+### Outstanding
+
+- [ ] **Social-card domain placeholder.** All 8 pages carry `https://REPLACE-WITH-YOUR-DOMAIN.example`
+      in their `og:url` / `og:image` / `twitter:image` tags. Open Graph requires *absolute* URLs, so the
+      share cards stay inert until this one string is find-and-replaced with the real deployed domain.
+      Everything else about the cards is built and verified.
 
 ## Landing page notes
 
