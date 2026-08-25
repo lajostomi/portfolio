@@ -946,11 +946,44 @@
   gap: 16px;
 }
 
-/* Communication is wide enough for a 2-up mini-grid of finding items */
+/* Communication is wide enough to run its findings two-up.
+
+   columns, not a 2-track grid. A grid aligns rows, so every row grew to
+   its tallest item and the shorter one left dead space underneath —
+   measured 42-63px of slack, which turned the gap between one finding and
+   the next into 16px here and 61px there down the same column. These are
+   six independent quotes, not a table: nothing needs to line up across the
+   columns, so letting each column pack its own items gives one even rhythm
+   throughout. DOM order is unchanged, so reading order and the tab order
+   are unaffected. */
 .finding-items--grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  /* Overrides .finding-items display:flex, which is also on this element:
+     columns is ignored on a flex container, so without this the modifier
+     silently collapsed back to one flex column and the flex gap stacked on
+     top of the item margin below (32px instead of 16px). */
+  display: block;
+  columns: 2;
+  column-gap: 16px;
+}
+
+.finding-items--grid .finding-item {
+  /* Without this a finding can be split across the column break, leaving
+     its term at the foot of one column and its quote at the head of the
+     next. */
+  break-inside: avoid;
+  /* columns lay children out in normal flow, so the vertical rhythm comes
+     from margin rather than a parent gap. Same 16px .finding-items uses. */
+  margin-bottom: 16px;
+}
+
+/* The term and its quote sat flush — 0px between them, against 16px
+   between one finding and the next — so a term read as a trailing line of
+   the quote above rather than the label for the quote below. 8px binds the
+   pair while staying half the gap that separates findings. */
+.finding-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .finding-item p {
@@ -1755,7 +1788,7 @@
   }
 
   .finding-items--grid {
-    grid-template-columns: 1fr;
+    columns: 1;
   }
 
   .hmw-grid {
