@@ -150,10 +150,34 @@
        keeps its current behaviour (poster only) instead of showing a button
        that cannot work.
 
-       The button stays in the DOM while playing rather than being removed —
-       it fades out, but hover and keyboard focus bring it back, so there is
-       still a way to pause that does not depend on knowing the video itself
-       is clickable. */
+       Visibility follows the familiar player convention rather than being
+       tied to playback: the control shows itself when there is a decision to
+       make and gets out of the way when there is not.
+
+         - paused: shown, and it stays shown. A paused clip with no visible
+           way to start it is a dead end.
+         - playing: shown just long enough to read the state change, then
+           faded out after AUTO_HIDE_MS.
+         - tapping inside the frame: toggles it back on or off. Tapping on
+           while playing restarts the auto-hide countdown, so it does not
+           linger after being summoned.
+         - tapping anywhere outside: dismisses it, same as tapping off a
+           menu.
+
+       Hover and keyboard focus also reveal it, and it is never removed from
+       the DOM or made unfocusable while hidden — only faded and made
+       click-through — so tabbing to it still works when it cannot be seen. */
+    const AUTO_HIDE_MS = 1600;
+
+    /* The two glyphs, in one place: these are placeholders and are meant to
+       be swapped for supplied artwork. Keep the 24x24 viewBox (the CSS sizes
+       the <svg>, not the path) and keep `fill="currentColor"` so the glyph
+       keeps taking its colour from the button. */
+    const ICON_PLAY = 'M8 5v14l11-7z';
+    const ICON_PAUSE = 'M7 5h4v14H7zM13 5h4v14h-4z';
+
+    const controlled = [];
+
     const buildControls = () => {
       autoVideos.forEach((video) => {
         const holder = video.parentElement;
@@ -166,37 +190,80 @@
         button.className = 'video-play';
         button.innerHTML =
           '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-          '<path class="video-play-icon" d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+          '<path class="video-play-icon" d="' + ICON_PLAY + '" fill="currentColor"/></svg>';
+
+        let hideTimer = null;
+        const clearHideTimer = () => {
+          if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+        };
+
+        const show = () => {
+          clearHideTimer();
+          holder.classList.add('controls-visible');
+          // Only a playing clip hides itself again; a paused one has to keep
+          // offering the way to start it.
+          if (!video.paused) hideTimer = setTimeout(hide, AUTO_HIDE_MS);
+        };
+
+        const hide = () => {
+          clearHideTimer();
+          holder.classList.remove('controls-visible');
+        };
 
         const sync = () => {
           const playing = !video.paused;
           holder.classList.toggle('is-playing', playing);
           button.setAttribute('aria-label', (playing ? 'Pause ' : 'Play ') + label);
-          button.querySelector('.video-play-icon').setAttribute(
-            'd', playing ? 'M7 5h4v14H7zM13 5h4v14h-4z' : 'M8 5v14l11-7z'
-          );
+          button.querySelector('.video-play-icon')
+            .setAttribute('d', playing ? ICON_PAUSE : ICON_PLAY);
         };
 
-        const toggle = () => {
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
           if (video.paused) {
             const p = video.play();
             if (p && typeof p.catch === 'function') p.catch(() => {});
           } else {
             video.pause();
           }
-        };
+        });
 
-        button.addEventListener('click', toggle);
-        // Clicking the clip itself toggles too, so a playing video can be
-        // stopped without hunting for the faded button.
-        video.addEventListener('click', toggle);
-        video.addEventListener('play', sync);
-        video.addEventListener('pause', sync);
+        /* Inside the frame toggles the control rather than playback. Playback
+           has its own button a few pixels away, and a frame-wide play/pause
+           target makes it far too easy to stop a clip while trying to bring
+           the controls back. */
+        video.addEventListener('click', (event) => {
+          event.stopPropagation();
+          if (holder.classList.contains('controls-visible')) hide();
+          else show();
+        });
+
+        // Reveal on the state change itself, so the icon flip is seen before
+        // it fades; `show` schedules the countdown when it is playing.
+        video.addEventListener('play', () => { sync(); show(); });
+        video.addEventListener('pause', () => { sync(); show(); });
+        button.addEventListener('focus', show);
 
         holder.appendChild(button);
+        controlled.push({ holder: holder, hide: hide });
         sync();
+        show();
       });
     };
+
+    /* Anywhere outside a clip dismisses whatever is showing. Both handlers
+       above stop propagation, so this only ever sees genuine outside taps. */
+    if (autoVideos.length) {
+      document.addEventListener('click', () => {
+        controlled.forEach((c) => {
+          // Leave a paused clip's control alone: hiding it would strand the
+          // clip with no visible way to start.
+          const video = c.holder.querySelector('video');
+          if (video && video.paused) return;
+          c.hide();
+        });
+      });
+    }
 
     const apply = () => {
       if (reduceMotion.matches) stopAll();

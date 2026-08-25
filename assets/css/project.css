@@ -2245,16 +2245,25 @@
   transform: scale(1.06);
 }
 
-/* Out of the way while the clip runs, but still reachable: hovering the
-   clip or tabbing to the button brings it straight back, so pausing never
-   depends on guessing that the video itself is clickable. */
-.is-playing .video-play {
+/* Visibility is driven by .controls-visible, which main.js puts on and takes
+   off — NOT by .is-playing. The two are deliberately separate: the icon
+   reflects playback, while whether the control is on screen follows the
+   user's last interaction (see the note in main.js).
+
+   Hidden means faded and click-through, never display:none and never
+   removed — the button must stay in the tab order so a keyboard user can
+   reach it while it is invisible, at which point :focus-visible below brings
+   it back into view. */
+.video-play {
   opacity: 0;
+  pointer-events: none;
 }
 
+.video-holder.controls-visible .video-play,
 .video-holder:hover .video-play,
 .video-play:focus-visible {
   opacity: 1;
+  pointer-events: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
