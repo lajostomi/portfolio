@@ -2049,34 +2049,20 @@
     text-underline-offset: 2px;
   }
 
-  /* Below 900px the 2-axis matrix no longer has room for both axes, so it
-     collapses to a single-column list grouped by the frequency axis
-     ("All of the time" ... "None of the time"). The inline grid-column/
-     grid-row placement (set for the desktop matrix) is reset the same way
-     .about-grid resets it in about.css, and the now-meaningless people-axis
-     labels/icons are hidden. */
-  .priority-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .priority-grid > * {
-    grid-column: auto !important;
-    grid-row: auto !important;
-  }
-
-  .priority-grid .priority-icon,
-  .priority-grid .axis-label--people {
+  /* Below 900px the 2-axis matrix no longer has room for both axes. A
+     single-column list fallback (grouped by the frequency axis) was tried
+     first, same pattern as every other MOME ULP grid on this page — but
+     unlike those, this one didn't hold up: 24 short, similarly-weighted
+     phrases with no image, colour, or other visual anchor between them
+     just read as a wall of text once the matrix's two axes were gone, and
+     the "All of the time" / "None of the time" group headings weren't
+     enough on their own to make 24 items skimmable. Removed rather than
+     patched further, per explicit request — the matrix is real
+     information but only reads as a matrix, so it's kept for desktop only
+     (see .priority-section below) rather than trying a third mobile
+     treatment. */
+  .priority-section {
     display: none;
-  }
-
-  .priority-grid .axis-label {
-    margin-top: 16px;
-  }
-
-  .priority-grid .axis-label:first-child {
-    margin-top: 0;
   }
 
   /* ---------- MOME ULP results grids: read as a chart, not a wall ----------
@@ -2236,14 +2222,6 @@
     order: -1;
   }
 
-
-  /* MOME ULP: keep resetting the inline grid placement so nothing
-     re-establishes implicit grid tracks at this breakpoint (the list
-     layout itself is inherited from the 900px breakpoint above). */
-  .priority-grid > * {
-    grid-column: auto !important;
-    grid-row: auto !important;
-  }
 
   .results-grid {
     grid-template-columns: 1fr;
