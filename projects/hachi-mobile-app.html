@@ -78,7 +78,13 @@
 
     <!-- Problem / Solution -->
     <section class="project-section" aria-label="Problem and solution">
-      <div class="grid-4">
+      <!-- One grid, not a text grid followed by a photo grid, so that each
+           half's photos stay attached to the copy they illustrate: the two
+           shelter photos belong to Problem, the two companionship photos to
+           Solution. Source order is that reading order, and .problem-solution
+           places the six children back into the design's two rows on desktop
+           (see project.css). Stacked, they simply fall in reading order. -->
+      <div class="grid-4 problem-solution">
         <div class="span-2">
           <h2 class="project-section-title">Problem</h2>
           <div class="text-block">
@@ -87,6 +93,9 @@
             <p><strong>EVERY THIRD phone call a shelter receives is about the owner moving / dying.</strong></p>
           </div>
         </div>
+        <div class="span-1 ps-photo"><img src="../assets/images/hachi/gallery-1.webp" alt="A dog surrounded by torn-up cushion stuffing on a bed" width="1068" height="763" loading="lazy" decoding="async"></div>
+        <div class="span-1 ps-photo"><img src="../assets/images/hachi/gallery-2.webp" alt="A dog behind bars in a shelter kennel" width="775" height="1034" loading="lazy" decoding="async"></div>
+
         <div class="span-2">
           <h2 class="project-section-title">Solution</h2>
           <div class="text-block">
@@ -95,13 +104,8 @@
             <p>Landlords will begin to see pet owners less as a potential liability</p>
           </div>
         </div>
-      </div>
-
-      <div class="grid-4 photo-row">
-        <div class="span-1"><img src="../assets/images/hachi/gallery-1.webp" alt="A dog surrounded by torn-up cushion stuffing on a bed" width="1068" height="763" loading="lazy" decoding="async"></div>
-        <div class="span-1"><img src="../assets/images/hachi/gallery-2.webp" alt="A dog behind bars in a shelter kennel" width="775" height="1034" loading="lazy" decoding="async"></div>
-        <div class="span-1"><img src="../assets/images/hachi/gallery-3.webp" alt="An elderly man handing off his dog's leash to a younger man at a doorway" width="1068" height="596" loading="lazy" decoding="async"></div>
-        <div class="span-1"><img src="../assets/images/hachi/gallery-4.webp" alt="An elderly man petting a dog on the couch" width="1068" height="712" loading="lazy" decoding="async"></div>
+        <div class="span-1 ps-photo"><img src="../assets/images/hachi/gallery-3.webp" alt="An elderly man handing off his dog's leash to a younger man at a doorway" width="1068" height="596" loading="lazy" decoding="async"></div>
+        <div class="span-1 ps-photo"><img src="../assets/images/hachi/gallery-4.webp" alt="An elderly man petting a dog on the couch" width="1068" height="712" loading="lazy" decoding="async"></div>
       </div>
     </section>
 
@@ -235,7 +239,7 @@
         <h2 class="project-section-title">Final thoughts</h2>
         <p class="project-section-lead">This app enables, but the most meaningful interactions happen to it's users when they are not looking at the screen.</p>
       </div>
-      <div class="grid-4 photo-row">
+      <div class="grid-4 photo-row photo-row--keep-row">
         <div class="span-1"><img src="../assets/images/hachi/final-1.webp" alt="A dog owner and their dog meeting a senior outdoors" width="1068" height="713" loading="lazy" decoding="async"></div>
         <div class="span-1"><img src="../assets/images/hachi/final-2.webp" alt="An elderly woman with a small dog" width="1068" height="712" loading="lazy" decoding="async"></div>
         <div class="span-1"><img src="../assets/images/hachi/final-3.webp" alt="An elderly woman sitting with a dog" width="1068" height="712" loading="lazy" decoding="async"></div>

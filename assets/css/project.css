@@ -1734,14 +1734,39 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .detail-images {
-    flex-wrap: wrap;
+  /* Hand the six children back to auto-placement so they stack in source
+     order — Problem, its photos, Solution, its photos.
+     !important because the desktop placement is set per position
+     (.problem-solution > :nth-child(n), specificity 0,2,0) and would
+     otherwise outrank this reset from inside the media query — the same
+     reason .about-grid and .priority-grid reset theirs this way. */
+  .problem-solution > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
   }
 
+  .detail-images {
+    flex-wrap: wrap;
+    /* Centred, not space-between: once these wrap, a row holding fewer
+       items than the last would otherwise push them to the outer edges
+       with a hole in the middle. */
+    justify-content: center;
+  }
+
+  /* Every app screen the same size, whatever it is nested in.
+     They were coming out at two different widths: a solo screen took
+     flex-basis and grew to fill its line, while the two inside
+     .detail-image-pair sit in a COLUMN flex parent, where flex-basis sizes
+     height and the width quietly fell back to the 274px below — 320px
+     against 274px, side by side down the page. Sizing by `width` instead
+     is axis-independent, so it holds in either parent (the same reasoning
+     as the note on .detail-image itself). 274px is the design's own screen
+     width, which is what the pair was already landing on. */
   .detail-image {
-    max-width: none;
-    flex-basis: 45%;
-    flex-grow: 1;
+    flex-basis: auto;
+    flex-grow: 0;
+    width: 274px;
+    max-width: 100%;
   }
 
   .detail-image-pair {
@@ -1960,13 +1985,30 @@
     flex: 1 1 calc(50% - 16px);
   }
 
+  /* Inherits the 274px width and centring from the 900px block above; only
+     the cap changes, so a screen still shrinks with a viewport narrower
+     than the design width instead of overflowing it. */
   .detail-image {
-    flex-basis: 100%;
-    max-width: 320px;
+    max-width: 100%;
   }
 
   .detail-image-pair {
     flex-direction: column;
+    align-items: center;
+  }
+
+  /* Stays four-across when everything else collapses to one column. These
+     are near-square thumbnails read as a set — a closing strip — so a
+     stack of four full-width photos says something the row does not, and
+     costs four screens of scrolling to say it. The gap drops to 8px
+     because four 32px gutters would eat a third of a phone's width. */
+  .grid-4.photo-row--keep-row {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .photo-row--keep-row > .span-1 {
+    grid-column: span 1;
   }
 
   .project-footer {
@@ -2052,3 +2094,43 @@
 .task-label {
   text-wrap: balance;
 }
+
+/* =========================
+   Hachi: Problem / Solution, copy and its photos in one grid
+   -------------------------
+   The two halves used to be a text grid followed by a separate photo grid.
+   That reads correctly on desktop, where each pair of photos happens to sit
+   under the column it belongs to — but the moment the grid stacks, source
+   order takes over and you get both arguments and then all four photos, so
+   the shelter photos land under the Solution copy and read as if they
+   illustrate it.
+
+   Merged into one grid whose source order IS the reading order — Problem,
+   its two photos, Solution, its two photos — which is what stacks correctly
+   and what a screen reader announces. Desktop then puts the six children
+   back into the design's two rows by explicit placement, so the wide layout
+   is byte-for-byte what it was.
+
+   Placement is by position rather than by class because it is the position
+   in the pair that decides the column; :nth-child beats .span-2's own
+   grid-column on specificity, which is what lets the copy blocks keep that
+   class for its flex-column-with-32px-gap. */
+.problem-solution > :nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+.problem-solution > :nth-child(2) { grid-column: 1 / 2; grid-row: 2; }
+.problem-solution > :nth-child(3) { grid-column: 2 / 3; grid-row: 2; }
+.problem-solution > :nth-child(4) { grid-column: 3 / 5; grid-row: 1; }
+.problem-solution > :nth-child(5) { grid-column: 3 / 4; grid-row: 2; }
+.problem-solution > :nth-child(6) { grid-column: 4 / 5; grid-row: 2; }
+
+/* Same treatment .photo-row gives its children. Applied by its own class
+   rather than by reusing .photo-row on the grid, because that selector is
+   `.photo-row > div` — on this grid it would also catch the two copy
+   blocks and force them into a photo's aspect-ratio. */
+.ps-photo {
+  position: relative;
+  aspect-ratio: 274 / 265;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.ps-photo img { width: 100%; height: 100%; object-fit: cover; }
