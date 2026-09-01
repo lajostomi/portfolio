@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Loading with a hash (e.g. CLOSE returning to #work-<slug>, see main.js)
+     also triggers the browser's own scroll-to-fragment-on-load, which
+     obeys style.css's html{scroll-behavior:smooth} same as any other
+     scroll -- so instead of landing on the card, it animates there over
+     the full page height, which reads as dizzying rather than helpful on
+     a page this tall. This has to be a blocking inline script, not
+     something in main.js: it must run (and this element's own inline
+     style, which always wins regardless of stylesheet load order, must
+     already be set) before the browser performs that scroll, which
+     happens as soon as the target element and layout are ready -- a
+     deferred script cannot be guaranteed to win that race. main.js turns
+     smooth scrolling back on after load, once this one jump is done, so
+     in-page anchor clicks (WORK/CONTACT nav, footer pills) keep it. -->
+<script>
+  if (location.hash) { document.documentElement.style.scrollBehavior = 'auto'; }
+</script>
+<title>Page not found — Lajos Tamás Jakab</title>
+<meta name="description" content="This page doesn't exist. Head back to the Lajos Tamás Jakab portfolio.">
+<!-- Favicon. Files are not in the repo yet - see assets/favicon/README.md.
+     Relative, not root-relative, so they keep working if the site is ever
+     deployed to a subpath rather than a domain root. -->
+<link rel="icon" href="assets/favicon/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-dark not-found-page">
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="top">
+    <a class="logo" href="index.html">Lajos Tamás Jakab</a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navMenu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
+      <a href="index.html#work" class="nav-link">WORK</a>
+      <a href="about.html" class="nav-link">ABOUT</a>
+      <a href="index.html#contact" class="nav-link">CONTACT</a>
+    </nav>
+  </header>
+
+  <main class="not-found-container" id="main" tabindex="-1">
+    <section class="not-found-content" aria-labelledby="not-found-heading">
+      <h1 id="not-found-heading" class="section-title">404</h1>
+      <p class="not-found-text">This page doesn't exist. Maybe it moved, maybe it never did — either way, head back to the <a href="index.html">homepage</a>.</p>
+    </section>
+  </main>
+
+  <footer class="project-footer">
+    <a class="footer-pill footer-pill--dark" href="index.html#work">
+      BACK TO WORK
+      <img src="assets/images/icons/close.svg" alt="" width="14" height="14">
+    </a>
+  </footer>
+
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>

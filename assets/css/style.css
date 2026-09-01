@@ -815,6 +815,79 @@ section {
 }
 
 /* =========================
+   404 page
+   -------------------------
+   No project.css on this page (it isn't a project), so .project-footer
+   and .footer-pill — reused verbatim from the project pages' footer
+   markup — get their own definitions here, scoped under .not-found-page
+   so they can't leak onto (or clash with) project.css's sticky/scrimmed
+   versions of the same class names on other pages. This page is short
+   and never scrolls past its own content, so the footer just sits at
+   the bottom of the flex column instead of sticking with a scrim.
+   ========================= */
+
+.not-found-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.not-found-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-block: clamp(48px, 8vw, 120px);
+}
+
+.not-found-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: 560px;
+}
+
+.not-found-text {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.not-found-page .project-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: max(var(--gutter), calc((100% - var(--container-max)) / 2));
+  padding-block: 24px;
+}
+
+.not-found-page .footer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.not-found-page .footer-pill:hover,
+.not-found-page .footer-pill:focus-visible {
+  transform: translateY(-3px);
+  background: #2c2929;
+}
+
+/* =========================
    Responsive
    ========================= */
 

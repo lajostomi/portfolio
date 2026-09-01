@@ -85,13 +85,14 @@ Hachi's "NEXT PROJECT" pill) and will 404 until each page is built — that's ex
       nav on all six project pages, favicons, 1200x630 social share cards for all 8 pages, and a round of
       copy fixes. Afterwards the 166 pre-WebP source images were deleted (196 MB -> 38 MB in
       `assets/images`); they remain recoverable from git history.
+- [x] **Domain set: `https://lajostamasjakab.eu`.** The `https://REPLACE-WITH-YOUR-DOMAIN.example`
+      placeholder in every `og:url` / `og:image` / `twitter:image` tag across all 8 pages, plus
+      `robots.txt`'s `Sitemap:` line and every `<loc>` in `sitemap.xml`, is now the real domain — the
+      share cards are live.
 
 ### Outstanding
 
-- [ ] **Social-card domain placeholder.** All 8 pages carry `https://REPLACE-WITH-YOUR-DOMAIN.example`
-      in their `og:url` / `og:image` / `twitter:image` tags. Open Graph requires *absolute* URLs, so the
-      share cards stay inert until this one string is find-and-replaced with the real deployed domain.
-      Everything else about the cards is built and verified.
+- [ ] Nothing currently tracked.
 
 ## Landing page notes
 
