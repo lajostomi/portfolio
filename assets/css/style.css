@@ -1045,21 +1045,39 @@ section {
 
   /* The arrow badge is drawn resting-visible in the mobile frame, and it
      has to be: it is revealed on hover on desktop, and a touch device has
-     no hover to reveal it with. Sized and placed as the frame's "Project
-     Link Container" — a 39.844px box flush into the image's top-right
-     corner (the frame leaves 0.19px, i.e. nothing), holding a 28.569px
-     arrow. */
+     no hover to reveal it with.
+
+     Sizing it needs care, because the frame's 39.844px "Project Link
+     Container" is NOT the badge — it is a transparent positioning box.
+     The badge is the 28.569px arrow asset sitting at 5.64px inside it,
+     and that asset carries its own dark circle. So the visible circle is
+     28.569px, inset 5.64px from the image's top edge and 5.82px from its
+     right (286.97 + 5.64 + 28.569 = 321.18, against the image's 327).
+     Drawn at the container's 39.844px and flush into the corner instead,
+     our CSS-composed circle was both too big and poking out past the
+     image's own 8px corner radius.
+
+     The glyph is 8.162px, not the asset's full 28.569px, because the two
+     SVGs are built differently: the frame's arrow is inset inside its
+     circle, while the shared assets/images/icons/arrow-up-right.svg is
+     the bare arrow filling its whole viewBox edge-to-edge. Rendering that
+     one at 28.569px scaled its 2.413/14.478 stroke to ~4.8px — the fat
+     arrow — where the frame's is 1.36px. At 8.162px (the frame's own
+     stroke-inclusive glyph extent) the stroke comes out at 2.413 x
+     8.162/14.478 = 1.360px, i.e. exactly the frame's weight, and the
+     glyph-to-circle ratio lands on 28.6% — the same proportion the
+     desktop badge already uses (15/50.7 = 29.6%). */
   .project-link-icon {
-    top: 0;
-    right: 0;
-    width: 39.844px;
-    height: 39.844px;
+    top: 5.64px;
+    right: 5.82px;
+    width: 28.569px;
+    height: 28.569px;
     opacity: 1;
   }
 
   .project-link-icon img {
-    width: 28.569px;
-    height: 28.569px;
+    width: 8.162px;
+    height: 8.162px;
   }
 
   /* ----- CONTACT -----
