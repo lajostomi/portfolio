@@ -2463,6 +2463,16 @@
     font-size: 24px;
   }
 
+  /* A subheading rather than a section title of its own — "Matchmaking
+     safely" reads as subordinate to the section before it, so the frame
+     drops it two points below the 24px the real section titles carry.
+     Its own modifier because it is a statement about the content
+     hierarchy, not about this one page: any later section that is a
+     subheading takes the same class. */
+  .project-section-title--sub {
+    font-size: 22px;
+  }
+
   .project-section-lead {
     font-size: 14px;
   }
