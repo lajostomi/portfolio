@@ -2750,6 +2750,24 @@
     width: 155px;
   }
 
+  /* The frame breaks these two columns by hand — one name or one label per
+     line — and left to reflow they came out ragged instead ("Consultants:
+     MOME:" / "Peter Molnar, Viktor" / "Horvath," and so on down).
+
+     Each frame line is its own span so the break points live in the markup
+     next to the text that needs them, and they only become breaks here:
+     the spans are inline at every wider width, where the whitespace
+     between them reads as an ordinary space and the copy flows as before.
+     The desktop <br> is hidden because a break between two block spans
+     would open an empty line. */
+  .hero-meta .meta-line {
+    display: block;
+  }
+
+  .hero-meta p br {
+    display: none;
+  }
+
   /* Every grid on both frames is on 16px gaps at this width. */
   .grid-4,
   .grid-3 {
