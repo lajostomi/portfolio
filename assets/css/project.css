@@ -2413,3 +2413,280 @@
     transform: none;
   }
 }
+
+/* ---------- mobile: <= 600px — the 375px project-page frame ----------
+
+   Hachi's own Figma frame (file BYzOswHghAAaQSCUNqVSwp, "P-hachi", node
+   341:236) — the project-page counterpart to the landing frame already
+   built at the bottom of style.css. Same 375px screen, same 24px gutter,
+   same 327px content column, so every width quoted below is the frame's
+   own number at that width.
+
+   This block deliberately sits AFTER the general <=600px rules earlier in
+   this file. The frame keeps three rows multi-column that those rules
+   collapse to a single column — the four research methods, the wireframe
+   grid and the three phone screens — so it has to be able to win against
+   them at equal specificity.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* The frame puts the content at y=58 against a 57px header, i.e. flush.
+     The clamp's 24px floor is a landing-page convention the project frame
+     does not follow. */
+  .project-page {
+    padding-top: 0;
+  }
+
+  /* 48px between sections, the same rhythm as the landing frame, against
+     the desktop clamp's 56px floor. */
+  .project-container {
+    gap: 48px;
+  }
+
+  /* Heading to content. The sections that open with a .section-intro
+     (Wireframes, the four phone sections, Final thoughts) draw 16px
+     instead, because there the 24px has already been spent inside the
+     intro between its heading and its copy. */
+  .project-section {
+    gap: 24px;
+  }
+
+  .project-section:has(> .section-intro) {
+    gap: 16px;
+  }
+
+  .section-intro {
+    gap: 24px;
+  }
+
+  .project-section-title {
+    font-size: 24px;
+  }
+
+  .project-section-lead {
+    font-size: 14px;
+  }
+
+  /* Paragraph to paragraph. The frame writes each body block as one text
+     box with blank lines between paragraphs, so the spacing it actually
+     draws is one empty 16px/1.5 line — 24px, not the 32px this site uses
+     at every other width. */
+  .text-block {
+    gap: 24px;
+  }
+
+  /* ----- hero -----
+
+     The frame threads the meta through the title block rather than
+     stacking one after the other: title, then role and year sharing a
+     row, then the tagline, then the consultant. The DOM cannot produce
+     that order on its own — .hero-text holds [title, tagline] while
+     .hero-meta holds [year, role, consultant], and the frame interleaves
+     the two.
+
+     display: contents dissolves both wrappers so all five children become
+     items of one grid on .hero-description, which can then place each
+     where the frame puts it without touching markup that five other
+     project pages and every desktop width still depend on. Placement is
+     by explicit grid-row/grid-column rather than `order`, so it does not
+     matter that the DOM sequence differs from the visual one. The second
+     column exists only for the year. */
+  .hero-description {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 16px;
+    row-gap: 16px;
+  }
+
+  .hero-text,
+  .hero-meta {
+    display: contents;
+  }
+
+  .hero-image {
+    border-radius: 8px;
+  }
+
+  .hero-text h1 {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    /* The frame's gap under the title is 8px against the block's 16px.
+       One grid has one row-gap, so the 8px difference comes off the title
+       rather than splitting the hero into two nested containers. */
+    margin-bottom: -8px;
+  }
+
+  /* Source order inside .hero-meta is year, role, consultant. */
+  .hero-meta p:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .hero-meta p:nth-child(1) {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: right;
+  }
+
+  .hero-text p {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .hero-meta p:nth-child(3) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+
+  .hero-text p,
+  .hero-meta p {
+    font-size: 14px;
+  }
+
+  /* ----- Problem / Solution -----
+     Copy full width, then its two photos side by side rather than the
+     single stacked column the general mobile rules produce. The
+     !important is not decoration: the <=900px block resets
+     `.problem-solution > *` with !important to undo the desktop
+     :nth-child placement, and a plain declaration cannot beat it. */
+  .problem-solution {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .problem-solution > :not(.ps-photo) {
+    grid-column: 1 / -1 !important;
+    /* .span-2 is a plain wrapper around a heading and a .text-block with
+       no spacing of its own; the frame wants the section's 24px there. */
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .problem-solution > .ps-photo {
+    grid-column: auto !important;
+  }
+
+  .ps-photo,
+  .photo-row > div,
+  .method-item .method-image {
+    border-radius: 8px;
+  }
+
+  /* The frame draws both of these galleries square (155x155) rather than
+     on the desktop 274/265 crop, which came out 4.6px short of its own
+     width here. */
+  .ps-photo,
+  .photo-row > div {
+    aspect-ratio: 1;
+  }
+
+  /* ----- Research and findings -----
+     The four methods stay four across at the frame's 70px, where the
+     general rule would stack them into four full-width photos. 70 x 4 +
+     16 x 3 = 328, i.e. the content column. The .method-image's existing
+     274/580 profile is already the frame's 70/148 to within a thousandth,
+     so only the track count, the gaps and the label size change. */
+  .grid-4.method-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .method-item {
+    gap: 16px;
+  }
+
+  .method-item p {
+    font-size: 14px;
+  }
+
+  /* The findings already became dot-beside-text rows at 900px; the frame
+     only tightens them. The dot is a fixed 70px and the row is 327px, so
+     a 16px gap leaves the copy the frame's own 241px without stating it. */
+  .insights-grid {
+    gap: 16px;
+    padding-block: 0;
+  }
+
+  .insight {
+    gap: 16px;
+  }
+
+  /* The desktop diamond puts the copy BEFORE its dot in source for the two
+     insights that sit above and left of theirs, and after it for the other
+     two. Stacked into rows that reads as the dot hopping from side to side
+     down the list; the frame keeps it on the left throughout. `order` does
+     it without row-reverse, so nothing else about the row flips. */
+  .insight .insight-dot {
+    order: -1;
+  }
+
+  /* ----- Wireframes -----
+     Back to the frame's two columns, undoing the single column the
+     general mobile rules impose. */
+  .wireframe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  /* ----- the four phone-screen sections -----
+     Three screens stay on one row at the frame's 98.296px rather than
+     stacking. 98.296 x 3 + 16 x 2 = 327. flex: 1 1 0 with min-width: 0
+     lets them divide the row and shrink together on a narrower phone,
+     instead of the fixed 274px width the wider tiers give them.
+
+     display: contents on .detail-image-pair matters for "Differentiated
+     user groups", whose three screens are a solo image plus a grouped
+     pair — desktop wants the bigger gap between the two groups, while the
+     frame spaces all three evenly. Dissolving the pair makes its two
+     children direct items of the same row. */
+  .detail-images {
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .detail-image-pair {
+    display: contents;
+  }
+
+  .detail-image {
+    width: auto;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    border-radius: 14px;
+    border-width: 2px;
+  }
+
+  /* ----- Final thoughts -----
+     Two-up rather than the four-across strip the general mobile rules
+     keep: the frame draws four near-square photos as 2x2 at 156/155. */
+  .grid-4.photo-row--keep-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+/* ---------- narrower than the design frame: <= 367px ----------
+   The four-across research row is the one piece of the 375px frame that
+   cannot simply scale down. Its labels are single unbreakable words, and
+   the longest — "interviews" — measures 68px at the frame's 14px. Four of
+   those plus three 16px gaps need 320px of content, i.e. a 368px viewport
+   once the 24px gutters are taken off.
+
+   Below that the words overrun their own column and print over the
+   neighbouring one (measured at 320px: a 56px track holding 68px of
+   word). This is not theoretical — 360px is one of the most common
+   Android widths there is, and it lands 8px short.
+
+   So the row pairs up rather than shrinking further. Chosen over
+   hyphenating or shrinking the type: both would break the frame's own
+   14px label everywhere it currently fits, to fix a width the frame does
+   not describe. Threshold is the measured minimum, not a round number.
+   ---------------------------------------------------------------- */
+@media (max-width: 367px) {
+  .grid-4.method-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
