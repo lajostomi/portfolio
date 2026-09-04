@@ -2520,6 +2520,17 @@
     border-radius: 8px;
   }
 
+  /* Under NDA forces its title onto three lines for the desktop column
+     ("UNDER NDA: / Beyond Banking Product / for Hungarian SMEs"). At 327px
+     the middle line does not fit anyway, so that second break only moved
+     the wrap one word earlier than the frame does — "Product" alone, then
+     "for Hungarian SMEs", against the frame's "Product for /
+     Hungarian SMEs". Dropping it lets the line fill. The first break, which
+     puts "UNDER NDA:" on its own line, is the frame's too and stays. */
+  .hero-text h1 br:nth-of-type(2) {
+    display: none;
+  }
+
   .hero-text h1 {
     grid-column: 1 / -1;
     grid-row: 1;
