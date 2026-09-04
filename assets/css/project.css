@@ -2875,6 +2875,16 @@
     font-size: 24px;
   }
 
+  /* Mercedes forces "Prototyping / challenges" onto two lines with a <br>
+     for its desktop column. The frame sets that heading on one line — at
+     24px it measures ~264px against the 327px column — so the break is
+     dropped here. The space now sitting before that <br> is deliberate:
+     without it the two halves ran together as "Prototypingchallenges" for
+     anything reading the text rather than the layout. */
+  .media-row-text h2 br {
+    display: none;
+  }
+
   /* Stacked, a .media-row is heading + copy (24px apart, like any section
      intro) over its image (16px). */
   .media-row {
@@ -2959,5 +2969,20 @@
      rule generalises from .photo-row--keep-row to every .photo-row. */
   .grid-4.photo-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- content the mobile frames drop ----------
+   Some of the 375px frames leave out a piece the desktop page carries —
+   a deliberate trim by the designer, not an oversight, and the desktop
+   view stays as it is. This is the hook for that: mark the element and it
+   disappears at the mobile breakpoint only.
+
+   Currently: The Fall of Cozy Web's "Starting screen", the third captioned
+   screen in the Story row, which that page's frame (354:870) does not show.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .hide-on-mobile {
+    display: none;
   }
 }
