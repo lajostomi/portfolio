@@ -2986,3 +2986,20 @@
     display: none;
   }
 }
+
+/* ---------- copy the mobile frames split into separate paragraphs ----------
+   A few blocks run as one paragraph on the page and as two in the 375px
+   frame. Marking the second sentence lets it become its own paragraph at
+   the mobile breakpoint while desktop keeps the single running block —
+   the span is inline at every wider width, so the sentence simply follows
+   its neighbour after a normal space, exactly as before.
+
+   24px is the paragraph gap these frames use (one empty 16px/1.5 line),
+   the same value .text-block takes below 600px.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .para-break {
+    display: block;
+    margin-top: 24px;
+  }
+}
