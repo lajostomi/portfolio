@@ -2610,6 +2610,17 @@
     font-size: 14px;
   }
 
+  /* Two of Mercedes' method labels are single words wider than the 70px
+     track they sit in — "forecasting" measures 78px at 14px — and the
+     frame's own answer is to tighten just those two rather than resize
+     the column or the type. The value rides on the element as an inline
+     custom property, the same way .detail-image carries --detail-aspect,
+     so it stays next to the text it belongs to and stays inert at every
+     width above this one. */
+  .method-item p {
+    letter-spacing: var(--label-tracking, normal);
+  }
+
   /* The findings already became dot-beside-text rows at 900px; the frame
      only tightens them. The dot is a fixed 70px and the row is 327px, so
      a 16px gap leaves the copy the frame's own 241px without stating it. */
@@ -2698,5 +2709,135 @@
 @media (max-width: 367px) {
   .grid-4.method-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- mobile: <= 600px — the 375px Mercedes Aura frame ----------
+
+   File BYzOswHghAAaQSCUNqVSwp, "P-mercedes", node 347:564. Most of what
+   this page needs was already built by the Hachi block above, which is the
+   point — the two frames share a grammar (327px column, 24px section
+   heads, 16px gaps, 8px radii, 155/156px picture heights). What follows is
+   the parts Mercedes has and Hachi does not.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* Both frames set 8px between the hero image and the title, not the
+     24px every other section head gets. Caught comparing the two frames:
+     the Hachi build had this at 24px. */
+  .project-section:has(> .hero-image) {
+    gap: 8px;
+  }
+
+  /* Mercedes carries a fourth meta line — consultants and team sit side by
+     side (156 + 16 + 155 = 327), where Hachi has a single consultant line
+     running the full width. The pair only forms when a fourth line exists,
+     so :last-child decides it rather than a per-page class.
+
+     Giving the team column an explicit 155px also settles the auto track
+     for the whole grid, which the year alone would otherwise size to its
+     own 67px. One grid means one set of tracks, so the role above ends up
+     in a 156px column rather than the frame's 241px — invisible, because
+     the role text is ~125px and the year is right-aligned to the same
+     edge either way. */
+  .hero-meta p:nth-child(3):not(:last-child) {
+    grid-column: 1;
+  }
+
+  .hero-meta p:nth-child(4) {
+    grid-column: 2;
+    grid-row: 4;
+    width: 155px;
+  }
+
+  /* Every grid on both frames is on 16px gaps at this width. */
+  .grid-4,
+  .grid-3 {
+    gap: 16px;
+  }
+
+  /* Mercedes' Problem/Solution is the --duo variant: one wide photo under
+     each half rather than Hachi's two squares, so it runs the full column
+     instead of taking one of the two tracks. !important for the same
+     reason as the base rule — the <=900px block resets these with one. */
+  .problem-solution--duo > .ps-photo {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* And it is a 327x155 band here, not the 581/265 crop .ps-photo.span-2
+     carries at wider widths, which came out 5.8px short. */
+  .problem-solution--duo > .ps-photo.span-2 {
+    aspect-ratio: 327 / 155;
+  }
+
+  /* "Car acts as a magnifying glass": four label-above-image cards on
+     desktop become four label-beside-image rows, 155px of copy against a
+     156px square. margin-top on .step-image is reset because it exists to
+     bottom-align images across a ROW of columns, which is not what these
+     are any more. */
+  .step-item--sm {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .step-item--sm p {
+    flex: 0 1 155px;
+    min-width: 0;
+  }
+
+  .step-item--sm > .step-image {
+    flex: 0 1 156px;
+    width: 156px;
+    min-width: 0;
+    aspect-ratio: 1;
+    margin-top: 0;
+  }
+
+  /* The two transformation clips are full-width bands here, not the
+     squares they are on desktop. */
+  .transformation-row .span-2 {
+    aspect-ratio: 327 / 155;
+  }
+
+  /* The three object cards stay three across — their 376/502 profile is
+     already the frame's 98.338/131.181 — where the general rule stacks
+     them. Only the radius changes, 26px to the frame's 8px. */
+  .grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .object-card {
+    border-radius: 8px;
+  }
+
+  /* "Alternative library view" is a subheading in the frame, two points
+     below .media-row-text's own clamp floor of 22px. */
+  .media-row-text h2 {
+    font-size: 20px;
+  }
+
+  .media-row-image {
+    aspect-ratio: 327 / 155;
+  }
+
+  /* Live demo stays a row — a 70px still beside a 241px one — rather than
+     stacking as it does from 900px down. Both get an explicit ratio off
+     the frame so they come out the same 156px height; left on their own
+     profiles (274/580 and 887/580) they finish ~10px apart. */
+  .livedemo-row {
+    flex-direction: row;
+    gap: 16px;
+  }
+
+  .livedemo-row .step-image {
+    flex: 0 1 70px;
+    min-width: 0;
+    max-width: 70px;
+    aspect-ratio: 70 / 156;
+  }
+
+  .livedemo-image-lg {
+    aspect-ratio: 241 / 156;
   }
 }
