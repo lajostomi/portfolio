@@ -330,3 +330,106 @@
     font-size: 24px;
   }
 }
+
+/* ---------- mobile: <= 600px — the 375px ABOUT frame ----------
+
+   File BYzOswHghAAaQSCUNqVSwp, "P-ABOUT", node 355:1360. The two-up photo
+   grid this page already had below 600px is what the frame draws, so most
+   of what follows is sizes, gaps and one section whose lead photo changes
+   shape. Sits after the block above so it can override it.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* The frame starts the download button at y=57, i.e. flush under the
+     header — same as the project frames. */
+  .about-page {
+    padding-top: 0;
+  }
+
+  /* Download button to ABOUT, then ABOUT to the first section — the same
+     48/24 the project frames use between a section and its heading. */
+  .about-container {
+    gap: 48px;
+  }
+
+  .about-content {
+    gap: 24px;
+  }
+
+  .about-sections {
+    gap: 48px;
+  }
+
+  /* ----- intro -----
+     A 327x155 band, not the 580/478 portrait crop of the wider layouts. */
+  .profile-image {
+    aspect-ratio: 327 / 155;
+  }
+
+  .profile-image,
+  .grid-img {
+    border-radius: 8px;
+  }
+
+  /* Photo to greeting is 16px in the frame, against .grid-4's own 32px. */
+  .about-sections > .grid-4 {
+    gap: 16px;
+  }
+
+  /* The frame splits the intro in two: the greeting at 24px, then the bio
+     at 22px on a slight negative tracking. .intro-text becomes a flex
+     column so the 16px between them comes from a gap — the blank
+     paragraph that separates them in source is a full 33px line at this
+     size, which is why it is hidden rather than left to do the spacing. */
+  .intro-text {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-size: 22px;
+    letter-spacing: -0.44px;
+  }
+
+  .intro-text p:first-child {
+    font-size: 24px;
+    letter-spacing: normal;
+  }
+
+  /* ----- the four photo sections ----- */
+  .grid-text {
+    gap: 24px;
+  }
+
+  .grid-text h2 {
+    font-size: 24px;
+  }
+
+  .grid-text p {
+    font-size: 16px;
+  }
+
+  /* "Not so long ago" is the one section whose lead photo changes shape
+     between the two layouts: it spans two COLUMNS on desktop and two ROWS
+     in the frame, filling the left of the 2x3 while the other four stack
+     to its right and below. Everything else falls into place from
+     auto-placement once it does — col 2 row 1, col 2 row 2, col 1 row 3,
+     col 2 row 3, exactly as the frame has them.
+
+     Both !important declarations beat .grid-img--wide's own, which this
+     element still carries for the wider layouts. */
+  /* The frame runs all three grid rows at one height, so the double-width
+     cell is as tall as the squares beside it, not half its own width. A
+     2/1 ratio made it 163.5px against their 155.5 and row 1 came out
+     visibly deeper. The true figure is (2 columns + gap) : 1 column,
+     which shifts slightly with the viewport — 2.103 at the frame's 375px,
+     2.125 at 320 — so this is the design width's value, a fifth of the
+     error the round number carried. */
+  .grid-img--wide {
+    aspect-ratio: 327 / 155.5;
+  }
+
+  .grid-img--tall-on-mobile {
+    grid-column: auto !important;
+    grid-row: span 2 !important;
+    aspect-ratio: auto;
+  }
+}
