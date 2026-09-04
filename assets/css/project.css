@@ -2463,14 +2463,17 @@
     font-size: 24px;
   }
 
-  /* A subheading rather than a section title of its own — "Matchmaking
-     safely" reads as subordinate to the section before it, so the frame
-     drops it two points below the 24px the real section titles carry.
-     Its own modifier because it is a statement about the content
-     hierarchy, not about this one page: any later section that is a
-     subheading takes the same class. */
-  .project-section-title--sub {
-    font-size: 22px;
+  /* A subheading rather than a section title of its own. Not one size:
+     Hachi draws "Matchmaking safely" at 22px and Mercedes draws
+     "Alternative library view" at 20px, so the class marks the role and an
+     inline --sub-size carries the value where it differs from the 22px
+     default — same pattern as --label-tracking and --detail-aspect.
+
+     The second selector exists only to outrank .media-row-text h2, whose
+     own clamp is (0,1,1) and would otherwise beat a bare class. */
+  .sub-heading,
+  .media-row-text h2.sub-heading {
+    font-size: var(--sub-size, 22px);
   }
 
   .project-section-lead {
@@ -2793,18 +2796,18 @@
      156px square. margin-top on .step-image is reset because it exists to
      bottom-align images across a ROW of columns, which is not what these
      are any more. */
-  .step-item--sm {
+  .grid-4 > .step-item--sm {
     flex-direction: row;
     align-items: center;
     gap: 16px;
   }
 
-  .step-item--sm p {
+  .grid-4 > .step-item--sm p {
     flex: 0 1 155px;
     min-width: 0;
   }
 
-  .step-item--sm > .step-image {
+  .grid-4 > .step-item--sm > .step-image {
     flex: 0 1 156px;
     width: 156px;
     min-width: 0;
@@ -2829,12 +2832,6 @@
     border-radius: 8px;
   }
 
-  /* "Alternative library view" is a subheading in the frame, two points
-     below .media-row-text's own clamp floor of 22px. */
-  .media-row-text h2 {
-    font-size: 20px;
-  }
-
   .media-row-image {
     aspect-ratio: 327 / 155;
   }
@@ -2857,5 +2854,110 @@
 
   .livedemo-image-lg {
     aspect-ratio: 241 / 156;
+  }
+}
+
+/* ---------- mobile: <= 600px — the 375px Fall of Cozy Web frame ----------
+
+   File BYzOswHghAAaQSCUNqVSwp, "P-TFOCW", node 354:870. Third project
+   frame, and the one that corrected two rules the first two had left too
+   broad — see the notes on .media-row-text h2 and .detail-images below.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* A .media-row heading is a full section heading, the same 24px as
+     .project-section-title — NOT the 20px the Mercedes pass set here.
+     That pass read Mercedes' "Alternative library view" (a subheading)
+     as the rule for every .media-row on the site; this frame draws "The
+     concept" and "Story" through the same markup at 24px and settles it.
+     The subheading case is a .sub-heading class now, not a selector. */
+  .media-row-text h2 {
+    font-size: 24px;
+  }
+
+  /* Stacked, a .media-row is heading + copy (24px apart, like any section
+     intro) over its image (16px). */
+  .media-row {
+    gap: 16px;
+  }
+
+  .media-row-text {
+    gap: 24px;
+  }
+
+  /* Two screens to a row rather than three, in the two cases the frame
+     draws that way: a row of four (the P1 and P2 screen sets, 2x2), and a
+     row whose screens each carry their own caption (the Story row). Three
+     to a row stays the default — Hachi and Mercedes both use it — so this
+     keys off what the row actually contains instead of a per-page class.
+
+     calc(50% - 8px) is the 16px gap split between the two items. */
+  .detail-images:has(> :nth-child(4)),
+  .detail-images:has(> .step-item) {
+    flex-wrap: wrap;
+    /* A wrapped odd item sits under the first column rather than
+       centring on its own line, which is what the inherited
+       justify-content: center does to it. The 2x2 case fills both
+       columns exactly, so this only shows on the Story row. */
+    justify-content: flex-start;
+    /* Stretch so the caption columns are equal height — see the
+       margin-top: auto below. */
+    align-items: stretch;
+  }
+
+  .detail-images:has(> :nth-child(4)) > .detail-image,
+  .detail-images > .step-item--sm {
+    flex: 0 1 calc(50% - 8px);
+  }
+
+  /* A captioned screen is a column — caption above, screen below — which
+     is the opposite of the .grid-4 > .step-item--sm rule the Mercedes
+     frame needed. That rule is scoped to its own grid for this reason. */
+  .detail-images > .step-item--sm {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .detail-images > .step-item--sm p {
+    font-size: 14px;
+  }
+
+  /* flex: 1 1 0 is right for a screen sitting directly in the row, and
+     wrong for one nested in a caption column: flex-basis sizes the MAIN
+     axis, which in a column parent is the height, so the screen would
+     collapse against its own aspect-ratio. Width is axis-independent —
+     the same trap .detail-image's own comment documents. */
+  .detail-images > .step-item--sm > .detail-image {
+    flex: 0 0 auto;
+    width: 100%;
+    /* Captions run to different line counts ("Starting screen" takes
+       one line, the other two take two), and a column packs from the
+       top, so the screens started at different heights — 9px apart
+       here. Pushing the free space ABOVE each screen levels their top
+       edges instead, which works whatever the captions do; every screen
+       in the row shares a width and an aspect-ratio and is therefore the
+       same height. Same fix .step-item > .step-image already uses. */
+    margin-top: auto;
+  }
+
+  /* The nine gameplay frames go three to a row here, where the general
+     mobile rule puts them two to a row at half width each. */
+  .filmstrip {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .filmstrip > div {
+    flex: 0 1 calc((100% - 32px) / 3);
+    aspect-ratio: 98.296 / 219.06;
+    border-radius: 14px;
+  }
+
+  /* Both this frame and Hachi's draw a four-photo gallery as 2x2, so the
+     rule generalises from .photo-row--keep-row to every .photo-row. */
+  .grid-4.photo-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
