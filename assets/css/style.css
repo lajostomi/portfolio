@@ -943,7 +943,18 @@ section {
   }
 }
 
-/* ---------- mobile: <= 600px ---------- */
+/* ---------- mobile: <= 600px ----------
+
+   From here down the page follows its own Figma design (file
+   BYzOswHghAAaQSCUNqVSwp, frame "P-landing", node 338:83) rather than
+   being the desktop layout shrunk. The frame is 375px wide with a 24px
+   gutter, so its 327px content column is exactly `375 - 2 * --gutter` and
+   every width below is quoted as the design's own number at that width.
+
+   Everything here is CSS: the desktop markup already carries the same
+   structure the mobile frame does (.project-card == "Project Container",
+   .contact-method == the icon + copy row, and the wheel is proportional),
+   so no element needed moving or duplicating for the mobile view. */
 @media (max-width: 600px) {
   /* --gutter stops scaling here rather than at the tablet boundary: at
      600px the clamp is already down to 36px, so pinning it to 24px is a
@@ -952,9 +963,145 @@ section {
      at the breakpoint. */
   :root { --gutter: 24px; }
 
+  /* 16px, per the design's header (339:89), against the tablet tier's
+     20px — with the 20px logo that lands the bar at the frame's 57px. */
+  .site-header { padding-block: 16px; }
+
+  /* The frame's menu-01 glyph is 24px, and the button is the tallest
+     thing in the header, so its 32px box — not the 25.2px logo — was
+     setting the bar's height and holding it at 64px. The three bars are
+     24x2 with a 5px gap either way, so this only trims the box's dead
+     space; the burger-to-X animation (a 7px translate, i.e. bar height
+     plus gap) is measured between the bars and is unaffected. */
+  .nav-toggle {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* ----- SPIN -----
+
+     The design stacks SPIN / subtitle / arrow / wheel much tighter than
+     the desktop's uniform 32px: 4px, 16px, then 16px to the wheel.
+
+     These are glyph-to-glyph distances, not box ones. .spin-title-wrap
+     and .spin-subtitle each hand back their own leading as a negative
+     margin (see the long note on .spin-info), so a `gap` here is already
+     measured between the visible ink — which is the same thing the eye
+     compares in the Figma frame. */
+  .spin-section {
+    gap: 16px;
+    /* The desktop's clamp floor is 24px, but the frame starts SPIN
+       immediately under the 57px header. Not 0: Figma's text box carries
+       ~7px of leading above the caps that our `line-height: 1` has
+       already removed, so this puts that optical space back rather than
+       letting the caps sit hard against the header. */
+    padding-top: 8px;
+  }
+
+  .spin-info { gap: 4px; }
+
+  /* The wheel is the one piece that is already fully proportional — cards
+     are 25.7% of the stage at an unchanging 306/172 — so it needs a width
+     to scale to, not new geometry. The frame's "Image Container" is
+     310.156px inside the 375px screen (i.e. deliberately narrower than
+     the 327px content column), which puts its cards at 25.7% x 310.156 =
+     79.7px, the frame's 80x45 card. Left full-bleed it inherited the
+     whole 375px and drew them at 96x54.
+
+     The cap goes on .wheel-stage, not .wheel-container: the container
+     stays edge-to-edge on purpose, so a card rotated mid-spin has dead
+     space to swing its corners into instead of being clipped. */
+  .wheel-stage { max-width: 310.156px; }
+
   .spin-subtitle { font-size: 16px; }
 
+  /* 4px (the inherited .spin-info gap) + 12px = the design's 16px. */
+  .spin-arrow { margin-top: 12px; }
+
+  /* ----- section headings -----
+     56px, matching SPIN, rather than the 48px floor of the desktop
+     clamp(48px, 9vw, 128px) — at 375px that clamp bottoms out and would
+     otherwise leave WORK/CONTACT smaller than the design draws them. */
+  .section-title { font-size: 56px; }
+
+  /* Heading-to-content is 24px in the frame; the desktop clamp floors at
+     32px. margin-top/-bottom already floor at the design's 48px. */
+  .work-section,
+  .contact-section {
+    gap: 24px;
+  }
+
+  /* ----- WORK -----
+     Cards are 16px apart, not 32px. */
+  .project-grid { gap: 16px; }
+
+  /* 8px radius on the image, against the desktop's 16px --radius-lg. */
+  .project-image { border-radius: 8px; }
+
+  .project-info { gap: 4px; }
+  .project-name { font-size: 16px; }
+  .project-year,
+  .project-tags { font-size: 12px; }
+
+  /* The arrow badge is drawn resting-visible in the mobile frame, and it
+     has to be: it is revealed on hover on desktop, and a touch device has
+     no hover to reveal it with. Sized and placed as the frame's "Project
+     Link Container" — a 39.844px box flush into the image's top-right
+     corner (the frame leaves 0.19px, i.e. nothing), holding a 28.569px
+     arrow. */
+  .project-link-icon {
+    top: 0;
+    right: 0;
+    width: 39.844px;
+    height: 39.844px;
+    opacity: 1;
+  }
+
+  .project-link-icon img {
+    width: 28.569px;
+    height: 28.569px;
+  }
+
+  /* ----- CONTACT -----
+     The four methods stop being stacked tiles and become rows: a square
+     cream tile beside its copy. 156 + 16 + 155 = the 327px column. */
   .contact-info {
+    /* One per row. Without this the tablet tier's 2-column rule stands and
+       each method gets a 154.6px half-column, which the new side-by-side
+       row then divides again — a 69px tile beside a 69px ribbon of copy. */
     grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .contact-method {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .contact-icon {
+    /* Shrinkable rather than `flex: 0 0 156px`: at 320px the content
+       column is only 272px, and a hard basis would push the row wider
+       than the screen instead of letting tile and copy narrow together.
+       min-width: 0 for the usual reason — without it the flex default of
+       min-width: auto gives the tile a floor and dumps the whole shrink
+       deficit onto the copy beside it. */
+    flex: 0 1 156px;
+    min-width: 0;
+    max-width: none;
+    align-self: auto;
+  }
+
+  /* 39px in a 156px tile = 25%, against the desktop's 23.36% of 274px.
+     Capped so the icon never exceeds the design's own size. */
+  .contact-icon img {
+    height: 25%;
+    max-height: 39px;
+  }
+
+  .contact-text {
+    flex: 1 1 155px;
+    min-width: 0;
+    font-size: 16px;
   }
 }
