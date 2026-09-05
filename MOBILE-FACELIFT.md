@@ -20,7 +20,7 @@ implement that frame — not a shrunken desktop layout. Read this before touchin
 | Under NDA (`projects/under-nda-banking.html`) | `355:1238` | yes |
 | About (`about.html`) | `355:1360` | yes |
 | Project TEVE (`projects/project-teve.html`) | `357:150` | yes |
-| **MOME ULP** (`projects/mome-ulp.html`) | — | **not started** |
+| MOME ULP (`projects/mome-ulp.html`) | `359:617` | yes |
 
 Figma file: `BYzOswHghAAaQSCUNqVSwp` ("Portfolio_website"). Frames are named `P-<page>`.
 

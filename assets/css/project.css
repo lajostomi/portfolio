@@ -1469,7 +1469,7 @@
   height: 100%;
 }
 
-.collage-item.collage-arrow img {
+.collage-item.collage-doodle img {
   display: block;
   width: 100%;
   height: auto;
@@ -2009,9 +2009,9 @@
   .collage-canvas--participant1 .collage-doodle,
   .collage-canvas--participant2 .collage-doodle,
   .collage-canvas--participant3 .collage-doodle,
-  .collage-canvas--participant1 .collage-arrow,
-  .collage-canvas--participant2 .collage-arrow,
-  .collage-canvas--participant3 .collage-arrow {
+  .collage-canvas--participant1 .collage-doodle,
+  .collage-canvas--participant2 .collage-doodle,
+  .collage-canvas--participant3 .collage-doodle {
     display: none;
   }
 
@@ -3204,5 +3204,444 @@
     flex: 1 1 241px;
     min-width: 0;
     font-size: 16px;
+  }
+}
+
+/* ---------- mobile: <= 600px — the 375px MOME ULP frame ----------
+
+   File BYzOswHghAAaQSCUNqVSwp, "P- ULP", node 359:617. The largest frame
+   of the set — seventeen sections — and the one that diverges furthest
+   from its desktop page, because several of this page's desktop layouts
+   (the interview collage, the priority matrix, the IA row) have no
+   sensible one-column form and the frame replaces them outright rather
+   than reflowing them.
+
+   The frame's container is left-21/w-330 with items-end, which resolves
+   to the same 327px column at x=24 every other frame uses; the 3px is
+   Figma slop, not a different measure.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* ----- cognitive walkthrough -----
+     The frame pairs each quote with the screen it is about — caption over
+     screen, two to a row — where the markup keeps all three captions in
+     one grid and all four screens in another. Same flattening as TEVE's
+     Problem section: display: contents lifts both groups into a single
+     grid on the section, which then places them in the frame's order. */
+  .walkthrough-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 16px;
+  }
+
+  .walkthrough-grid > .grid-4,
+  .walkthrough-grid > .detail-images {
+    display: contents;
+  }
+
+  .walkthrough-grid > .method-header {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin-bottom: 8px;
+  }
+
+  .walkthrough-grid .grid-4 > :nth-child(1) { grid-column: 1; grid-row: 2; }
+  .walkthrough-grid .grid-4 > :nth-child(2) { grid-column: 2; grid-row: 2; }
+  .walkthrough-grid .detail-images > :nth-child(1) { grid-column: 1; grid-row: 3; }
+  .walkthrough-grid .detail-images > :nth-child(2) { grid-column: 2; grid-row: 3; }
+  .walkthrough-grid .grid-4 > :nth-child(3) { grid-column: 1 / -1; grid-row: 4; }
+  .walkthrough-grid .detail-images > :nth-child(3) { grid-column: 1; grid-row: 5; }
+  .walkthrough-grid .detail-images > :nth-child(4) { grid-column: 2; grid-row: 5; }
+
+  /* Released from the row sizing the shared .detail-image rule gives a
+     screen sitting directly in a flex row. */
+  .walkthrough-grid .detail-image {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .walkthrough-grid .text-block p {
+    font-size: 14px;
+  }
+
+  /* ----- the method header -----
+     Heading over its method label, 16px apart, both full width. */
+  .method-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .method-header h2 {
+    flex: 0 0 auto;
+    width: 100%;
+    font-size: 24px;
+  }
+
+  .method-header .method-label {
+    flex: 0 0 auto;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  /* ----- interviews -----
+     The flattened collage board runs as a plain 327x155 band here. */
+  .collage-canvas--interview {
+    aspect-ratio: 327 / 155;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .collage-canvas--interview .collage-flat-image {
+    position: static;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ----- findings clusters -----
+     Each cluster is a 20px title over a two-column masonry of bordered
+     cards. CSS columns rather than a grid: the cards are all different
+     heights and the frame packs them by height, which is what column
+     layout does natively. */
+  .finding-category h3 {
+    font-size: 20px;
+  }
+
+  .finding-items--grid {
+    display: block;
+    columns: 2;
+    column-gap: 16px;
+  }
+
+  .finding-item {
+    break-inside: avoid;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    border: 2px solid var(--color-text);
+    border-radius: 8px;
+  }
+
+  .finding-item .finding-term {
+    font-size: 16px;
+    letter-spacing: -0.176px;
+  }
+
+  .finding-item .finding-quote {
+    font-size: 14px;
+    letter-spacing: -0.154px;
+  }
+
+  /* ----- the four main issues -----
+     Copy beside a square photograph, the same shape Mercedes' and TEVE's
+     equivalents take. */
+  .issue-grid > .step-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .issue-grid > .step-item p {
+    flex: 0 1 155px;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .issue-grid > .step-item > .step-image {
+    flex: 0 1 156px;
+    width: 156px;
+    min-width: 0;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    margin-top: 0;
+  }
+
+  /* ----- how might we -----
+     A 44px icon beside its question. */
+  .hmw-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .hmw-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .hmw-item img {
+    flex: 0 0 44px;
+    width: 44px;
+    /* An explicit height, not auto. These are lazy-loaded SVGs, and with
+       height:auto the box has no intrinsic height until the file lands —
+       which left it 44x0, and a zero-height box never crosses the
+       viewport threshold that would start the load. A deadlock: no size
+       until it loads, no load until it has size.
+
+       object-fit keeps the glyph's own proportions inside the frame's
+       square 44px slot. Three of these four icons are not square (one is
+       35.17x40.67), and they carry preserveAspectRatio="none", so a hard
+       44x44 would stretch them — the same trap documented on the WORK
+       card icons. */
+    height: 44px;
+    object-fit: contain;
+  }
+
+  .hmw-item p {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  /* ----- information architecture -----
+     The three boxes stop being a row of fixed-width panels and become a
+     category title over its own bordered cards, two columns packed by
+     height like the findings above. */
+  .ia-row {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .ia-box {
+    flex: 0 0 auto;
+    width: 100%;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+  }
+
+  .ia-box h3 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .ia-links {
+    display: block;
+    columns: 2;
+    column-gap: 16px;
+  }
+
+  .ia-links > * {
+    break-inside: avoid;
+    margin-bottom: 16px;
+    padding: 8px;
+    border: 2px solid var(--color-text);
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  .ia-link-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* ----- tasks -----
+     Stacked rather than four across: a 20px number over its brief. */
+  .grid-4 > .task-item {
+    gap: 16px;
+  }
+
+  .task-item h3 {
+    font-size: 20px;
+  }
+
+  .task-item p {
+    font-size: 16px;
+  }
+}
+
+/* ---------- mobile: <= 600px — MOME ULP, the two results grids ----------
+   The frame regroups both by TASK where the desktop grid groups by
+   participant: a 20px task number, then that task's three scores in a
+   row, colour alone saying whose is whose. Placement is by :nth-child
+   because the markup is one flat grid; the two grids are told apart by
+   what they contain rather than by a class, since neither has one.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  .results-grid {
+    display: grid;
+    column-gap: 16px;
+    row-gap: 16px;
+    width: 100%;
+  }
+
+  /* The task number is repeated inside every score for the desktop
+     stacked view; with a task heading above each row it is redundant. */
+  .results-grid .task-tag {
+    display: none;
+  }
+
+  .results-grid .task-label {
+    /* Put back on screen. The <=900px block hides this row because that
+       view tags every card individually instead; the frame goes the other
+       way — one task heading over its three scores, and no per-card tag. */
+    display: block;
+    font-size: 20px;
+  }
+
+  /* 8px, per the frame. The desktop padding leaves a 98px column only
+     66px of content, and "Success: 4" needs 70 at 16px — it overran its
+     own box in every one of the twelve score cards. */
+  .results-score {
+    padding: 8px;
+  }
+
+  /* 16px under a heading, 24px between one task group and the next. */
+  .results-grid .task-label + * {
+    margin-top: 0;
+  }
+
+  /* ----- the three-participant grid ----- */
+  .results-grid:has(.results-participant-label) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* The frame drops the participant captions — the three colours carry
+     that, and each participant already has a coloured section above. */
+  .results-participant-label {
+    display: none;
+  }
+
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(1) { grid-column: 1 / -1; grid-row: 1; }
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(2) { grid-column: 1 / -1; grid-row: 3; }
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(3) { grid-column: 1 / -1; grid-row: 5; }
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(4) { grid-column: 1 / -1; grid-row: 7; }
+
+  .results-grid > .results-score--p1:nth-of-type(1) { grid-column: 1; grid-row: 2; }
+  .results-grid > .results-score--p1:nth-of-type(2) { grid-column: 1; grid-row: 4; }
+  .results-grid > .results-score--p1:nth-of-type(3) { grid-column: 1; grid-row: 6; }
+  .results-grid > .results-score--p1:nth-of-type(4) { grid-column: 1; grid-row: 8; }
+
+  .results-grid > .results-score--p2:nth-of-type(5) { grid-column: 2; grid-row: 2; }
+  .results-grid > .results-score--p2:nth-of-type(6) { grid-column: 2; grid-row: 4; }
+  .results-grid > .results-score--p2:nth-of-type(7) { grid-column: 2; grid-row: 6; }
+  .results-grid > .results-score--p2:nth-of-type(8) { grid-column: 2; grid-row: 8; }
+
+  .results-grid > .results-score--p3:nth-of-type(9)  { grid-column: 3; grid-row: 2; }
+  .results-grid > .results-score--p3:nth-of-type(10) { grid-column: 3; grid-row: 4; }
+  .results-grid > .results-score--p3:nth-of-type(11) { grid-column: 3; grid-row: 6; }
+  .results-grid > .results-score--p3:nth-of-type(12) { grid-column: 3; grid-row: 8; }
+
+  /* ----- the prototype-vs-original grid -----
+     Two columns. The frame repeats the "Prototype (avarage)" and
+     "Original (avarage)" captions above every task; the markup carries
+     one of each, so they head the grid once instead. */
+  .results-grid:has(.results-compare-label) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .results-compare-label {
+    font-size: 14px;
+  }
+
+  .results-grid:has(.results-compare-label) > .task-label { display: block; }
+
+  .results-grid:has(.results-compare-label) > :nth-child(1) { grid-column: 1 / -1; grid-row: 2; }
+  .results-grid:has(.results-compare-label) > :nth-child(2) { grid-column: 1 / -1; grid-row: 4; }
+  .results-grid:has(.results-compare-label) > :nth-child(3) { grid-column: 1 / -1; grid-row: 6; }
+  .results-grid:has(.results-compare-label) > :nth-child(4) { grid-column: 1 / -1; grid-row: 8; }
+
+  .results-grid:has(.results-compare-label) > :nth-child(5)  { grid-column: 1; grid-row: 1; }
+  .results-grid:has(.results-compare-label) > :nth-child(6)  { grid-column: 1; grid-row: 3; }
+  .results-grid:has(.results-compare-label) > :nth-child(7)  { grid-column: 1; grid-row: 5; }
+  .results-grid:has(.results-compare-label) > :nth-child(8)  { grid-column: 1; grid-row: 7; }
+  .results-grid:has(.results-compare-label) > :nth-child(9)  { grid-column: 1; grid-row: 9; }
+
+  .results-grid:has(.results-compare-label) > :nth-child(10) { grid-column: 2; grid-row: 1; }
+  .results-grid:has(.results-compare-label) > :nth-child(11) { grid-column: 2; grid-row: 3; }
+  .results-grid:has(.results-compare-label) > :nth-child(12) { grid-column: 2; grid-row: 5; }
+  .results-grid:has(.results-compare-label) > :nth-child(13) { grid-column: 2; grid-row: 7; }
+  .results-grid:has(.results-compare-label) > :nth-child(14) { grid-column: 2; grid-row: 9; }
+}
+
+/* ---------- mobile: <= 600px — MOME ULP, the three participant boards ----------
+   These are hand-arranged collage canvases on desktop: screenshots with
+   annotation notes pinned around them and drawn arrows between. An earlier
+   pass had already dropped them to one column below 600px, pairing each
+   note with its screenshot by `order`.
+
+   The frame keeps that pairing but draws it two-up: screens at the
+   familiar 156x328 with a 2px border in the participant's colour, and the
+   notes as solid blocks of that same colour rather than outlined cards.
+   Note ink flips with the background — light on the blue board, dark on
+   the red and yellow ones — which rides on the element as --collage-ink
+   beside the --collage-color already there.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .collage-canvas--participant1,
+  .collage-canvas--participant2,
+  .collage-canvas--participant3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
+  .collage-canvas--participant1 .collage-image,
+  .collage-canvas--participant2 .collage-image,
+  .collage-canvas--participant3 .collage-image {
+    /* !important to beat the block above, which forces width/height to
+       auto on every .collage-item so the inline canvas percentages stop
+       applying. Those inline values are still on the elements — they are
+       what positions the desktop board — so this has to outrank them
+       both. max-width and margin undo that pass's single-column sizing. */
+    width: 100% !important;
+    height: auto !important;
+    max-width: none;
+    margin: 0;
+    aspect-ratio: 156 / 328;
+    border: 2px solid var(--collage-color);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .collage-canvas--participant1 .collage-image img,
+  .collage-canvas--participant2 .collage-image img,
+  .collage-canvas--participant3 .collage-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Square corners and a filled ground, per the frame — these read as
+     annotation labels stuck onto the board, not as cards. */
+  .collage-canvas--participant1 .collage-note,
+  .collage-canvas--participant2 .collage-note,
+  .collage-canvas--participant3 .collage-note {
+    /* Back to one grid cell: the single-column pass spans every note
+       across the row, which is what a one-column grid needed. */
+    grid-column: auto;
+    width: 100% !important;
+    height: auto !important;
+    padding: 8px;
+    border: 0;
+    border-radius: 0;
+    background: var(--collage-color);
+    color: var(--collage-ink, var(--color-bg));
+    font-size: 14px;
+  }
+
+  .collage-canvas--participant1 .collage-note p,
+  .collage-canvas--participant2 .collage-note p,
+  .collage-canvas--participant3 .collage-note p {
+    font-size: 14px;
+    color: inherit;
+  }
+
+  /* The drawn arrows connect positions that no longer exist once the board
+     reflows into a grid, so they say nothing here. */
+  .collage-canvas--participant1 .collage-doodle,
+  .collage-canvas--participant2 .collage-doodle,
+  .collage-canvas--participant3 .collage-doodle {
+    display: none;
   }
 }
