@@ -176,6 +176,3 @@ project four times. Use `width`.
   frame states a size for them.
 - Whether `.section-title`'s `line-height: 1` should become `normal` at `<=600px` to match the
   frames' absolute positions site-wide (see §2).
-- **A wireframe image is duplicated somewhere in the existing build.** The designer noticed it while
-  redesigning MOME ULP and asked for it to be fixed when that page's frame arrives — find and
-  correct it then.
