@@ -2774,7 +2774,7 @@
      between them reads as an ordinary space and the copy flows as before.
      The desktop <br> is hidden because a break between two block spans
      would open an empty line. */
-  .hero-meta .meta-line {
+  .hero-description .meta-line {
     display: block;
   }
 
@@ -3012,5 +3012,197 @@
   .para-break {
     display: block;
     margin-top: 24px;
+  }
+}
+
+/* ---------- mobile: <= 600px — the 375px Project TEVE frame ----------
+
+   File BYzOswHghAAaQSCUNqVSwp, "P-TEVE", node 357:150. Reuses most of the
+   vocabulary the earlier frames established; what follows is this page's
+   own components plus one section whose reading order interleaves copy
+   and photographs.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* This page's hero carries a tagline block rather than a bare <p>, so
+     it needs placing in the hero grid by name — .hero-text p reaches the
+     paragraphs INSIDE it, which are not grid items once .hero-text is
+     display: contents. */
+  .hero-text > .hero-tagline {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    font-size: 14px;
+  }
+
+  /* ----- Problem: copy and photographs interleave -----
+
+     The frame reads statement, wide photo, conclusion, then the two
+     supporting photos — the copy is not all above the images the way the
+     markup has it. Flattening the two wrappers with display: contents
+     lifts the headline, both paragraphs and all three photos into one
+     grid on the section, which can then place them in the frame's order
+     without moving anything in the DOM (five other pages and every wider
+     width still use it as it stands).
+
+     A flex column cannot do this: the last two photos have to share a
+     row, and display: contents would drop them into the column as two
+     full-width items. */
+  .section-interleaved {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 16px;
+  }
+
+  .section-interleaved > .section-intro,
+  .section-interleaved > .section-intro > .text-block,
+  .section-interleaved > .photo-row {
+    display: contents;
+  }
+
+  .section-interleaved .project-section-title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    /* The grid runs on the frame's 16px; only the heading gets 24. */
+    margin-bottom: 8px;
+  }
+
+  .section-interleaved .text-block > p:first-child {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .section-interleaved .photo-row > .gallery-tinted {
+    grid-column: 1 / -1 !important;
+    grid-row: 3;
+    aspect-ratio: 327 / 155;
+  }
+
+  .section-interleaved .text-block > p:last-child {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+
+  .section-interleaved .photo-row > div:nth-child(2) {
+    grid-column: 1;
+    grid-row: 5;
+  }
+
+  .section-interleaved .photo-row > div:nth-child(3) {
+    grid-column: 2;
+    grid-row: 5;
+  }
+
+  /* ----- Solution: four label-beside-image rows -----
+     The same shape Mercedes' magnifying-glass cards take, through this
+     page's own .feature-item rather than .step-item--sm. */
+  .grid-4 > .feature-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .grid-4 > .feature-item p {
+    flex: 0 1 155px;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .grid-4 > .feature-item .detail-square {
+    flex: 0 1 156px;
+    width: 156px;
+    min-width: 0;
+    border-radius: 8px;
+  }
+
+  /* ----- the states row -----
+     Built from .step-item here rather than Hachi's .method-item, so the
+     four-across .method-row needs to reach both. */
+  .method-row .step-item {
+    gap: 16px;
+  }
+
+  .method-row .step-item p {
+    font-size: 14px;
+    letter-spacing: var(--label-tracking, normal);
+  }
+
+  .method-row .step-image {
+    border-radius: 8px;
+  }
+
+  /* The frame stacks this row's caption ABOVE its photo, where the markup
+     puts the photo first for the wider layouts. */
+  .footer-detail-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .footer-detail-row p {
+    order: -1;
+    flex: 0 0 auto;
+    width: 100%;
+    font-size: 16px;
+  }
+
+  .footer-detail-image {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 327 / 155;
+  }
+
+  /* Two consecutive blocks inside a section are 16px apart in the frame,
+     against the 24px a section puts under its heading. Rather than split
+     .project-section's gap, the second of a pair pulls back the
+     difference. Only the states row and the user journey match. */
+  .project-section > .photo-row + .photo-row,
+  .project-section > .grid-4 + .footer-detail-row {
+    margin-top: -8px;
+  }
+
+  /* ----- User journey -----
+     Six photographs as 2x3. They are NOT square like the other galleries
+     on this page: the frame's grid is 327x368.709 over three rows, so a
+     cell is 155.5 x 112.24. */
+  .journey-grid .photo-row > div {
+    aspect-ratio: 155.5 / 112.24;
+  }
+
+  /* ----- Feedback -----
+     Heading over three rows of quote-beside-bubble, where the wider
+     layouts put the heading beside three stacked bubbles. The bubble
+     asset is already a 70px circle, so it drops straight into the same
+     slot Hachi's insight dot uses — 70 + 16 + 241 = 327. */
+  .feedback-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .feedback-heading {
+    flex: 0 0 auto;
+    width: 100%;
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .feedback-bubble {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .feedback-bubble img {
+    flex: 0 0 70px;
+    width: 70px;
+    height: 70px;
+  }
+
+  .feedback-bubble p {
+    flex: 1 1 241px;
+    min-width: 0;
+    font-size: 16px;
   }
 }

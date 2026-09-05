@@ -19,8 +19,8 @@ implement that frame — not a shrunken desktop layout. Read this before touchin
 | Fall of Cozy Web (`projects/fall-of-cozy-web.html`) | `354:870` | yes |
 | Under NDA (`projects/under-nda-banking.html`) | `355:1238` | yes |
 | About (`about.html`) | `355:1360` | yes |
+| Project TEVE (`projects/project-teve.html`) | `357:150` | yes |
 | **MOME ULP** (`projects/mome-ulp.html`) | — | **not started** |
-| **Project TEVE** (`projects/project-teve.html`) | — | **not started** |
 
 Figma file: `BYzOswHghAAaQSCUNqVSwp` ("Portfolio_website"). Frames are named `P-<page>`.
 
@@ -102,6 +102,8 @@ Established while building the frames. Reach for these before inventing anything
 | `--label-tracking` | project.css | Inline negative tracking on a research-method label whose single word is wider than its 70px track. |
 | `.method-row` | project.css | On the `.grid-4` holding `.method-item`s, so it stays 4-across at `<=600px` where `.grid-4` otherwise collapses. |
 | `.grid-img--tall-on-mobile` | about.css | A photo that spans two columns on desktop and two rows in the frame. |
+| `.section-interleaved` | project.css | A section whose frame interleaves copy and photographs. Flattens its wrappers with `display: contents` and places every piece on one grid. |
+| `.journey-grid` | project.css | Marks a gallery whose cells are not square, where the page's others are. |
 | `--detail-aspect`, `--border-color` | project.css | Pre-existing; per-instance phone-screen ratio and border colour. |
 
 The pattern to copy: **a class marks the role, an inline custom property carries the per-instance
