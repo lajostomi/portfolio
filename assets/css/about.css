@@ -433,3 +433,29 @@
     aspect-ratio: auto;
   }
 }
+
+/* ---------- mobile: <= 600px — design-audit corrections ----------
+   Checked back against node 355:1360. Both rules override something the
+   block above already set. */
+@media (max-width: 600px) {
+  /* The frames put a 24px heading on a 30px line, not the 36 that
+     `line-height: 1.5` gives it (node 355:1471 and its three siblings are
+     30px tall). Same correction as .media-row-text h2 in project.css —
+     the copy under each of the four headings was starting 6px low. */
+  .grid-text h2 {
+    font-size: 24px;
+    line-height: 1.25;
+  }
+
+  /* The bio is one text layer in the frame with a hard break after each
+     of its three sentences (node 355:1459: nine lines, and "I've designed
+     sneakers for mass" starts a line where a plain wrap continues
+     "of-all-trades. I've designed"). Marked in the markup so the breaks
+     sit beside the sentences they belong to, and inline everywhere else.
+     The negative tracking on this paragraph is NOT a mistake and stays —
+     measured against the same render, the frame's own lines are 318 /
+     315 / 308px against 332 / 331 / 323 untracked here. */
+  .intro-text .copy-line {
+    display: block;
+  }
+}

@@ -3645,3 +3645,1038 @@
     display: none;
   }
 }
+
+/* ---------- mobile: <= 600px — design-audit corrections ----------
+
+   A pass back over the built frames against the Figma nodes they came
+   from, node by node. Everything here overrides a rule an earlier block
+   in this file already set; the rule it corrects is named in each case.
+   Appended rather than merged, per the working brief. */
+@media (max-width: 600px) {
+  /* ----- Hachi (341:236), research row -----
+
+     Overrides nothing directly — it supplies an alignment the earlier
+     `.method-item { gap: 16px }` block left to the default.
+
+     Two of the four labels are one line and two are two, and the frame
+     bottom-aligns all four labels so the four images start on the same
+     y: nodes 342:413 and 342:414 are offset 18px down inside the row for
+     exactly this reason, which puts every "Method image" at y=52. Top
+     aligned instead, the single-line pair's images sat 18px above the
+     other two — a visible step across a row of four. The items are grid
+     items and already stretch to the row's 200px, so pushing the content
+     to the end of the column reproduces the frame without a fixed
+     height on the label. */
+  .method-row .method-item {
+    justify-content: flex-end;
+  }
+
+  /* ----- Hachi (341:236), Problem / Solution -----
+
+     Overrides the row-gap set by `.problem-solution { gap: 16px }` above,
+     for one seam only. The frame draws Problem (342:383) and Solution
+     (342:384) as two separate sections 48px apart, like every other pair
+     of sections on the page; the six cells being one grid here meant the
+     Solution heading inherited the 16px the grid uses between a block of
+     copy and its own photos, and started 32px too early. Fourth child is
+     the Solution copy — the same nth-child idiom the desktop
+     .problem-solution--quad placement uses. */
+  .problem-solution--quad > :nth-child(4) {
+    margin-top: 32px;
+  }
+
+  /* ----- section leads -----
+
+     Overrides `.project-section-lead { font-size: 14px }` above, which
+     generalised one instance to the class — the §7 trap the brief warns
+     about, hit again. Measured off the frames' own renders, the leads
+     are not one size: Hachi's "Differentiated user groups" (344:465) and
+     "Final thoughts" (347:553) are 16px on a 24px line, matching the
+     body copy around them, while the Wireframes caption (344:454) really
+     is 14px on 21px. The class keeps the body default and the caption
+     carries its own size inline, the same way .sub-heading carries
+     --sub-size. */
+  .project-section-lead {
+    font-size: var(--lead-size, 16px);
+    /* The Wireframes caption is also the one the frame gives its own
+       wrap width to (344:454 is 241px wide, two lines, in a 327px
+       column). Same custom-property idiom as the size above. */
+    max-width: var(--lead-max, 580px);
+  }
+
+  /* ----- hero meta -----
+
+     Overrides nothing; supplies the line-height the earlier hero block
+     left at `normal`. The consultant credit is two lines in every frame
+     and the frames set them 21px apart (14px on a 1.5 line, like the
+     tagline directly above it) where `normal` gives 18 — 6px short on
+     the pair, which every section below the hero then inherited. */
+  .hero-description .hero-meta p {
+    line-height: 1.5;
+  }
+
+  /* ----- Mercedes Aura (347:564), Problem / Solution -----
+     The same 48px seam as Hachi above, in the two-photo variant. Third
+     child is the Solution copy. */
+  .problem-solution--duo > :nth-child(3) {
+    margin-top: 32px;
+  }
+
+  /* ----- body tracking -----
+
+     Overrides `.media-row-text p { letter-spacing: -0.32px }`, which is a
+     desktop-frame value. The mobile frames set none: measured against the
+     render of node 350:851, "We had to come up with a smart" is 240px in
+     the frame and 240.6px here untracked, against 231px at -0.02em. The
+     4% the tracking bought back was enough to pull an extra word onto
+     almost every line, so paragraph after paragraph came out a line
+     shorter than the frame draws it — 216px against 240 on this page
+     twice. Untracked, they break on the frame's own words. */
+  .media-row-text p {
+    letter-spacing: normal;
+  }
+
+  /* ----- Mercedes Aura (347:564), prototyping collage -----
+
+     Overrides the <=900px rule that gives .tall-image the full width and
+     a 4:3 crop. That rule exists because the pairs collapse once the
+     grid drops below four tracks, and it is right for the tablet tier;
+     the 375px frame keeps the collage instead. Node 350:839 puts the rig
+     photo at 155.5x328 in the left column — exactly two square cells
+     plus the 16px between them — with the first pair stacked beside it
+     and the second pair side by side underneath. The four squares are
+     already 1:1 grid items in source order, so the tall photo claiming
+     column 1 for two rows is the whole change: auto-placement puts the
+     rest back on the frame's own five positions. */
+  .prototyping-grid .tall-image {
+    grid-column: 1;
+    grid-row: span 2;
+    aspect-ratio: auto;
+  }
+}
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 2 ----------
+   Findings from The Fall of Cozy Web (354:870) that turned out to be
+   shared rules rather than page-specific ones. */
+@media (max-width: 600px) {
+  /* Overrides the grid placement note above, which reasoned that the role
+     line landing in a 156px column instead of the frame's 241px was
+     "invisible, because the role text is ~125px". True of Mercedes, which
+     it was written against; not of this page, whose role reads "UX / UI,
+     Illustration, Vibe coding" and wraps onto a second line at 156px,
+     making the whole hero 21px taller than the frame and pushing every
+     section below it down with it.
+
+     Spanning both tracks decouples the role from the auto track the team
+     column sizes, and the 241px cap is the frame's own width for it
+     (node 354:879). The year keeps its column: it is right-aligned and
+     ~30px wide, so it never reaches the role's 265px right edge. */
+  .hero-meta p:nth-child(2) {
+    grid-column: 1 / -1;
+    max-width: 241px;
+  }
+
+  /* Overrides `.media-row-text h2 { line-height: 1.5 }` and its desktop
+     leading trim. The frames draw these on a 30px line — the same 1.25
+     every other 24px heading gets, and what .project-section-title
+     already resolves to — where 1.5 gives 36 and puts the copy under
+     each one 6px low. The trim exists to align the heading with a photo
+     beside it; stacked, there is no photo beside it to align to. */
+  .media-row-text h2 {
+    line-height: 1.25;
+    margin-top: 0;
+  }
+
+  /* The frames occasionally set what the markup calls two paragraphs as
+     two lines of one — a line break, not a paragraph break. Cozy Web's
+     Story block is the case: node 354:1144 is 240px tall, which is 8
+     lines and two 24px paragraph gaps, and the render runs "They drove
+     their way to B.E.C.'s HQ." straight on under the line before it.
+     Cancels the container's own 24px gap for that one seam. */
+  .text-block > .run-on,
+  .media-row-text > .run-on {
+    margin-top: -24px;
+  }
+}
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 3 ----------
+   Project TEVE (357:150). */
+@media (max-width: 600px) {
+  /* Overrides the desktop `.photo-row > .span-2` banner ratio, which the
+     mobile block's own `.photo-row > div { aspect-ratio: 1/1 }` could not
+     reach: two classes against three, so the desktop rule won from
+     outside the media query. Context's two photos came out 156x71 where
+     node 359:369 draws them 156x155 — 84px missing from the section, and
+     every section below it 78px high.
+
+     The two galleries that genuinely are not square restate themselves
+     below: the interleaved band already excludes itself by class, and the
+     journey grid's own ratio is repeated here so this rule cannot take
+     it (identical specificity, and this block is later in the file). */
+  .grid-4.photo-row > .span-2:not(.gallery-tinted) {
+    aspect-ratio: 1 / 1;
+  }
+
+  .journey-grid .grid-4.photo-row > .span-2 {
+    aspect-ratio: 155.5 / 112.24;
+  }
+
+  /* The states row bottom-aligns its labels, the same way Hachi's method
+     row does: node 359:377's "Active" sits at y=18 inside the item so its
+     photo starts at 52 like the two-line "Item removed" beside it. The
+     photos already lined up here — it was the one-line labels that sat
+     18px high. A 36px floor with the text at its bottom is the label
+     block the frame draws, and it holds whether the label is one line or
+     two. */
+  .method-row .step-item p {
+    min-height: 36px;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  /* 16px between a .media-row and the grid under it, per node 357:363 —
+     not the section's own 24. Same 8px trim, and the same reason, as the
+     .photo-row + .photo-row rule earlier in this file. */
+  .project-section > .media-row + .feature-row {
+    margin-top: -8px;
+  }
+}
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 4 ----------
+   MOME ULP (359:617). */
+@media (max-width: 600px) {
+  /* .project-section-title sets no line-height of its own, so it inherits
+     — `normal` (30px at 24) everywhere it sits in a .section-intro, but
+     1.5 (36px) inside a .text-block, which is where MOME ULP's Application
+     and Reality headings live. The frames draw all of them on 30 (nodes
+     359:1159, 359:1166). Stating it makes the two cases agree and is a
+     no-op wherever `normal` was already resolving to the same 30. */
+  .project-section-title {
+    line-height: 1.25;
+  }
+
+  /* ----- findings clusters -----
+
+     Overrides `.finding-items { display: flex }` from the base sheet. The
+     earlier pass turned only Communication into the frame's two-column
+     masonry, because only that cluster carries the --grid modifier the
+     desktop layout needed. The frame runs all four that way (node
+     364:1402 and its three siblings are 155.5px-wide pairs), and left as
+     single flex columns the other three ran 749px longer than the frame
+     between them. Same declarations as the --grid rule above, so the two
+     stay in step. */
+  .finding-items {
+    display: block;
+    columns: 2;
+    column-gap: 16px;
+  }
+
+  /* 16px from a cluster title to its cards, not the 32 the desktop grid
+     uses — node 364:1404 puts Frame 108 at y=46 under a 30px title. */
+  .finding-category {
+    gap: 16px;
+  }
+
+  /* ----- hero title -----
+
+     Two things. The frames all set the page H1 on a 40px line (a 120px
+     box for three lines, 160 for four) where `line-height: 1.2` gives
+     38.4 — 1.6px a line, and 6.4 on Under NDA's four.
+
+     And MOME ULP's is 30px, not 32: the site's longest title, sized down
+     so it still reads as three lines. Measured off node 359:624's own
+     render, "University Life Platform" is 325px of ink there against
+     350px at 32px here — 0.93, i.e. 30. The hair of tracking that goes
+     with it buys back the 3px this page's frame gains by sitting at
+     x=21 with a 330px column instead of the 24/327 every other frame
+     (and this site) uses; without it the line lands 1.1px over and wraps,
+     which is the whole reason the size was dropped. */
+  .hero-text h1 {
+    font-size: var(--h1-size, 32px);
+    line-height: 40px;
+    letter-spacing: var(--h1-tracking, normal);
+  }
+}
+
+/* Below the frames' own 375px the findings clusters give up the second
+   column. At 320 the content column is 272px, so two tracks are 128px
+   each and the longest finding terms ("Unreliable teacher communication")
+   run past the card's border. 367px is the breakpoint this project
+   already uses for "narrower than the design width" (see the research
+   rows), so the masonry uses it too. */
+@media (max-width: 367px) {
+  .finding-items,
+  .finding-items--grid {
+    columns: 1;
+  }
+}
+
+/* =========================
+   MOME ULP findings: the design's own column packing
+   -------------------------
+   Both the desktop file and the 375px frame (node 364:1402 and siblings)
+   pack each cluster's cards into two independent columns and fill the
+   LEFT one first — Communication reads Events / Fragmented information /
+   Neptun down column one, Peer to peer / Unreliable teacher communication
+   / Student-teacher down column two.
+
+   `columns: 2` balances by height instead, which put Peer to peer under
+   Events and pushed Neptun and Student-teacher into a stubby second
+   column. A forced break at the design's own split point pins it: multicol
+   honours a forced break and balances only what is left. The DOM order was
+   re-sorted to match, so column one is children 1..n and column two the
+   rest — that is also the order the desktop design draws.
+   ========================= */
+.finding-items--grid > .finding-item:nth-child(3) {
+  break-after: column;
+}
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 5 ----------
+   MOME ULP (359:617), the four sections the user flagged, measured node by
+   node against the frame. Every rule here overrides one an earlier block in
+   this file set; the rule it corrects is named in each case.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* ----- Application screenshot (node 359:1163) -----
+     The frame strokes this one 2px, not the 4 the desktop page carries
+     inline. The inline style now reads var(--ps-border, 4px) so the value
+     can be swapped from here — a class cannot outrank an inline `border`
+     shorthand, but it can supply the custom property that shorthand
+     reads. Radius stays 8px, which .ps-photo already resolves to. */
+  .ps-photo {
+    --ps-border: 2px;
+  }
+
+  /* ----- findings clusters -----
+
+     Overrides nothing; completes the packing rule above for the three
+     clusters that have no --grid modifier and only become two columns at
+     this width. Their splits are 2+1 (Student approach, node 364:1407)
+     and 2+2 (App issues, node 364:1440). :not() keeps Communication on
+     its own 3+3 break from the rule above. */
+  .finding-items:not(.finding-items--grid) > .finding-item:nth-child(2) {
+    break-after: column;
+  }
+
+  /* ----- synthesis (node 360:1257) -----
+
+     Two corrections to `.issue-grid .step-item p { line-height: 1.5 }`,
+     which is a desktop value.
+
+     The frame sets all four of these on `normal` (nodes 360:1259, 1262,
+     1265, 1268) — 20.2px at 16px here, against 24 — and draws each row
+     exactly as tall as the 156px photograph beside it. On 24 the longest
+     of the four ran 216px, 60px past its own photo, and the section came
+     out 105px over the frame.
+
+     The tracking matches the body rule already corrected for these
+     frames: none. */
+  .issue-grid > .step-item p {
+    line-height: 1.25;
+  }
+
+  /* The row is the photo's height, and the copy centres against it — the
+     frame's text boxes are all 156px with the copy centred, and the row
+     is `items-center`. Overrides the earlier block's `align-items:
+     center` only by adding the floor the frame draws. */
+  .issue-grid > .step-item {
+    min-height: 156px;
+  }
+
+  /* ----- how might we (node 360:1309) -----
+
+     The frame keeps the four questions inside the synthesis section, 16px
+     under the last issue row, where the page makes them their own
+     <section> and .project-container's 48px lands between. Pulled back by
+     the 32px difference. Selected by what the section contains, since it
+     carries no class of its own. */
+  .project-section:has(> .hmw-grid) {
+    margin-top: -32px;
+  }
+
+  /* The questions are 16px on `normal` too (nodes 360:1312 and siblings),
+     not the 1.5 the site's body copy uses: the frame's four blocks are
+     100/80/120/60 tall, which is 5/4/6/3 lines of 20. */
+  .hmw-item p {
+    line-height: 1.25;
+  }
+
+  /* ----- usability test tasks (node 367:1942) -----
+
+     The frame runs the R.I.T.E. method block and the task list as one
+     section 24px apart (367:1910 to 367:1943), where the page splits them
+     into two <section>s and gets .project-container's 48. */
+  .project-section:has(.task-item) {
+    margin-top: -24px;
+  }
+
+  /* 24px between one task and the next, per the frame's own gap on
+     367:1942. Overrides the 16px .grid-4 uses for everything else at this
+     width — scoped to the grid that holds the tasks so no other grid
+     moves. */
+  .grid-4:has(> .task-item) {
+    gap: 24px;
+  }
+}
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 6 ----------
+   MOME ULP (359:617), continued: the leading these frames actually draw,
+   and the two sections whose structure was still the tablet fallback.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* ----- `normal` leading is 1.25 here, not Chrome's 1.3125 -----
+
+     Overrides `.method-header h2 { line-height: 1.5 }`. Every heading and
+     body block on this frame that carries Figma's auto leading measures
+     exactly 1.25 in the file: the 24px titles come back as 60px for two
+     lines and 90 for three (nodes 360:1173, 360:1203, 360:1256, 366:1592,
+     367:1892), and the 16px "how might we" blocks as 100/80/120/60, i.e.
+     20 a line. Chrome resolves `normal` for Plus Jakarta Sans to 1.3125,
+     which is 1.5px a line more — 15px across the interview heading alone —
+     so the number is stated rather than left to the font. */
+  .method-header h2 {
+    line-height: 1.25;
+  }
+
+  /* ----- usability test tasks -----
+
+     `.grid-4 > .task-item { gap: 16px }` was set in the first ULP block
+     but .task-item is a plain block, so the gap had nothing to act on and
+     the brief sat flush against its number. The frame draws 16 between
+     them (node 367:1914). */
+  .task-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ----- cognitive walkthrough -----
+
+     The three quote captions are hand-broken in the markup for the
+     desktop column, two <p> to a caption, which at 156px made each half
+     wrap again — 92px of caption against the frame's 54 (nodes 360:1178,
+     360:1181, 360:1188 are single text boxes of 3 lines at 14px/1.25).
+     Run back together as one flowing paragraph at this width; the
+     ::before restores the space the block break was standing in for. */
+  .walkthrough-grid .text-block {
+    display: block;
+    /* The frame bottom-aligns caption to caption so the two screens under
+       them start on the same line (node 360:1177 is items-end). */
+    align-self: end;
+  }
+
+  .walkthrough-grid .text-block p {
+    display: inline;
+    line-height: 1.25;
+  }
+
+  /* No pseudo-element for the space between them: with the paragraphs
+     inline, the newline already in the markup between </p> and <p>
+     collapses to one. A ::before space was tried first and took a whole
+     line box of its own under text-wrap: pretty — 18px of nothing at the
+     head of every caption. */
+
+  /* ----- findings clusters -----
+
+     `.finding-item { margin-bottom: 16px }` is how a multicol child gets
+     its rhythm, but it also hangs off the foot of each column and made
+     every cluster 16px taller than the frame. Dropped from the last card
+     in each column: the one carrying the forced break, and the last of
+     all. */
+  .finding-item:last-child,
+  .finding-items--grid > .finding-item:nth-child(3),
+  .finding-items:not(.finding-items--grid) > .finding-item:nth-child(2) {
+    margin-bottom: 0;
+  }
+}
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 7 ----------
+   MOME ULP (359:617), continued.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* The caption's line-height has to sit on the block, not on the <p>.
+     With the paragraphs inline the whitespace between them is a text node
+     of the container, and it carries the container's strut — 24px — which
+     set the line box for whichever line it landed on. Two of the three
+     captions came out 18px taller than the frame for that one space. */
+  .walkthrough-grid .text-block {
+    line-height: 1.25;
+  }
+
+  /* 24px between one findings cluster and the next, per node 364:1405's
+     own offset, against the 32 the desktop four-column grid uses. */
+  .findings-grid {
+    gap: 24px;
+  }
+
+  /* ----- per-node tracking on the 24px headings -----
+
+     Three of this frame's headings carry -0.48px and the rest carry none
+     (nodes 360:1198, 367:1892 and 367:1929 against 360:1173, 360:1203,
+     360:1256, 366:1592, 366:1616) — the per-node rule the audit already
+     established for body copy holds for headings too. Without it "I asked
+     the students to complete the following tasks:" needed a third line
+     where the frame draws two. Carried inline as --h2-tracking so the
+     value stays beside the heading it belongs to and is inert at every
+     other width. */
+  .method-header h2,
+  .project-section-title {
+    letter-spacing: var(--h2-tracking, normal);
+  }
+}
+
+/* Below 367 the clusters drop to one column (see the rule above), and a
+   forced column break inside a single-column multicol does not disappear —
+   it opens an extra column that overflows sideways, 264px of horizontal
+   scroll at 320. The break has to be lifted with the second column. */
+@media (max-width: 367px) {
+  .finding-items--grid > .finding-item:nth-child(3),
+  .finding-items:not(.finding-items--grid) > .finding-item:nth-child(2) {
+    break-after: auto;
+    margin-bottom: 16px;
+  }
+}
+
+/* =========================
+   MOME ULP information architecture: DOM order is the mobile one
+   -------------------------
+   The 375px frame packs each box's cards into two columns and fills the
+   left one first (nodes 366:1808 / 366:1809), which multicol can only be
+   made to do by putting the cards in that order and forcing the break —
+   the same fix the findings clusters needed. Home therefore reads
+   Now+Next / Canteen / Events, and Resources reads Wellness / Techpark /
+   Library / Freshmen info / Scholarships.
+
+   Desktop draws these boxes as one flex ROW, where that order would move
+   the columns across the page, so it is restored here with `order`. Safe
+   to leave outside a media query: at <=600px .ia-links is a multicol
+   block, and `order` has no effect on anything that is not a flex or
+   grid item.
+   ========================= */
+.ia-box--home .ia-links > :nth-child(2) { order: 3; }
+.ia-box--home .ia-links > :nth-child(3) { order: 2; }
+
+.ia-box--resources .ia-links > :nth-child(2) { order: 5; }
+.ia-box--resources .ia-links > :nth-child(3) { order: 4; }
+.ia-box--resources .ia-links > :nth-child(4) { order: 2; }
+.ia-box--resources .ia-links > :nth-child(5) { order: 3; }
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 8 ----------
+   MOME ULP (359:617): the synthesis rows' alignment, the navigation
+   prioritization section the frame keeps, and the IA boxes' packing.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* ----- synthesis -----
+
+     Overrides `align-items: center` from the first ULP block. The frame's
+     row IS centered, but its text boxes are all a fixed 156px — the same
+     height as the photograph — with the copy sitting at the top of that
+     box, so what centering aligns is a box whose top is already the
+     photo's top. Centering the copy itself instead dropped every
+     paragraph a few px below the picture it belongs to. */
+  .issue-grid > .step-item {
+    align-items: flex-start;
+  }
+
+  /* ----- navigation prioritization -----
+
+     Overrides `.priority-section { display: none }` above. The matrix is
+     still desktop-only — 24 cells on two axes has no honest one-column
+     form, which is why it was dropped — but the frame does not drop the
+     SECTION: node 366:1591 keeps the heading and its label and states the
+     conclusion in a sentence underneath (366:1598), which is what
+     .priority-summary now carries. */
+  .priority-section {
+    display: flex;
+  }
+
+  .priority-grid {
+    display: none;
+  }
+
+  /* revert, not block: this class is carried by a <p> in one place and by
+     a <span> wrapping a <br> in another, and each needs its own default
+     display back rather than a shared one. */
+  .show-on-mobile {
+    display: revert;
+  }
+
+  .priority-summary {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* ----- information architecture -----
+
+     Same forced-break idiom as the findings clusters: the DOM is already
+     in the frame's column order (see the block above), so the break just
+     says where column one ends. Home splits 2+1 (node 366:1722 against
+     366:1646) and Resources 3+2 (366:1808 against 366:1809). */
+  .ia-box--home .ia-links > :nth-child(2),
+  .ia-box--resources .ia-links > :nth-child(3) {
+    break-after: column;
+    margin-bottom: 0;
+  }
+
+  .ia-links > :last-child {
+    margin-bottom: 0;
+  }
+
+  /* Contacts is one full-width card in the frame (node 366:1830 is 327px
+     wide), not a two-column pair. */
+  .ia-box--contacts .ia-links {
+    columns: 1;
+  }
+}
+
+/* The <=367 counterpart of the rule above: a forced column break inside a
+   single-column multicol opens an extra column that overflows sideways,
+   so it has to be lifted along with the second column. */
+@media (max-width: 367px) {
+  .ia-links {
+    columns: 1;
+  }
+
+  .ia-box--home .ia-links > :nth-child(2),
+  .ia-box--resources .ia-links > :nth-child(3) {
+    break-after: auto;
+    margin-bottom: 16px;
+  }
+}
+
+/* The counterpart to .hide-on-mobile: content the 375px frame adds that
+   the wider layouts have no place for. Scoped to a min-width query rather
+   than left as a base rule — appended at the end of the file it would
+   otherwise be the last same-specificity declaration standing and would
+   win inside the <=600px block that switches it on. */
+@media (min-width: 601px) {
+  .show-on-mobile {
+    display: none;
+  }
+}
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 9 ----------
+   MOME ULP (359:617): the IA cards' own type.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  /* Overrides `.ia-link-col { width: 120px }`, a desktop measure that the
+     mobile block never cancelled. Inside a card that is 135.5px wide (and
+     327 for Contacts) it was still wrapping every label at 120, which put
+     "Freshman support" and "IC Researchers" on two lines each in a box
+     with room to spare and ran the Freshmen info card 31px long. */
+  .ia-link-col {
+    width: auto;
+  }
+
+  /* The cards are on a 24px line in the frame — nodes 366:1658 and
+     366:1729 are 44px tall for one 16px line inside 8px padding and a 2px
+     rule, which is 24 — where `normal` gives 20. Inherited from
+     .ia-links so both the bare <p> cards and the columns get it. */
+  .ia-links {
+    line-height: 1.5;
+  }
+}
+
+/* ---------- mobile: <= 600px — design-audit corrections, part 10 ----------
+   MOME ULP (359:617): Home's two cards, which are drawn to their own
+   measures rather than the ones the other two boxes share.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  /* Node 366:1663 sets 8px between its three lines where every other card
+     in this section uses 4 (366:1700, 366:1724, 366:1830 all measure 4).
+     Scoped to Home so the other two keep theirs. */
+  .ia-box--home .ia-link-col {
+    gap: 8px;
+  }
+}
+
+/* =========================
+   MOME ULP: .collage-stack
+   -------------------------
+   Two of the third participant's note groups are drawn as a stack inside
+   ONE cell of the frame's two-column board (nodes 378:240 and 378:277),
+   which a flat grid cannot express — a spanning neighbour resizes the
+   rows it spans, and the notes drift apart by exactly the slack. The
+   wrapper gives that stack a cell of its own.
+
+   `display: contents` above the mobile breakpoint: the desktop board is
+   an absolutely positioned canvas and a static wrapper is not a
+   containing block, but dissolving it keeps the tablet fallback's
+   `order` on the notes working too. Nothing changes above 600px.
+   ========================= */
+.collage-stack {
+  display: contents;
+}
+
+/* ---------- mobile: <= 600px — MOME ULP, the testing section rebuilt ----------
+
+   Nodes 378:284 (First participant), 378:282 (Second), 378:280 (Third),
+   381:227 and 381:228 (the two results grids). Rebuilt against the frame
+   node by node rather than reflowed from the tablet fallback, which is
+   what the earlier pass left here.
+
+   The frame draws each board as a hand-composed two-column grid: rows of
+   quote cards alternating with rows of screens, 16px apart within a group
+   and 24 between groups, and one screen dropped on the first and second
+   boards. Every cell is placed explicitly, so the inline `order` the
+   tablet view uses stops mattering here.
+
+   The connectors stay hidden. They are hand-drawn between two exact
+   positions on a 327px board; the layout matches the frame at 375 now,
+   but at 320 and 360 the rows are shorter and the curves would point at
+   nothing. Worth revisiting as inline SVG sized to the board.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* block, not flex. Every .collage-item carries an inline `order` for
+     the tablet fallback's single-column pairing, and inside a flex
+     column that order re-sorts the stack — it lifted "This kind of
+     swiping" above "If there were email previews", against the frame.
+     `order` is inert on block children, so the DOM order (which is the
+     frame's) stands. */
+  .collage-stack {
+    display: block;
+    align-self: start;
+    min-width: 0;
+  }
+
+  .collage-stack > * + * {
+    margin-top: 16px;
+  }
+
+  /* The notes are centred in the frame — node 374:139 and every sibling
+     is text-center, inside a box that centres it vertically too.
+     Overrides nothing: the earlier block set the fill and the padding but
+     left the alignment at the default. */
+  .collage-canvas--participant1 .collage-note,
+  .collage-canvas--participant2 .collage-note,
+  .collage-canvas--participant3 .collage-note {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* The <p> inside carries its own alignment from the narrow-column
+     line-breaking block, so centring the box alone left the text ragged
+     right where the frame centres it. */
+  .collage-canvas--participant1 .collage-note p,
+  .collage-canvas--participant2 .collage-note p,
+  .collage-canvas--participant3 .collage-note p {
+    text-align: center;
+  }
+
+  /* ----- First participant (378:284) -----
+     Screens, in DOM order: home, Now&Next detail, events list, contacts,
+     contacts scrolled, resources, wellness, campus map. The frame draws
+     seven of the eight — wellness (child 7) is not in it. */
+  .collage-canvas--participant1 > :nth-child(11) { grid-column: 1; grid-row: 1; }
+  .collage-canvas--participant1 > :nth-child(10) { grid-column: 2; grid-row: 1; }
+  .collage-canvas--participant1 > :nth-child(1)  { grid-column: 1; grid-row: 2; }
+  .collage-canvas--participant1 > :nth-child(2)  { grid-column: 2; grid-row: 2; }
+  .collage-canvas--participant1 > :nth-child(9)  { grid-column: 1; grid-row: 3; }
+  .collage-canvas--participant1 > :nth-child(12) { grid-column: 2; grid-row: 3; }
+  .collage-canvas--participant1 > :nth-child(3)  { grid-column: 1; grid-row: 4; }
+  .collage-canvas--participant1 > :nth-child(13) { grid-column: 2; grid-row: 4; }
+  /* Group break: node 378:265 starts 24px under 378:276 against the 16px
+     row gap. Same 8px trim wherever a group starts below. */
+  .collage-canvas--participant1 > :nth-child(14) { grid-column: 2; grid-row: 5; margin-top: 8px; }
+  .collage-canvas--participant1 > :nth-child(4)  { grid-column: 1; grid-row: 6; }
+  .collage-canvas--participant1 > :nth-child(5)  { grid-column: 2; grid-row: 6; }
+  .collage-canvas--participant1 > :nth-child(15) { grid-column: 1; grid-row: 7; margin-top: 8px; }
+  .collage-canvas--participant1 > :nth-child(16) { grid-column: 2; grid-row: 7; margin-top: 8px; }
+  .collage-canvas--participant1 > :nth-child(6)  { grid-column: 1; grid-row: 8; }
+  .collage-canvas--participant1 > :nth-child(8)  { grid-column: 2; grid-row: 8; }
+  .collage-canvas--participant1 > :nth-child(7)  { display: none; }
+
+  /* ----- Second participant (378:282) -----
+     Four of the five screens: the news list (child 3) is not drawn. */
+  .collage-canvas--participant2 > :nth-child(6)  { grid-column: 1; grid-row: 1; }
+  /* Bottom-aligned: node 378:203 sits at y=63 inside a 100px row, level
+     with the foot of the note beside it rather than its top. */
+  .collage-canvas--participant2 > :nth-child(7)  { grid-column: 2; grid-row: 1; align-self: end; }
+  .collage-canvas--participant2 > :nth-child(1)  { grid-column: 1; grid-row: 2; }
+  .collage-canvas--participant2 > :nth-child(2)  { grid-column: 2; grid-row: 2; }
+  .collage-canvas--participant2 > :nth-child(8)  { grid-column: 2; grid-row: 3; margin-top: 8px; }
+  .collage-canvas--participant2 > :nth-child(9)  { grid-column: 2; grid-row: 4; }
+  .collage-canvas--participant2 > :nth-child(4)  { grid-column: 1; grid-row: 5; }
+  .collage-canvas--participant2 > :nth-child(5)  { grid-column: 2; grid-row: 5; }
+  .collage-canvas--participant2 > :nth-child(3)  { display: none; }
+
+  /* ----- Third participant (378:280) -----
+     All three screens, each with its own stack of notes beside it. */
+  .collage-canvas--participant3 > :nth-child(4) { grid-column: 1; grid-row: 1; }
+  .collage-canvas--participant3 > :nth-child(5) { grid-column: 2; grid-row: 1; }
+  .collage-canvas--participant3 > :nth-child(1) { grid-column: 1; grid-row: 2; }
+  .collage-canvas--participant3 > :nth-child(6) { grid-column: 2; grid-row: 2; }
+  .collage-canvas--participant3 > :nth-child(7) { grid-column: 1; grid-row: 3; margin-top: 8px; }
+  .collage-canvas--participant3 > :nth-child(2) { grid-column: 2; grid-row: 3; margin-top: 8px; }
+  .collage-canvas--participant3 > :nth-child(8) { grid-column: 1; grid-row: 4; margin-top: 8px; }
+  .collage-canvas--participant3 > :nth-child(3) { grid-column: 2; grid-row: 4; margin-top: 8px; }
+  .collage-canvas--participant3 > :nth-child(9) { display: none; }
+
+  /* ----- the two results grids -----
+     16px under a task number and 24 between one task group and the next:
+     nodes 379:157 and 381:174 are 134 apart on a 110px group. */
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(2),
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(3),
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(4),
+  .results-grid:has(.results-compare-label) > .task-label:nth-child(2),
+  .results-grid:has(.results-compare-label) > .task-label:nth-child(3),
+  .results-grid:has(.results-compare-label) > .task-label:nth-child(4) {
+    margin-top: 8px;
+  }
+
+  /* Placement by :nth-child, with .results-score in the selector so these
+     outrank the :nth-of-type rules the earlier block used. */
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(1) { grid-column: 1 / -1; grid-row: 1; }
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(2) { grid-column: 1 / -1; grid-row: 3; }
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(3) { grid-column: 1 / -1; grid-row: 5; }
+  .results-grid:has(.results-participant-label) > .task-label:nth-child(4) { grid-column: 1 / -1; grid-row: 7; }
+
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(6)  { grid-column: 1; grid-row: 2; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(7)  { grid-column: 1; grid-row: 4; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(8)  { grid-column: 1; grid-row: 6; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(9)  { grid-column: 1; grid-row: 8; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(11) { grid-column: 2; grid-row: 2; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(12) { grid-column: 2; grid-row: 4; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(13) { grid-column: 2; grid-row: 6; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(14) { grid-column: 2; grid-row: 8; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(16) { grid-column: 3; grid-row: 2; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(17) { grid-column: 3; grid-row: 4; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(18) { grid-column: 3; grid-row: 6; }
+  .results-grid:has(.results-participant-label) > .results-score:nth-child(19) { grid-column: 3; grid-row: 8; }
+
+  /* Prototype vs original: a task number, then both captions, then both
+     scores — three rows per task, four times over (node 381:232). */
+  .results-grid:has(.results-compare-label) > :nth-child(1)  { grid-column: 1 / -1; grid-row: 1; }
+  .results-grid:has(.results-compare-label) > :nth-child(2)  { grid-column: 1 / -1; grid-row: 4; }
+  .results-grid:has(.results-compare-label) > :nth-child(3)  { grid-column: 1 / -1; grid-row: 7; }
+  .results-grid:has(.results-compare-label) > :nth-child(4)  { grid-column: 1 / -1; grid-row: 10; }
+
+  .results-grid:has(.results-compare-label) > :nth-child(5)  { grid-column: 1; grid-row: 2; }
+  .results-grid:has(.results-compare-label) > :nth-child(6)  { grid-column: 1; grid-row: 5; }
+  .results-grid:has(.results-compare-label) > :nth-child(7)  { grid-column: 1; grid-row: 8; }
+  .results-grid:has(.results-compare-label) > :nth-child(8)  { grid-column: 1; grid-row: 11; }
+  .results-grid:has(.results-compare-label) > :nth-child(9)  { grid-column: 1; grid-row: 3; }
+  .results-grid:has(.results-compare-label) > :nth-child(10) { grid-column: 1; grid-row: 6; }
+  .results-grid:has(.results-compare-label) > :nth-child(11) { grid-column: 1; grid-row: 9; }
+  .results-grid:has(.results-compare-label) > :nth-child(12) { grid-column: 1; grid-row: 12; }
+
+  .results-grid:has(.results-compare-label) > :nth-child(13) { grid-column: 2; grid-row: 2; }
+  .results-grid:has(.results-compare-label) > :nth-child(14) { grid-column: 2; grid-row: 5; }
+  .results-grid:has(.results-compare-label) > :nth-child(15) { grid-column: 2; grid-row: 8; }
+  .results-grid:has(.results-compare-label) > :nth-child(16) { grid-column: 2; grid-row: 11; }
+  .results-grid:has(.results-compare-label) > :nth-child(17) { grid-column: 2; grid-row: 3; }
+  .results-grid:has(.results-compare-label) > :nth-child(18) { grid-column: 2; grid-row: 6; }
+  .results-grid:has(.results-compare-label) > :nth-child(19) { grid-column: 2; grid-row: 9; }
+  .results-grid:has(.results-compare-label) > :nth-child(20) { grid-column: 2; grid-row: 12; }
+
+  /* The losing side is a card too in the frame (node 381:236) — same box,
+     same padding, no fill and light ink — where the markup leaves it a
+     bare <p> with <br>s. Selected by what it is not, since it carries no
+     class of its own. */
+  .results-grid:has(.results-compare-label) > p:not(.task-label):not(.results-compare-label) {
+    margin: 0;
+    padding: 8px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* The five lines node 379:140 hand-breaks the scoring key onto. */
+  .copy-line {
+    display: block;
+  }
+}
+
+/* ---------- mobile: <= 600px — MOME ULP, the testing section, part 2 ----------
+   The type inside the rebuilt cards. Everything here overrides a rule the
+   <=900px tablet block set, which the <=600px block had not reached.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* The connectors go with the doodles. Same reason: they join two
+     positions on the desktop canvas that this layout does not have.
+     Overrides nothing — the earlier block hid .collage-doodle and left
+     .collage-arrow behind, which auto-placed itself into a spare cell of
+     the first two boards and drew a stray line there. */
+  .collage-canvas--participant1 .collage-arrow,
+  .collage-canvas--participant2 .collage-arrow,
+  .collage-canvas--participant3 .collage-arrow {
+    display: none;
+  }
+
+  /* Overrides `.results-grid > p .task-tag { display: block }` from the
+     tablet block, which outranks the `.results-grid .task-tag` rule the
+     earlier mobile block used to hide it — (0,2,1) against (0,2,0), so
+     the tag stayed visible on the four unfilled cells of the compare
+     grid and made each of them a line taller than its filled neighbour.
+     Matched at the same specificity and later in the file. */
+  .results-grid > p .task-tag {
+    display: none;
+  }
+
+  /* Node 379:142 is a 30px box for one 20px line, i.e. 1.5 — `normal`
+     gives 26. Same for the captions at 14 (node 381:269 is 21px). */
+  .results-grid .task-label {
+    line-height: 1.5;
+  }
+
+  .results-compare-label {
+    /* Overrides the tablet block's 20px, which the frame spends on the
+       gap between the caption row and the cards instead. */
+    margin-top: 0;
+    line-height: 1.5;
+  }
+
+  /* Square, per the frame (node 379:144 carries no radius) — the tablet
+     block rounds these to 12px. And no gap between the two lines: the
+     frame's card is 64px, which is two 24px lines inside 8px padding, and
+     the tablet block's 2px gap made every one of the twenty cards 66. */
+  .results-score {
+    border-radius: 0;
+    gap: 0;
+  }
+
+  /* 6px of side padding rather than the frame's 8, on this grid only.
+     Three cards and two 16px gaps leave 98px each, so 8px sides leave
+     82px of content and "Success: 4" measures 83 — one pixel short, and
+     every one of the twelve cards wrapped to three lines against the
+     frame's two. The frame gets away with 8 because its own text layer
+     reads "Success:4" with no space. Keeping the readable string and
+     taking the two pixels off the sides is the smaller change; the
+     vertical 8 stays, which is what makes the card 64px. */
+  .results-grid:has(.results-participant-label) .results-score {
+    padding: 8px 6px;
+  }
+}
+
+/* ---------- mobile: <= 600px — MOME ULP, the method labels ----------
+   Every "method: X" line in this frame is 14px on 1.5 — nodes 366:1603,
+   366:1610, 369:1948 and their siblings are all 21px boxes for one line,
+   and the scoring key on node 379:140 is 105 for five. Chrome's `normal`
+   gives 17.5, which was 3px short on each of the eleven single-line
+   labels and 17 on the scoring key.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .method-header .method-label {
+    line-height: 1.5;
+  }
+}
+
+/* ---------- mobile: <= 600px — MOME ULP, R.I.T.E. flow and the results seam ----------
+   Node 367:1898 for the flow, and the 48px between nodes 381:227 and
+   381:228 for the seam.
+   ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+
+  /* 16px between the repeat legend and the Test -> Identify -> Fix row,
+     not the desktop 32 (node 367:1898). */
+  .rite-flow {
+    gap: 16px;
+  }
+
+  /* An explicit 44, per node 367:1900, and not `auto`. Same trap as the
+     "how might we" icons documented above: this is a lazy-loaded SVG with
+     no intrinsic ratio, and height:auto let it render 53px tall. */
+  .rite-legend img {
+    height: 44px;
+    object-fit: contain;
+  }
+
+  /* 16px, not the desktop 20 — nodes 367:1901, 367:1903, 367:1904 and
+     367:1905 are all 16 on a 20px line. */
+  .rite-legend p,
+  .rite-steps p {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  /* The two results grids are two SECTIONS in the frame, 48px apart, not
+     two blocks inside one at .project-section's 24. Selected by the seam
+     itself, since the markup gives neither half a class. */
+  .results-grid + .method-header {
+    margin-top: 24px;
+  }
+}
+
+/* =========================
+   MOME ULP: .collage-connector — the frame's own arrows, at the frame's
+   own coordinates
+   -------------------------
+   The three participant boards are drawn with connectors running between
+   a quote and the screen it is about. The tablet fallback drops them,
+   because it reflows the board into a list and the arrows would point at
+   nothing. The 375px frame keeps them, and the mobile board is now that
+   frame's layout, so they can go back — placed absolutely rather than
+   laid out, per explicit request.
+
+   Each element carries the vector's box out of the frame as four raw
+   numbers (--ax/--ay/--aw/--ah) and the CSS divides them by the board's
+   327px content column. `cqw`, not px: .collage-canvas is already an
+   inline-size query container (it has been since the desktop board), so
+   one divisor scales the whole arrow layer with the board instead of
+   leaving it pinned to 375. Exact at the design width; below it the
+   screens still scale in step (they are aspect-ratio boxes) but the quote
+   cards gain lines as their text rewraps, so the vertical anchoring
+   drifts a little at 320 and 360. That is the trade the coordinates buy.
+
+   These are the frame's vectors, not the desktop board's: same names in
+   Figma, different geometry, so they are their own files. Vector 19 is
+   rotated 90deg in the frame and Figma exports the path unrotated — the
+   rotation is baked into fp-connector-2.svg rather than applied here, so
+   `preserveAspectRatio="none"` still stretches it correctly.
+   ========================= */
+.collage-connector {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .collage-connector {
+    display: block;
+    position: absolute;
+    left: calc(var(--ax) / 327 * 100cqw);
+    top: calc(var(--ay) / 327 * 100cqw);
+    width: calc(var(--aw) / 327 * 100cqw);
+    height: calc(var(--ah) / 327 * 100cqw);
+    /* Over the screens, as the frame draws them, and never in the way of
+       a tap. */
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .collage-connector img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* ---------- mobile: <= 600px — MOME ULP, the screens' own crop ----------
+   The frame crops every one of these screenshots from the TOP, not the
+   centre: nodes 378:164, 378:169, 378:172, 378:176, 378:177, 378:206,
+   378:207 and 378:224 all read `top: ~0%` against a fill 101-131% of the
+   box height. `object-fit: cover` defaults to 50%, which was taking ~48px
+   off the top of each screen — enough to hide the app's own header and to
+   put the UI the connectors point at in the wrong place.
+
+   Two exceptions carry their value inline, the same idiom as --detail-aspect:
+   node 378:155 starts 4.46% down its source (19.9% of the travel
+   object-position has), and 378:162 is a plain Figma FILL, i.e. centred.
+
+   Top-alignment is also the robust choice here: a couple of these webp
+   sources are taller than the originals in the file, and cropping from the
+   top means the extra height comes off the bottom where nothing is
+   anchored, rather than shifting the whole screen. */
+@media (max-width: 600px) {
+  .collage-canvas--participant1 .collage-image img,
+  .collage-canvas--participant2 .collage-image img,
+  .collage-canvas--participant3 .collage-image img {
+    object-position: 50% var(--crop, 0%);
+  }
+}
