@@ -281,7 +281,14 @@ section {
   padding-inline: max(var(--gutter), calc((100% - var(--container-max)) / 2));
   position: sticky;
   top: 0;
-  z-index: 30;
+  /* 40, not the 30 the sticky footer also uses. The two never overlap as
+     bars — one is pinned to the top, the other to the bottom — but the
+     header carries the mobile nav overlay, which covers the whole
+     viewport. At a tie the later element in the DOM wins, and
+     .project-footer is later, so the overlay opened *underneath* the
+     floating NEXT PROJECT / CLOSE pills and left them sitting on top of
+     the menu (and still clickable through it). */
+  z-index: 40;
   background: var(--color-bg);
 }
 
@@ -349,7 +356,16 @@ section {
   background: none;
   border: none;
   padding: 0;
-  z-index: 20;
+  /* The z-index here was inert: it was declared on a `position: static`
+     element, where it does nothing at all. The intent was always for the
+     burger — which turns into the overlay's close X — to sit above the
+     open menu, so it now says so in a way that takes effect, and clears
+     the overlay's 40. Above a sticky header this is clamped inside the
+     header's own stacking context, which is harmless; on a project page
+     under 767px, where the header is deliberately static, it is what
+     keeps the X on top of the menu it has to close. */
+  position: relative;
+  z-index: 50;
 }
 
 .nav-toggle span {
@@ -925,7 +941,13 @@ section {
     background: var(--color-bg);
     transform: translateX(100%);
     transition: transform 0.3s ease;
-    z-index: 10;
+    /* Has to clear the sticky footer's 30 on its own account, not just
+       via the header above: below 767px a project page makes its header
+       `position: static` on purpose (so it scrolls away rather than
+       holding a third of a phone screen), and a static element's z-index
+       does nothing — no stacking context, so this overlay is compared
+       against .project-footer directly at the root. */
+    z-index: 40;
   }
 
   .nav-menu.is-open {
@@ -943,7 +965,18 @@ section {
   }
 }
 
-/* ---------- mobile: <= 600px ---------- */
+/* ---------- mobile: <= 600px ----------
+
+   From here down the page follows its own Figma design (file
+   BYzOswHghAAaQSCUNqVSwp, frame "P-landing", node 338:83) rather than
+   being the desktop layout shrunk. The frame is 375px wide with a 24px
+   gutter, so its 327px content column is exactly `375 - 2 * --gutter` and
+   every width below is quoted as the design's own number at that width.
+
+   Everything here is CSS: the desktop markup already carries the same
+   structure the mobile frame does (.project-card == "Project Container",
+   .contact-method == the icon + copy row, and the wheel is proportional),
+   so no element needed moving or duplicating for the mobile view. */
 @media (max-width: 600px) {
   /* --gutter stops scaling here rather than at the tablet boundary: at
      600px the clamp is already down to 36px, so pinning it to 24px is a
@@ -952,9 +985,237 @@ section {
      at the breakpoint. */
   :root { --gutter: 24px; }
 
-  .spin-subtitle { font-size: 16px; }
+  /* 16px, per the design's header (339:89), against the tablet tier's
+     20px — with the 20px logo that lands the bar at the frame's 57px. */
+  .site-header { padding-block: 16px; }
 
-  .contact-info {
-    grid-template-columns: 1fr;
+  /* The frame's menu-01 glyph is 24px, and the button is the tallest
+     thing in the header, so its 32px box — not the 25.2px logo — was
+     setting the bar's height and holding it at 64px. The three bars are
+     24x2 with a 5px gap either way, so this only trims the box's dead
+     space; the burger-to-X animation (a 7px translate, i.e. bar height
+     plus gap) is measured between the bars and is unaffected. */
+  .nav-toggle {
+    width: 24px;
+    height: 24px;
   }
+
+  /* ----- SPIN -----
+
+     The design stacks SPIN / subtitle / arrow / wheel much tighter than
+     the desktop's uniform 32px: 21px, 16px, then 16px to the wheel.
+
+     These are glyph-to-glyph distances, not box ones. .spin-title-wrap
+     and .spin-subtitle each hand back their own leading as a negative
+     margin (see the long note on .spin-info), so a `gap` here is already
+     measured between the visible ink — which is the same thing the eye
+     compares in the Figma frame.
+
+     That distinction is exactly what the first of the three numbers has
+     to survive, and an earlier pass lost it: the frame's *boxes* are 4 /
+     16 / 16 apart, but only the last two of those are also ink numbers.
+     SPIN's box is a 70.6px leading-normal line around 56px type, so it
+     carries ~7.5px of empty space below the caps, and the subtitle's
+     carries ~2px above its ascenders — a 4px box gap is 13.5px of white
+     between the em boxes and 21px between the ink (measured off the
+     frame's own render of node 340:92: caps end on row 58, the
+     subtitle's ascenders start on row 79). Taking the 4 literally into a
+     gap that is already ink-to-ink stacked the two errors and pulled the
+     subtitle, the arrow and the whole wheel ~15.6px up the screen. */
+  .spin-section {
+    gap: 16px;
+    /* The desktop's clamp floor is 24px, but the frame starts SPIN
+       immediately under the 57px header. Not 0: Figma's text box carries
+       ~7px of leading above the caps that our `line-height: 1` has
+       already removed, so this puts that optical space back rather than
+       letting the caps sit hard against the header. */
+    padding-top: 8px;
+  }
+
+  /* The gap stays at the 16px that is true of subtitle → arrow (and of
+     arrow → wheel, which .spin-section carries), because a flex `gap`
+     cannot say two different things and only the first pair differs.
+     The SPIN → subtitle difference is therefore carried by the subtitle
+     itself, on top of the leading it already hands back. */
+  .spin-info { gap: 16px; }
+
+  .spin-subtitle {
+    font-size: 16px;
+    /* -0.325em is the trim from the desktop rule, restated here because
+       the 3.64px is part of the same declaration: together they put the
+       subtitle's ascenders 21px below SPIN's baseline, per the frame. */
+    margin-top: calc(-0.325em + 3.64px);
+  }
+
+  /* The wheel is the one piece that is already fully proportional — cards
+     are 25.7% of the stage at an unchanging 306/172 — so it needs a width
+     to scale to, not new geometry. The frame's "Image Container" is
+     310.156px inside the 375px screen (i.e. deliberately narrower than
+     the 327px content column), which puts its cards at 25.7% x 310.156 =
+     79.7px, the frame's 80x45 card. Left full-bleed it inherited the
+     whole 375px and drew them at 96x54.
+
+     The cap goes on .wheel-stage, not .wheel-container: the container
+     stays edge-to-edge on purpose, so a card rotated mid-spin has dead
+     space to swing its corners into instead of being clipped. */
+  .wheel-stage { max-width: 310.156px; }
+
+
+  /* ----- section headings -----
+     56px, matching SPIN, rather than the 48px floor of the desktop
+     clamp(48px, 9vw, 128px) — at 375px that clamp bottoms out and would
+     otherwise leave WORK/CONTACT smaller than the design draws them. */
+  /* line-height goes back to `normal` here, resolving the open question
+     the mobile brief left on this rule. The desktop `line-height: 1` is
+     what made every frame position below a section title read ~14px low
+     and every heading sit ~7.5px high: Figma draws WORK/CONTACT/ABOUT in
+     a 71px leading-normal box, our box was 56px, and the frames' 48px
+     above and 24px below are box-to-box distances measured against the
+     71. Chrome's `normal` for Plus Jakarta Sans at 56px is 71.2px, i.e.
+     the frame's own box, so restoring it makes the surrounding gaps and
+     the glyph positions correct at the same time — no per-page nudges,
+     and nothing to compensate for further down any of the three pages
+     that use this class (index, about, 404). */
+  .section-title {
+    font-size: 56px;
+    line-height: normal;
+  }
+
+  /* Heading-to-content is 24px in the frame; the desktop clamp floors at
+     32px. margin-top/-bottom already floor at the design's 48px. */
+  .work-section,
+  .contact-section {
+    gap: 24px;
+  }
+
+  /* ----- WORK -----
+     Cards are 16px apart, not 32px. */
+  .project-grid { gap: 16px; }
+
+  /* 8px radius on the image, against the desktop's 16px --radius-lg. */
+  .project-image { border-radius: 8px; }
+
+  .project-info { gap: 4px; }
+  /* The frame's title lines are 20px apart, and `normal` gives 20.16 —
+     1.8px per two-line card, which by the sixth card had pushed CONTACT
+     10.8px below the frame's y. Pinned so the card heights come out on
+     the frame's own 231 / 251 / 271. */
+  .project-name {
+    font-size: 16px;
+    line-height: 20px;
+  }
+
+  /* The frame hand-breaks every multi-word project title — always after
+     the colon, then again where the designer wanted it — and the card
+     heights follow from it (231 / 251 / 271 for one, two and three
+     lines). No column width reproduces those breaks: the frame needs
+     "Increasing interactions" (173.7px here) to fit on one line while
+     "Mercedes Aura: In-car" (168.9px) must not, so any max-width that
+     keeps MOME ULP at two lines also keeps Mercedes at one. Same
+     situation as the hero meta columns, and the same fix: the segments
+     are marked in the markup and become their own line only here.
+     Inline above 600px, so the desktop title is one unbroken string. */
+  .project-name .name-line { display: block; }
+  .project-year,
+  .project-tags { font-size: 12px; }
+
+  /* The arrow badge is drawn resting-visible in the mobile frame, and it
+     has to be: it is revealed on hover on desktop, and a touch device has
+     no hover to reveal it with.
+
+     Sizing it needs care, because the frame's 39.844px "Project Link
+     Container" is NOT the badge — it is a transparent positioning box.
+     The badge is the 28.569px arrow asset sitting at 5.64px inside it,
+     and that asset carries its own dark circle. So the visible circle is
+     28.569px, inset 5.64px from the image's top edge and 5.82px from its
+     right (286.97 + 5.64 + 28.569 = 321.18, against the image's 327).
+     Drawn at the container's 39.844px and flush into the corner instead,
+     our CSS-composed circle was both too big and poking out past the
+     image's own 8px corner radius.
+
+     The glyph is 8.162px, not the asset's full 28.569px, because the two
+     SVGs are built differently: the frame's arrow is inset inside its
+     circle, while the shared assets/images/icons/arrow-up-right.svg is
+     the bare arrow filling its whole viewBox edge-to-edge. Rendering that
+     one at 28.569px scaled its 2.413/14.478 stroke to ~4.8px — the fat
+     arrow — where the frame's is 1.36px. At 8.162px (the frame's own
+     stroke-inclusive glyph extent) the stroke comes out at 2.413 x
+     8.162/14.478 = 1.360px, i.e. exactly the frame's weight, and the
+     glyph-to-circle ratio lands on 28.6% — the same proportion the
+     desktop badge already uses (15/50.7 = 29.6%). */
+  .project-link-icon {
+    top: 5.64px;
+    right: 5.82px;
+    width: 28.569px;
+    height: 28.569px;
+    opacity: 1;
+  }
+
+  .project-link-icon img {
+    width: 8.162px;
+    height: 8.162px;
+  }
+
+  /* ----- CONTACT -----
+     The four methods stop being stacked tiles and become rows: a square
+     cream tile beside its copy. 156 + 16 + 155 = the 327px column. */
+  .contact-info {
+    /* One per row. Without this the tablet tier's 2-column rule stands and
+       each method gets a 154.6px half-column, which the new side-by-side
+       row then divides again — a 69px tile beside a 69px ribbon of copy. */
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .contact-method {
+    flex-direction: row;
+    /* The frame top-aligns the copy with the tile — every one of the four
+       blocks starts its first line level with the tile's top edge, and
+       none of them is tall enough to reach the bottom. Centring instead
+       pushed the 3- and 4-line blocks up to 30px down their row. */
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .contact-icon {
+    /* Shrinkable rather than `flex: 0 0 156px`: at 320px the content
+       column is only 272px, and a hard basis would push the row wider
+       than the screen instead of letting tile and copy narrow together.
+       min-width: 0 for the usual reason — without it the flex default of
+       min-width: auto gives the tile a floor and dumps the whole shrink
+       deficit onto the copy beside it. */
+    flex: 0 1 156px;
+    min-width: 0;
+    max-width: none;
+    align-self: auto;
+  }
+
+  /* 39px in a 156px tile = 25%, against the desktop's 23.36% of 274px.
+     Capped so the icon never exceeds the design's own size. */
+  .contact-icon img {
+    height: 25%;
+    max-height: 39px;
+  }
+
+  .contact-text {
+    flex: 1 1 155px;
+    min-width: 0;
+    font-size: 16px;
+    /* The desktop's `balance` is right for one short sentence in a 274px
+       column; in the frame's 155px one it is actively wrong. The frame
+       wraps these greedily — checked line by line against its render,
+       the LinkedIn and Instagram blocks match a plain wrap word for word
+       — and balance re-flowed them, turning the mail block's four lines
+       into five and the resume block's four into three. */
+    text-wrap: wrap;
+  }
+
+  /* Same idea as .name-line: the resume block is hand-broken in the frame
+     (four lines, none wider than 126px in a 155px column, so nothing
+     about the width explains it) and a plain wrap gives three. The other
+     three blocks wrap naturally onto the frame's own lines and are left
+     alone — see the audit note about the mail block, whose second line
+     only fits in Figma because that one text layer carries tracking the
+     other three do not. */
+  .contact-text .copy-line { display: block; }
 }

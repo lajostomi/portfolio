@@ -4,6 +4,10 @@ Static HTML/CSS/JS portfolio, built page-by-page from Figma designs. No build st
 
 Figma file: https://www.figma.com/design/BYzOswHghAAaQSCUNqVSwp/Portfolio_website?node-id=45-81
 
+> **Working below 600px?** Read [MOBILE-FACELIFT.md](MOBILE-FACELIFT.md) first. The mobile view is
+> not this layout shrunk — every page below that breakpoint is implemented from its own 375px Figma
+> frame, with its own design system, class vocabulary and content rules.
+
 ## Structure
 
 ```
