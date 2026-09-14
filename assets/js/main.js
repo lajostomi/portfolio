@@ -367,6 +367,195 @@
       document.fonts.ready.then(updateFooterHeight);
     }
   }
+
+  /* ---------- Auto-hide the sticky bars by scroll direction ----------
+     Both persistent bars — the header at the top, the CLOSE / NEXT PROJECT
+     pills at the bottom — slide away while the reader is moving down the
+     page and come back the moment they scroll up. On a project page the two
+     together hold a fifth of a desktop viewport and a third of a phone's,
+     permanently, over content that is mostly full-bleed imagery; getting
+     them out of the way while someone is reading forward is the point, and
+     scrolling up is a reliable signal that they want navigation again.
+
+     The bars are moved with a class (CSS owns the transform and the
+     easing), so this stays a state machine and nothing here touches style.
+
+     Deliberate rules, each one earning its place:
+
+       - A 6px dead zone. Trackpad and touch scrolling produce constant
+         1-2px direction reversals; without a threshold the bars flicker
+         on and off around every one of them.
+       - Always visible in the top zone. Above one header height there is
+         no content hidden behind the header anyway, and a page that opens
+         with its own navigation missing looks broken.
+       - Always visible at the end of the document. The footer is a real
+         sticky footer: at the bottom of the scroll it unsticks and becomes
+         the last thing on the page. Hiding it there would hide actual page
+         content, not an overlay.
+       - Keyboard focus wins over scroll. Tabbing into a hidden bar (its
+         links stay in the tab order) brings it back, and a bar holding
+         keyboard focus is not parked while the reader scrolls, so a focus
+         ring never ends up off-screen. It has to be KEYBOARD focus
+         specifically: clicking a link leaves it focused too, and on a
+         plain activeElement test that one click would pin its bar open
+         for the rest of the session.
+       - The open mobile nav pins the header. The overlay lives inside the
+         header; sliding its container away mid-menu would take the menu
+         with it.
+       - A bar that is not stuck to a viewport edge is left alone entirely
+         (isHidable below).
+       - Reduced motion opts out entirely (see style.css for the matching
+         CSS guard) — see the note there for why disabling beats snapping.
+
+     Reads are batched into a rAF callback so a fast scroll does layout
+     work once per frame rather than once per event. */
+  const autoHideBars = [siteHeader, projectFooter].filter(Boolean);
+
+  if (autoHideBars.length) {
+    const DEAD_ZONE = 6;
+    /* How close to the document's end counts as "at the bottom". Roughly a
+       pill's height: enough that the last scroll tick before the true end
+       does not flash the footer away and straight back. */
+    const BOTTOM_ZONE = 64;
+
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const isHidable = (bar) => {
+      /* Only a bar pinned to a viewport edge may be translated. Anything
+         still in the flow scrolls away by itself, and moving it would drag
+         real page content around — which is the 404 page's footer, where
+         this markup is reused without project.css's sticky positioning. */
+      const position = window.getComputedStyle(bar).position;
+      return position === 'sticky' || position === 'fixed';
+    };
+
+    /* Which input device put focus where it is. This is the same question
+       :focus-visible answers, tracked by hand instead: the pseudo-class is
+       a heuristic the browser will not let script observe reliably, and
+       this rule needs a definite answer. Set by the keys that move focus
+       or scroll (Tab, the arrows, Page/Home/End, Space), cleared by any
+       pointer press — a click is the case that must NOT count as keyboard
+       focus. Listening on the capture phase so it is already up to date by
+       the time the focusin and scroll handlers below read it. */
+    let keyboardNavigating = false;
+    const NAV_KEYS = /^(Tab|Arrow|Page|Home|End| )/;
+
+    document.addEventListener('keydown', (event) => {
+      if (NAV_KEYS.test(event.key)) keyboardNavigating = true;
+    }, true);
+
+    document.addEventListener('pointerdown', () => {
+      keyboardNavigating = false;
+    }, true);
+
+    const hasKeyboardFocus = (bar) =>
+      keyboardNavigating && bar.contains(document.activeElement);
+
+    const setHidden = (bar, hidden) => {
+      bar.classList.toggle('is-hidden', hidden);
+    };
+
+    const showAll = () => autoHideBars.forEach((bar) => setHidden(bar, false));
+
+    const update = () => {
+      ticking = false;
+
+      const y = Math.max(0, window.scrollY);
+      const delta = y - lastY;
+
+      if (Math.abs(delta) < DEAD_ZONE) return;
+      lastY = y;
+
+      if (reduceMotion.matches || (navMenu && navMenu.classList.contains('is-open'))) {
+        showAll();
+        return;
+      }
+
+      const scrollingDown = delta > 0;
+      const headerHeight = siteHeader ? siteHeader.getBoundingClientRect().height : 0;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const atBottom = maxScroll - y <= BOTTOM_ZONE;
+
+      autoHideBars.forEach((bar) => {
+        if (!isHidable(bar)) {
+          setHidden(bar, false);
+          return;
+        }
+
+        /* The bar holding keyboard focus stays put whichever way the page
+           is moving — including the case where the scroll was *caused* by
+           focusing it. */
+        if (hasKeyboardFocus(bar)) {
+          setHidden(bar, false);
+          return;
+        }
+
+        if (bar === projectFooter && atBottom) {
+          setHidden(bar, false);
+          return;
+        }
+
+        if (bar === siteHeader && y <= headerHeight) {
+          setHidden(bar, false);
+          return;
+        }
+
+        setHidden(bar, scrollingDown);
+      });
+    };
+
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }, { passive: true });
+
+    /* Focus moving into a parked bar (Tab from the page body reaches the
+       footer pills, Shift+Tab reaches the header links) brings it back
+       immediately rather than at the next scroll tick. */
+    document.addEventListener('focusin', (event) => {
+      /* Any focusin, not just a keyboard one: focus landing inside a bar
+         is always a reason to show it, and on a mouse click the bar was
+         visible anyway, so this costs nothing. Only the *holding* rule
+         above has to distinguish the two. */
+      autoHideBars.forEach((bar) => {
+        if (bar.contains(event.target)) setHidden(bar, false);
+      });
+    });
+
+    /* The mobile nav overlay is a fixed, viewport-filling element INSIDE
+       the header, so while it is open the header must be both shown and
+       free of any transform — see .site-header.is-nav-open in style.css for
+       what goes wrong otherwise and why the class exists.
+
+       Driven off a MutationObserver rather than off the toggle button's
+       click, because the button is only one of the ways .is-open changes:
+       every link in the menu closes it too, and anything added later would
+       have to remember to call this. Watching the class itself cannot fall
+       out of step. */
+    if (navMenu && siteHeader && window.MutationObserver) {
+      const syncNavOpen = () => {
+        const open = navMenu.classList.contains('is-open');
+        siteHeader.classList.toggle('is-nav-open', open);
+        if (open) showAll();
+      };
+
+      new MutationObserver(syncNavOpen).observe(navMenu, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+
+      syncNavOpen();
+    }
+
+    /* A resize can turn a sticky bar static (or back), which would strand a
+       translated element. Cheapest correct answer: show everything and let
+       the next scroll re-decide. */
+    window.addEventListener('resize', showAll);
+    if (reduceMotion.addEventListener) reduceMotion.addEventListener('change', showAll);
+  }
+
   /* ---------- CLOSE pill: carousel vs. WORK grid vs. the exact card ----------
      The header added to these pages also links to index.html#work, but
      it carries .nav-link, so it cannot be picked up by this
