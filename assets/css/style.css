@@ -316,6 +316,46 @@ section {
   transform: translateY(-100%);
 }
 
+/* The header while the mobile nav overlay is open. Both declarations are
+   load-bearing, and `transition: none` is the less obvious one.
+
+   .nav-menu is position:fixed with inset:0 to fill the viewport, and it
+   lives inside the header — so the header must have NO transform for the
+   whole time the menu is open, identity included, or it becomes the
+   overlay's containing block and the menu collapses to the header's own
+   box (measured at 375px: 375x58 at top -58, instead of 375x812).
+
+   Dropping .is-hidden is not enough on its own: the transform then ANIMATES
+   back to none over 0.35s, and for every one of those 350ms it is still a
+   transform — the menu opens inside a header-sized box and grows out of it.
+   Killing the transition is what makes the header's transform none in the
+   same style recalculation, with no frame in between.
+
+   Written twice, deliberately, and as two SEPARATE rules rather than one
+   grouped selector list. An unsupported pseudo-class does not just drop its
+   own selector — it invalidates the entire list it appears in, which would
+   take the scripted fallback down with it in exactly the browsers the
+   fallback exists for. */
+
+/* Preferred: no script involved, and it applies in the very style
+   recalculation that adds .is-open, so there is no ordering to get wrong. */
+.site-header:has(.nav-menu.is-open) {
+  transform: none;
+  transition: none;
+}
+
+/* Fallback for browsers without :has() (pre-121 Firefox, pre-105 Chrome).
+   main.js keeps .is-nav-open in step with .is-open through a
+   MutationObserver — a microtask, so it lands before the next paint and is
+   never visibly late, but late enough that it should not be the only
+   mechanism. The two rules always agree, so it does not matter which wins.
+   The second selector exists only to outrank .site-header.is-hidden. */
+.site-header.is-nav-open,
+.site-header.is-nav-open.is-hidden {
+  transform: none;
+  transition: none;
+}
+
 /* Reduced motion opts out of the auto-hide entirely, rather than making it
    snap: bars flicking in and out on every change of scroll direction is the
    motion this setting exists to spare people, and both bars are navigation —

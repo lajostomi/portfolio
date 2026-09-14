@@ -1623,41 +1623,32 @@
     min-width: 24px;
   }
 }
-/* ---------- Project pages: header stops sticking below 768px ----------
-   Documented component-specific exception to the shared 900/600 set (see
-   BREAKPOINTS at the top of style.css), and the one place the site needs
-   a third number.
-
-   Project pages are the only pages carrying BOTH a sticky header and a
-   sticky footer, so they are the only pages where the two can close in on
-   the content together. Measured against an 844px phone viewport:
+/* ---------- Project pages: the header sticks at every width ----------
+   This used to be a documented exception: below 768px .project-page
+   .site-header was forced to `position: static`, so it scrolled away with
+   the content instead of sticking. The reason was crowding — project pages
+   are the only pages carrying BOTH a sticky header and a sticky footer, and
+   measured against an 844px phone viewport the pair held:
 
      <=430px   header 72 + footer 205 = 33% of the viewport
      ~480-700  header 72 + footer 147 = 26%
      >=767px   header 72-89 + footer 90 = 19%
 
-   The step is the footer wrapping its three pills onto extra lines, which
-   stops just under 768px — so that is where the crowding actually ends,
-   not at 900 or 600. Below it the header scrolls away normally instead of
-   holding a third of a phone screen hostage; the sticky footer keeps BACK
-   TO WORK / CONTACT / NEXT PROJECT reachable throughout, so nothing
-   becomes unreachable. The header is not removed — it is still the first
-   thing on the page, with the logo and full nav.
-   ---------------------------------------------------------------- */
-@media (max-width: 767px) {
-  .project-page .site-header {
-    position: static;
-  }
+   A third of a phone screen, permanently, was not a price worth paying for
+   navigation nobody was using mid-page — hence the override.
 
-  /* ...which also means there is nothing for the scroll-direction auto-hide
-     to do here: a static header is already gone by the time you have
-     scrolled anywhere. Translating it would just drag a normal in-flow
-     element around. (main.js skips a non-sticky header for the same reason;
-     this is the CSS-side belt to that braces.) */
-  .project-page .site-header.is-hidden {
-    transform: none;
-  }
-}
+   The scroll-direction auto-hide (see style.css and main.js) answers that
+   complaint directly and at every width: both bars are gone while you read
+   forward and both come back when you scroll up, so neither holds any of
+   the viewport except in the moment you have asked for it. That leaves the
+   override doing nothing but harm — a static header cannot come back on
+   scroll up, so on a phone a project page was the one place where scrolling
+   up did not return the nav, while index and about (sticky at every width)
+   did. Removing it makes the behaviour identical across all eight pages.
+
+   The numbers above are kept because they still describe the worst case,
+   which is now only reached while the reader is scrolling up.
+   ---------------------------------------------------------------- */
 /* MOME ULP: Home/Resources/Contacts row (.ia-row) stacks only once it
    genuinely cannot hold three boxes side by side.
 

@@ -402,6 +402,8 @@
        - The open mobile nav pins the header. The overlay lives inside the
          header; sliding its container away mid-menu would take the menu
          with it.
+       - A bar that is not stuck to a viewport edge is left alone entirely
+         (isHidable below).
        - Reduced motion opts out entirely (see style.css for the matching
          CSS guard) — see the note there for why disabling beats snapping.
 
@@ -420,9 +422,10 @@
     let ticking = false;
 
     const isHidable = (bar) => {
-      /* A static header (project pages below 767px) scrolls out of view by
-         itself — see project.css. Anything not stuck to an edge is in the
-         flow and must not be translated. */
+      /* Only a bar pinned to a viewport edge may be translated. Anything
+         still in the flow scrolls away by itself, and moving it would drag
+         real page content around — which is the 404 page's footer, where
+         this markup is reused without project.css's sticky positioning. */
       const position = window.getComputedStyle(bar).position;
       return position === 'sticky' || position === 'fixed';
     };
@@ -521,11 +524,34 @@
       });
     });
 
-    /* The mobile nav opens inside the header, so the header cannot be
-       away while it is open; and a resize can turn a sticky bar static
-       (or back), which would strand a translated element. Cheapest correct
-       answer to both: show everything and let the next scroll re-decide. */
-    if (navToggle) navToggle.addEventListener('click', showAll);
+    /* The mobile nav overlay is a fixed, viewport-filling element INSIDE
+       the header, so while it is open the header must be both shown and
+       free of any transform — see .site-header.is-nav-open in style.css for
+       what goes wrong otherwise and why the class exists.
+
+       Driven off a MutationObserver rather than off the toggle button's
+       click, because the button is only one of the ways .is-open changes:
+       every link in the menu closes it too, and anything added later would
+       have to remember to call this. Watching the class itself cannot fall
+       out of step. */
+    if (navMenu && siteHeader && window.MutationObserver) {
+      const syncNavOpen = () => {
+        const open = navMenu.classList.contains('is-open');
+        siteHeader.classList.toggle('is-nav-open', open);
+        if (open) showAll();
+      };
+
+      new MutationObserver(syncNavOpen).observe(navMenu, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+
+      syncNavOpen();
+    }
+
+    /* A resize can turn a sticky bar static (or back), which would strand a
+       translated element. Cheapest correct answer: show everything and let
+       the next scroll re-decide. */
     window.addEventListener('resize', showAll);
     if (reduceMotion.addEventListener) reduceMotion.addEventListener('change', showAll);
   }
