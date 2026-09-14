@@ -874,6 +874,32 @@
   padding-block: 24px;
   pointer-events: none;
   isolation: isolate;
+
+  /* Auto-hide on scroll down (main.js adds/removes .is-hidden). Opacity is
+     transitioned alongside the transform because of ::before: the scrim is
+     anchored 64px ABOVE the pills, so translating the footer down by its
+     own height still leaves the top of that gradient sitting in the
+     viewport. Fading the whole element takes the scrim with it. */
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.project-footer.is-hidden {
+  /* Past its own height by the scrim's, so the gradient clears the bottom
+     edge too rather than hanging there at a low opacity mid-fade. */
+  transform: translateY(calc(100% + var(--footer-scrim, 64px)));
+  opacity: 0;
+}
+
+/* Reduced motion opts out of the auto-hide entirely — see the matching
+   header rule and the reasoning in style.css. It has to be repeated here
+   rather than written once beside that one: this file loads last, so a
+   same-specificity .project-footer.is-hidden here overrides anything
+   style.css says about the footer, media query or not. */
+@media (prefers-reduced-motion: reduce) {
+  .project-footer.is-hidden {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 .project-footer > * { pointer-events: auto; }
@@ -1621,6 +1647,15 @@
 @media (max-width: 767px) {
   .project-page .site-header {
     position: static;
+  }
+
+  /* ...which also means there is nothing for the scroll-direction auto-hide
+     to do here: a static header is already gone by the time you have
+     scrolled anywhere. Translating it would just drag a normal in-flow
+     element around. (main.js skips a non-sticky header for the same reason;
+     this is the CSS-side belt to that braces.) */
+  .project-page .site-header.is-hidden {
+    transform: none;
   }
 }
 /* MOME ULP: Home/Resources/Contacts row (.ia-row) stacks only once it

@@ -133,6 +133,13 @@ body {
   .spin-arrow {
     animation: none;
   }
+
+  /* The scroll-direction auto-hide also honours this setting, but its rules
+     are NOT here — see .site-header.is-hidden below and
+     .project-footer.is-hidden in project.css. Both guards have to sit
+     immediately after the rule they undo, because a media query adds no
+     specificity of its own: written up here they would tie with the hiding
+     rules and lose to them on source order. */
 }
 
 img { max-width: 100%; display: block; }
@@ -290,6 +297,40 @@ section {
      the menu (and still clickable through it). */
   z-index: 40;
   background: var(--color-bg);
+
+  /* Auto-hide on scroll down (main.js adds/removes .is-hidden). Only the
+     transition is declared here, NOT a `transform: translateY(0)` resting
+     state: a transform of any kind — identity included — makes this element
+     the containing block for `position: fixed` descendants, and the mobile
+     .nav-menu overlay is exactly that (inset:0, meant to fill the viewport).
+     Transitioning from `none` to a translate animates just the same, so a
+     visible header keeps `transform: none` and the overlay keeps resolving
+     against the viewport. */
+  transition: transform 0.35s ease;
+}
+
+/* Scrolled out of the way, upwards. The header's background is opaque and
+   full-bleed, so translating it by its own height clears it completely —
+   no fade needed, and the content underneath is untouched. */
+.site-header.is-hidden {
+  transform: translateY(-100%);
+}
+
+/* Reduced motion opts out of the auto-hide entirely, rather than making it
+   snap: bars flicking in and out on every change of scroll direction is the
+   motion this setting exists to spare people, and both bars are navigation —
+   leaving them permanently visible is the safe failure. main.js never adds
+   .is-hidden in this mode either; this is the CSS-side guarantee for a user
+   who turns the setting on mid-scroll with a bar already tucked away.
+
+   Placement is load-bearing: this must follow the rule above, since the two
+   have identical specificity (a media query contributes none) and source
+   order is all that separates them. Same reason project.css carries the
+   footer's copy instead of it being written alongside this one. */
+@media (prefers-reduced-motion: reduce) {
+  .site-header.is-hidden {
+    transform: none;
+  }
 }
 
 /* Anchor-jump targets that land directly under the sticky header (WORK,
