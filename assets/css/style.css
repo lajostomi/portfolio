@@ -608,6 +608,70 @@ section {
   50% { transform: translateY(6px); }
 }
 
+/* The arrow becomes a loading icon once SPIN has landed and the project
+   is opening (main.js puts .is-opening on .spin-info for the 3s before
+   the page changes, and takes it off if that is cancelled). The two
+   icons share one grid cell, and both are in the markup from the start,
+   so the loader is already downloaded by the time it is needed. */
+.spin-arrow {
+  display: grid;
+}
+
+.spin-arrow > img {
+  grid-area: 1 / 1;
+}
+
+.spin-arrow-down {
+  transition: opacity 0.25s ease, translate 0.25s ease;
+}
+
+.spin-arrow-loading {
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 0.3s ease 0.1s,
+    scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
+}
+
+/* The bob is paused, not removed: removing it would snap the arrow up by
+   however far into its 6px dip it happened to be. Paused, the loader
+   simply appears where the arrow was. */
+.spin-info.is-opening .spin-arrow {
+  animation-play-state: paused;
+}
+
+/* The arrow leaves the way it was already moving — down — as it fades. */
+.spin-info.is-opening .spin-arrow-down {
+  opacity: 0;
+  translate: 0 6px;
+}
+
+/* A half-turn per second, easing in and out of each one. The icon is
+   symmetric under a half-turn, so every cycle ends where it started and
+   the result reads as one continuous motion with a gentle pulse in it —
+   at exactly twice the tempo of the arrow's 2s bob. `rotate` rather than
+   `transform`, so it composes with the `scale` above instead of
+   replacing it mid-entrance. */
+@keyframes spin-loading {
+  from { rotate: 0deg; }
+  to { rotate: 180deg; }
+}
+
+.spin-info.is-opening .spin-arrow-loading {
+  opacity: 1;
+  scale: 1;
+  animation: spin-loading 1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Reduced motion: the loader still replaces the arrow — it is how the
+   page says "opening" — but it does not turn. Written right after the
+   rule it undoes: equal specificity, so only source order decides. */
+@media (prefers-reduced-motion: reduce) {
+  .spin-info.is-opening .spin-arrow-loading {
+    animation: none;
+  }
+}
+
 /* The container bleeds edge-to-edge so there's always dead space around
    the design-width stage for a rotated card's corners to swing into
    before the true clip boundary — the stage below keeps the original

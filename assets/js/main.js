@@ -976,7 +976,15 @@
     let openTimer = null;
     let openPrerender = null;
 
+    // The arrow under SPIN turns into a loading icon while the landed
+    // project is opening (style.css, .is-opening).
+    const spinInfo = spinTrigger.closest('.spin-info');
+
     function clearPendingOpen() {
+      // Before the early return below: after the timer has fired (so
+      // openTimer is null) this still runs on a back/forward-cache restore,
+      // and the page must not come back showing the loader.
+      if (spinInfo) spinInfo.classList.remove('is-opening');
       // Dropping the rule also discards the prerendered page.
       if (openPrerender) { openPrerender.remove(); openPrerender = null; }
       if (!openTimer) return;
@@ -987,6 +995,7 @@
     function land(frontCard) {
       const name = frontCard.dataset.name || frontCard.dataset.slug;
       if (spinSubtitle) spinSubtitle.textContent = 'opening ' + name + '…';
+      if (spinInfo) spinInfo.classList.add('is-opening');
       rememberRotation(currentRotation);
 
       // OPEN_DELAY is 3s of guaranteed idle time before a known navigation:
