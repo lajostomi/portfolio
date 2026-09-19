@@ -77,6 +77,34 @@
 
   --radius-lg: 16px;
   --radius-pill: 999px;
+
+  /* The display size shared by the four big page words — SPIN, WORK,
+     CONTACT, ABOUT (and the 404's "404"). They read as one family and the
+     design draws them at one size, so they take one value. They used to
+     have two rules that only agreed on wide screens and on phones: SPIN
+     was clamp(56px, 12vw, 128px) and the section titles clamp(48px, 9vw,
+     128px), i.e. 108 against 92 at 1024px wide, 92 against 69 at 768. And
+     once SPIN started shrinking to fit a short window (see the SPIN hero
+     block), it was 100 against 128 at 1515x730. SPIN's rule is the one
+     kept, so SPIN is unchanged everywhere; the section titles follow it. */
+  --display-size: clamp(56px, 12vw, 128px);
+}
+
+/* From 601px up, the display size also shrinks to fit a short window,
+   together with the rest of the SPIN hero. --fit-u is "one design pixel"
+   at the current scale:
+     (window height - header) / 818   clamped to 0.7px ... 1px
+   818 is the SPIN hero's natural height (measured, section top to wheel
+   bottom), so the hero's design values times --fit-u add up to exactly
+   the space below the header. It is defined here, not on the hero, so the
+   section titles on every page scale by the same factor as SPIN. Below
+   601px the phone layout has its own measured sizes and phones are tall
+   enough that nothing needs fitting. */
+@media (min-width: 601px) {
+  :root {
+    --fit-u: clamp(0.7px, (100svh - var(--header-height, 88px)) / 818, 1px);
+    --display-size: min(clamp(56px, 12vw, 128px), 128 * var(--fit-u));
+  }
 }
 
 * { box-sizing: border-box; }
@@ -216,7 +244,7 @@ section {
 
 .section-title {
   font-weight: 500;
-  font-size: clamp(48px, 9vw, 128px);
+  font-size: var(--display-size);
   color: var(--color-white);
   margin: 0;
   line-height: 1;
@@ -505,7 +533,7 @@ section {
 
    .spin-section's own 32px gap already carries this on to the wheel. */
 .spin-info {
-  --spin-size: clamp(56px, 12vw, 128px);
+  --spin-size: var(--display-size);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -578,6 +606,70 @@ section {
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(6px); }
+}
+
+/* The arrow becomes a loading icon once SPIN has landed and the project
+   is opening (main.js puts .is-opening on .spin-info for the 3s before
+   the page changes, and takes it off if that is cancelled). The two
+   icons share one grid cell, and both are in the markup from the start,
+   so the loader is already downloaded by the time it is needed. */
+.spin-arrow {
+  display: grid;
+}
+
+.spin-arrow > img {
+  grid-area: 1 / 1;
+}
+
+.spin-arrow-down {
+  transition: opacity 0.25s ease, translate 0.25s ease;
+}
+
+.spin-arrow-loading {
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 0.3s ease 0.1s,
+    scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
+}
+
+/* The bob is paused, not removed: removing it would snap the arrow up by
+   however far into its 6px dip it happened to be. Paused, the loader
+   simply appears where the arrow was. */
+.spin-info.is-opening .spin-arrow {
+  animation-play-state: paused;
+}
+
+/* The arrow leaves the way it was already moving — down — as it fades. */
+.spin-info.is-opening .spin-arrow-down {
+  opacity: 0;
+  translate: 0 6px;
+}
+
+/* A half-turn per second, easing in and out of each one. The icon is
+   symmetric under a half-turn, so every cycle ends where it started and
+   the result reads as one continuous motion with a gentle pulse in it —
+   at exactly twice the tempo of the arrow's 2s bob. `rotate` rather than
+   `transform`, so it composes with the `scale` above instead of
+   replacing it mid-entrance. */
+@keyframes spin-loading {
+  from { rotate: 0deg; }
+  to { rotate: 180deg; }
+}
+
+.spin-info.is-opening .spin-arrow-loading {
+  opacity: 1;
+  scale: 1;
+  animation: spin-loading 1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Reduced motion: the loader still replaces the arrow — it is how the
+   page says "opening" — but it does not turn. Written right after the
+   rule it undoes: equal specificity, so only source order decides. */
+@media (prefers-reduced-motion: reduce) {
+  .spin-info.is-opening .spin-arrow-loading {
+    animation: none;
+  }
 }
 
 /* The container bleeds edge-to-edge so there's always dead space around
@@ -704,11 +796,13 @@ section {
    applied to the hero alone — the header and every section below keep
    their designed sizes, so body copy never gets small.
 
-   --hero-u is "one design pixel" at the current scale:
+   --fit-u (defined on :root, next to --display-size) is "one design
+   pixel" at the current scale:
      (window height - header) / 818   clamped to 0.7px ... 1px
    818 is the hero's natural height (measured, section top to wheel
-   bottom), so every design value times --hero-u adds up to exactly the
-   space below the header. It never grows past 1px (tall windows get the
+   bottom), so every design value times --fit-u adds up to exactly the
+   space below the header. SPIN's own size is --display-size, which
+   applies the same factor and is shared with WORK, CONTACT and ABOUT. It never grows past 1px (tall windows get the
    design untouched) and never shrinks below 0.7px (a very short window
    scrolls rather than reducing the hero to a thumbnail). svh, not vh or
    dvh: the smallest viewport height is stable while a mobile URL bar
@@ -723,22 +817,20 @@ section {
    enough that it already fits. */
 @media (min-width: 601px) {
   .spin-section {
-    --hero-u: clamp(0.7px, (100svh - var(--header-height, 88px)) / 818, 1px);
-    padding-top: min(clamp(24px, 4vw, 40px), 40 * var(--hero-u));
-    gap: calc(32 * var(--hero-u));
+    padding-top: min(clamp(24px, 4vw, 40px), 40 * var(--fit-u));
+    gap: calc(32 * var(--fit-u));
   }
 
   .spin-info {
-    --spin-size: min(clamp(56px, 12vw, 128px), 128 * var(--hero-u));
-    gap: calc(32 * var(--hero-u));
+    gap: calc(32 * var(--fit-u));
   }
 
   .spin-subtitle {
-    font-size: calc(20 * var(--hero-u));
+    font-size: calc(20 * var(--fit-u));
   }
 
   .spin-arrow img {
-    width: calc(24 * var(--hero-u));
+    width: calc(24 * var(--fit-u));
     height: auto;
   }
 
@@ -746,7 +838,7 @@ section {
      recomputes their corner radius and swing headroom from the stage's
      real width on every resize), so a narrower stage is all it needs. */
   .wheel-stage {
-    max-width: min(var(--container-max), 1194 * var(--hero-u));
+    max-width: min(var(--container-max), 1194 * var(--fit-u));
   }
 }
 
@@ -1222,10 +1314,7 @@ section {
   .wheel-stage { max-width: 310.156px; }
 
 
-  /* ----- section headings -----
-     56px, matching SPIN, rather than the 48px floor of the desktop
-     clamp(48px, 9vw, 128px) — at 375px that clamp bottoms out and would
-     otherwise leave WORK/CONTACT smaller than the design draws them. */
+  /* ----- section headings ----- */
   /* line-height goes back to `normal` here, resolving the open question
      the mobile brief left on this rule. The desktop `line-height: 1` is
      what made every frame position below a section title read ~14px low
@@ -1238,7 +1327,9 @@ section {
      and nothing to compensate for further down any of the three pages
      that use this class (index, about, 404). */
   .section-title {
-    font-size: 56px;
+    /* font-size is --display-size, as on desktop: 56px at 375px (the frame's
+       size, SPIN's clamp floor), and it keeps matching SPIN up to 600px,
+       where the old flat 56px let SPIN grow to 72px beside it. */
     line-height: normal;
   }
 
