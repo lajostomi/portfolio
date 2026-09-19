@@ -689,6 +689,67 @@ section {
   z-index: 1001;
 }
 
+/* ---------- The SPIN hero fits the window's height ----------
+   Everything above is sized by the window's WIDTH, so the hero's height
+   was fixed at 818px from the header to the bottom of the wheel once the
+   window is wider than ~1200px — however short the window is. Any window
+   under ~907px tall cut the wheel off at the fold: 177px of it on a
+   1515x730 viewport (a 1920x1080 laptop at 125% display scaling), 135px
+   at 1366x768, 182px at 1280x720. The side cards were sliced by the
+   bottom of the screen and the hero read as cropped rather than framed.
+
+   So the whole hero now shrinks together, by one factor, until it fits:
+   SPIN, subtitle, arrow, the gaps between them and the wheel. That is the
+   look of the page at 75% browser zoom, which is what prompted this, but
+   applied to the hero alone — the header and every section below keep
+   their designed sizes, so body copy never gets small.
+
+   --hero-u is "one design pixel" at the current scale:
+     (window height - header) / 818   clamped to 0.7px ... 1px
+   818 is the hero's natural height (measured, section top to wheel
+   bottom), so every design value times --hero-u adds up to exactly the
+   space below the header. It never grows past 1px (tall windows get the
+   design untouched) and never shrinks below 0.7px (a very short window
+   scrolls rather than reducing the hero to a thumbnail). svh, not vh or
+   dvh: the smallest viewport height is stable while a mobile URL bar
+   slides, so the hero does not resize mid-scroll.
+
+   Each size is min()'d against its existing width-driven value, so a
+   narrow window still gets whichever is smaller. Every ink trim in the
+   rules above is a ratio of its own font-size, so they scale with it.
+
+   From 601px up only: at 600 and below the hero has its own measured
+   phone layout (see the max-width: 600px block), and phones are tall
+   enough that it already fits. */
+@media (min-width: 601px) {
+  .spin-section {
+    --hero-u: clamp(0.7px, (100svh - var(--header-height, 88px)) / 818, 1px);
+    padding-top: min(clamp(24px, 4vw, 40px), 40 * var(--hero-u));
+    gap: calc(32 * var(--hero-u));
+  }
+
+  .spin-info {
+    --spin-size: min(clamp(56px, 12vw, 128px), 128 * var(--hero-u));
+    gap: calc(32 * var(--hero-u));
+  }
+
+  .spin-subtitle {
+    font-size: calc(20 * var(--hero-u));
+  }
+
+  .spin-arrow img {
+    width: calc(24 * var(--hero-u));
+    height: auto;
+  }
+
+  /* The wheel is proportional (cards are 25.7% of the stage, and main.js
+     recomputes their corner radius and swing headroom from the stage's
+     real width on every resize), so a narrower stage is all it needs. */
+  .wheel-stage {
+    max-width: min(var(--container-max), 1194 * var(--hero-u));
+  }
+}
+
 /* =========================
    WORK section
    ========================= */
