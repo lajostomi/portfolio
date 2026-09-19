@@ -209,3 +209,16 @@ npx serve .
 ```
 
 Or use the Claude Code Browser pane's `preview_start` with the `portfolio-static` launch config.
+
+## Before committing a CSS or JS change
+
+```bash
+node tools/version-assets.mjs
+```
+
+Every page links its CSS and JS with a content fingerprint (`style.css?v=2bfe2efa`). GitHub Pages
+serves assets with `Cache-Control: max-age=600`, and a normal reload re-fetches the page's HTML but
+reuses CSS/JS fetched in the last 10 minutes, so without the fingerprint a returning visitor gets new
+HTML with old CSS right after a deploy. That broke the SPIN loader on release (both icons showing,
+unstyled, side by side). The script rewrites only the stamps of files that changed.
+`node tools/version-assets.mjs --check` exits non-zero if any stamp is stale.
