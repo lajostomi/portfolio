@@ -594,6 +594,203 @@
     closeLink.href = closeLink.href.replace(/index\.html#work$/, `index.html#work-${slug}`);
   }
 
+  /* CLOSE as "back", when back IS the landing page. Following the link
+     above scrolls #work-<slug> to the top of the screen — the card is in
+     view, but not where the user left it, so the page visibly jumps. When
+     the history entry right behind this one is index.html, going back
+     instead returns to the exact scroll position (usually straight from
+     the back/forward cache), and the page transition still shrinks the
+     hero into the card, since the card is where it was. The href stays
+     the fallback: opened from a shared link, a new tab, or after NEXT
+     PROJECT, "back" would not be the landing page, and the link is used.
+     Needs the Navigation API to see the previous entry; without it (older
+     Safari/Firefox) the link is used as before. Modified clicks (new tab)
+     are left alone. */
+  if (closeLink && window.navigation && navigation.currentEntry) {
+    const pageOf = (url) => url.pathname.replace(/(index)?(\.html)?$/, '');
+
+    closeLink.addEventListener('click', (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const previous = navigation.entries()[navigation.currentEntry.index - 1];
+      if (!previous || !previous.url) return;
+      const prevUrl = new URL(previous.url);
+      const home = new URL(closeLink.href);
+      if (prevUrl.origin !== home.origin || pageOf(prevUrl) !== pageOf(home)) return;
+      event.preventDefault();
+      navigation.back();
+    });
+  }
+
+  /* ---------- Card <-> hero page transition ----------
+     See microinteractions.css for the whole picture. Only one element per
+     page may carry the shared name, `project-hero`, or the browser skips the
+     transition; project pages name .hero-image statically, index.html names
+     a card here, on demand.
+
+     All of this relies on main.js being render-blocking (see the <script>
+     tag in each page's <head>): nothing paints before this file has run, so
+     `pagereveal` cannot fire before its listener exists, and the frame the
+     transition animates into already has the wheel laid out and the page
+     scrolled to its #fragment. Before that, the animation played into a
+     half-built page that then jumped into place. */
+  const HERO_NAME = 'project-hero';
+  const RADIUS_KEY = 'vtRadiusFrom';
+  const slugOf = (url) => url.pathname.split('/').pop().replace(/\.html$/, '');
+
+  /* What morphs is the <img> inside a rounded frame (.hero-image,
+     .project-image, .wheel-card), never the frame itself. A snapshot of the
+     frame would bake its rounded corners into a bitmap that then gets
+     stretched: the hero's 16px corners shrank to ~8px on the way into a
+     card, and the card's real corners snapped back in on the last frame.
+     The img snapshot is square; microinteractions.css rounds the moving
+     box instead and animates its radius from the old frame's to the new
+     one's, both measured here (they differ by breakpoint, and the wheel
+     computes its own). The old page hands its value over in sessionStorage,
+     the only channel the two documents share. */
+  function frameRadius(frame) {
+    return getComputedStyle(frame).borderTopLeftRadius;
+  }
+
+  function name(frame) {
+    const img = frame.querySelector('img');
+    if (!img) return null;
+    img.style.viewTransitionName = HERO_NAME;
+    return img;
+  }
+
+  function clearHeroNames() {
+    document.querySelectorAll('.wheel-card img, .project-image img').forEach((img) => {
+      img.style.viewTransitionName = '';
+      img.style.transition = '';
+      img.style.transform = '';
+    });
+  }
+
+  function handOverRadius(frame) {
+    try { sessionStorage.setItem(RADIUS_KEY, frameRadius(frame)); } catch (e) { /* falls back to the new radius */ }
+  }
+
+  function takeOverRadius(frame) {
+    let from = null;
+    try { from = sessionStorage.getItem(RADIUS_KEY); sessionStorage.removeItem(RADIUS_KEY); } catch (e) { /* ignore */ }
+    const to = frameRadius(frame);
+    const root = document.documentElement.style;
+    root.setProperty('--vt-radius-from', from || to);
+    root.setProperty('--vt-radius-to', to);
+  }
+
+  // index.html only: which frame stands for a given project URL. Arriving,
+  // a wheel card only counts while it sits in the front slot — elsewhere
+  // it may be rotated half out of the stage's clip, and the morph would
+  // draw it unclipped. (The wheel remembers the last project opened from
+  // it, see WHEEL_KEY, so coming back from a SPIN project it IS in front.)
+  // Leaving, the clicked card is on screen wherever it sits.
+  function cardFor(url, requireFront) {
+    if (!document.querySelector('.project-grid')) return null;
+    const slug = slugOf(url);
+    if (url.hash === '#from-spin') {
+      const card = document.querySelector(`.wheel-card[data-slug="${slug}"]`);
+      const inFront = card && Math.abs(parseFloat(card.style.getPropertyValue('--rot')) || 0) < 0.5;
+      if (card && (inFront || !requireFront)) return card;
+    }
+    return document.querySelector(`#work-${slug} .project-image`);
+  }
+
+  // Leaving: name what should morph, just before the browser snapshots.
+  window.addEventListener('pageswap', (event) => {
+    if (!event.viewTransition || !event.activation || !event.activation.entry) return;
+    const target = new URL(event.activation.entry.url);
+
+    const hero = document.querySelector('.hero-image');
+    if (hero) {
+      // Scrolled out of view, the hero would fly in from above the
+      // viewport; unnamed, the destination simply fades in instead.
+      const img = hero.querySelector('img');
+      const visible = hero.getBoundingClientRect().bottom > 0;
+      if (img) img.style.viewTransitionName = visible ? '' : 'none';
+      if (visible) handOverRadius(hero);
+      return;
+    }
+
+    clearHeroNames();
+    if (!/\/projects\//.test(target.pathname)) return;
+    const card = cardFor(target, false);
+    const img = card && name(card);
+    if (!img) return;
+    // A WORK card's image sits scaled to 1.04 under the hovering pointer;
+    // captured like that it would start the morph 4% larger than its frame.
+    img.style.transition = 'none';
+    img.style.transform = 'none';
+    handOverRadius(card);
+  });
+
+  // Arriving: on index.html, name the card the project shrinks back into.
+  window.addEventListener('pagereveal', (event) => {
+    const transition = event.viewTransition;
+    if (!transition) return;
+
+    /* body's page-enter fade (style.css) must not run on a page that
+       arrives through a transition: the transition already cross-fades it,
+       and keying the opt-out on :active-view-transition instead made the
+       fade start from zero the moment the transition ended — a visible
+       pulse right after every morph. A class, set once, stays put. */
+    document.documentElement.classList.add('vt-arrived');
+
+    const hero = document.querySelector('.hero-image');
+    if (hero) { takeOverRadius(hero); return; }
+
+    clearHeroNames();
+    const activation = window.navigation && navigation.activation;
+    const from = activation && activation.from && activation.from.url;
+    if (!from) return;
+    const fromUrl = new URL(from);
+    if (!/\/projects\//.test(fromUrl.pathname)) return;
+
+    const card = cardFor(fromUrl, true);
+    const img = card && name(card);
+    if (!img) return;
+    takeOverRadius(card);
+    transition.finished.finally(() => { img.style.viewTransitionName = ''; });
+  });
+
+  /* ---------- Load project pages before they are opened ----------
+     A transition can only morph into what the next page has ready on its
+     first frame; a hero image still downloading shows up as an empty box
+     that pops in after the animation. Speculation rules have Chrome/Edge
+     prerender a page — images, fonts, scripts and all — while the pointer
+     rests on a link (or presses it, on touch), so by the click it is
+     complete and the transition runs into the finished page. SPIN adds an
+     immediate rule for its result during OPEN_DELAY (see land()).
+     Unsupported browsers ignore all of this and load pages as usual. */
+  const canSpeculate = HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules');
+
+  function addSpeculationRules(rules) {
+    if (!canSpeculate) return null;
+    const script = document.createElement('script');
+    script.type = 'speculationrules';
+    script.textContent = JSON.stringify(rules);
+    document.head.appendChild(script);
+    return script;
+  }
+
+  addSpeculationRules({
+    prerender: [{
+      where: {
+        and: [
+          { href_matches: '/*' },
+          { not: { href_matches: '/*.pdf' } },
+          { not: { selector_matches: 'a[href^="#"]' } },
+        ],
+      },
+      eagerness: 'moderate',
+    }],
+  });
+
+  /* iOS Safari only applies :active on touch when some touch listener
+     exists; without one, the press states in microinteractions.css never
+     show on an iPhone. An empty passive listener is the standard switch. */
+  document.addEventListener('touchstart', () => {}, { passive: true });
+
   /* ---------- SPIN wheel ----------
      A flat wheel: 6 project cards sit 60deg apart around a circle/ellipse
      — six evenly spaced points already read as a hexagon composition
@@ -658,7 +855,22 @@
     const RX = 43; // horizontal radius, in % of the stage's width
     const RY = 95; // vertical radius, in % of the stage's height
 
-    let currentRotation = 0; // accumulated wheel rotation, degrees
+    /* The wheel remembers the last project opened from it (by spinning or
+       by clicking a card), for the rest of the browser session. Coming back
+       then finds that project still in the front slot, which is what lets
+       the page transition shrink its hero back into the card — a wheel
+       reset to Hachi on every return had nothing to land in. */
+    const WHEEL_KEY = 'wheelRotation';
+
+    function rememberRotation(rotation) {
+      try { sessionStorage.setItem(WHEEL_KEY, String(rotation)); } catch (e) { /* storage blocked: wheel just resets */ }
+    }
+
+    function recalledRotation() {
+      try { return Number(sessionStorage.getItem(WHEEL_KEY)) || 0; } catch (e) { return 0; }
+    }
+
+    let currentRotation = recalledRotation(); // accumulated wheel rotation, degrees
     let spinning = false;
 
     function toRad(deg) { return (deg * Math.PI) / 180; }
@@ -689,8 +901,13 @@
       });
     }
 
-    // Initial resting layout (equivalent to rotation = 0).
+    // Initial resting layout: rotation 0, or wherever the wheel was left.
     applyFrame(currentRotation, 0);
+
+    // Clicking a resting card directly counts as opening it from the wheel.
+    cards.forEach((card, i) => {
+      card.addEventListener('click', () => rememberRotation(signedAngle(-baseAngle[i])));
+    });
 
     function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
     function easeOutCubicDerivative(t) { return 3 * Math.pow(1 - t, 2); }
@@ -775,8 +992,11 @@
        it's a safety valve rather than a real affordance. */
     const OPEN_DELAY = 3000; // ms — time to read the result before opening
     let openTimer = null;
+    let openPrerender = null;
 
     function clearPendingOpen() {
+      // Dropping the rule also discards the prerendered page.
+      if (openPrerender) { openPrerender.remove(); openPrerender = null; }
       if (!openTimer) return;
       clearTimeout(openTimer);
       openTimer = null;
@@ -785,6 +1005,13 @@
     function land(frontCard) {
       const name = frontCard.dataset.name || frontCard.dataset.slug;
       if (spinSubtitle) spinSubtitle.textContent = 'opening ' + name + '…';
+      rememberRotation(currentRotation);
+
+      // OPEN_DELAY is 3s of guaranteed idle time before a known navigation:
+      // spend it loading the page, so the morph lands in a finished page.
+      openPrerender = addSpeculationRules({
+        prerender: [{ urls: [frontCard.href], eagerness: 'immediate' }],
+      });
 
       // Not preventScroll: if the wheel is off-screen (the user spun,
       // then scrolled), bringing the landed card into view is the point.
@@ -795,6 +1022,18 @@
         window.location.href = frontCard.href;
       }, OPEN_DELAY);
     }
+
+    /* Back/forward cache: CLOSE now goes *back* to this page when it can
+       (see the CLOSE note above), and the browser restores it exactly as it
+       was left — mid-"opening <project>…", with the timer long since fired.
+       Put the subtitle back to its idle label so it doesn't announce a
+       navigation that already happened. The wheel itself stays where it
+       landed, which is the point: the hero shrinks back into that card. */
+    window.addEventListener('pageshow', function (event) {
+      if (!event.persisted) return;
+      clearPendingOpen();
+      if (spinSubtitle && !spinning) spinSubtitle.textContent = 'land on a random project';
+    });
 
     spinTrigger.addEventListener('click', function () {
       // Spinning again during the delay means "not that one" — drop the
