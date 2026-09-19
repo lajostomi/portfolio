@@ -811,7 +811,20 @@
     }
 
     updateWheelMetrics();
-    window.addEventListener('resize', updateWheelMetrics);
+
+    // Watch the stage itself rather than the window. The stage's width is
+    // no longer a function of the window's width alone: style.css shrinks
+    // the whole SPIN hero to fit the window's HEIGHT, measured below the
+    // header, and --header-height is rewritten once the webfont lands —
+    // which resizes the stage without any resize event, and left the radius
+    // and headroom computed against the pre-font width. A ResizeObserver
+    // catches every cause at once. The resize listener stays as the
+    // fallback for browsers without one.
+    if (window.ResizeObserver && wheelStage) {
+      new ResizeObserver(updateWheelMetrics).observe(wheelStage);
+    } else {
+      window.addEventListener('resize', updateWheelMetrics);
+    }
 
     // Apothem radii (centre-to-edge distance): six cards spaced 60deg
     // apart already reads as a hexagon by virtue of their count, so the
