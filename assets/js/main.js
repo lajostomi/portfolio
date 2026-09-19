@@ -18,7 +18,7 @@
   /* ---------- Restore smooth scrolling after the initial hash jump ----------
      index.html's own inline <head> script turns scroll-behavior off before
      the browser's scroll-to-fragment-on-load runs, so a page loaded with a
-     hash (CLOSE returning to #work-<slug>, a cross-page #contact link, ...)
+     hash (CLOSE returning to #return-<slug>, a cross-page #contact link, ...)
      jumps straight there instead of animating down the full page height.
      That inline style wins over style.css's html{scroll-behavior:smooth}
      regardless of load order, so it has to be cleared again once that one
@@ -390,6 +390,22 @@
     let lastY = window.scrollY;
     let ticking = false;
 
+    /* Scrolls the reader did not make are not a direction. Arriving on a
+       page the browser (or main.js, returning to a WORK card) positions it
+       mid-page, and that jump used to read as "scrolling down" and slide
+       the header away a moment after the page appeared. Until the reader
+       has touched, scrolled or pressed something — or the page has been
+       settled for a moment after load, for anyone driving the scrollbar,
+       which reports no input event to the page — a scroll only moves the
+       baseline. */
+    let settled = false;
+    const settle = () => { settled = true; };
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((type) =>
+      window.addEventListener(type, settle, { passive: true, once: true }));
+    const settleAfterLoad = () => setTimeout(settle, 400);
+    if (document.readyState === 'complete') settleAfterLoad();
+    else window.addEventListener('load', settleAfterLoad, { once: true });
+
     const isHidable = (bar) => {
       /* Only a bar pinned to a viewport edge may be translated. Anything
          still in the flow scrolls away by itself, and moving it would drag
@@ -431,6 +447,7 @@
       ticking = false;
 
       const y = Math.max(0, window.scrollY);
+      if (!settled) { lastY = y; return; }
       const delta = y - lastY;
 
       if (Math.abs(delta) < DEAD_ZONE) return;
@@ -560,7 +577,7 @@
     closeLink.href = closeLink.href.replace(/index\.html#work$/, 'index.html');
   } else if (closeLink && window.location.hash === '#from-work') {
     const slug = window.location.pathname.split('/').pop().replace(/\.html$/, '');
-    closeLink.href = closeLink.href.replace(/index\.html#work$/, `index.html#work-${slug}`);
+    closeLink.href = closeLink.href.replace(/index\.html#work$/, `index.html#return-${slug}`);
   }
 
   /* CLOSE as "back", when back IS the landing page. Following the link
@@ -588,6 +605,59 @@
       event.preventDefault();
       navigation.back();
     });
+  }
+
+  /* ---------- Returning to a WORK card lands exactly where you left ----------
+     CLOSE goes back in history when it can (above), and that restores the
+     scroll position by itself. Where it can't — no Navigation API, which is
+     Safari on most iPhones — it follows its link instead. That link used to
+     be index.html#work-<slug>, and a fragment makes the browser put the card
+     at the top of the screen: 81px down on a phone, when it had been at
+     321px. The whole page visibly jumped 240px, and the hero shrank into a
+     card that then moved.
+
+     So the link carries #return-<slug>, which matches no element and makes
+     the browser scroll nowhere, and this places the card itself: at the
+     same distance from the top of the screen as when it was tapped
+     (remembered below), or — opened from a shared link, with nothing
+     remembered — just under the header, as #work-<slug> did. It runs while
+     main.js is still render-blocking, so the first frame, and the snapshot
+     the page transition shrinks the hero into, already has the card in
+     place. The address bar is then set back to #work-<slug>, so what gets
+     bookmarked or shared is the real anchor — but only once the page has
+     loaded. Until then the browser is still retrying the navigation's
+     fragment scroll against the document's CURRENT fragment, so renaming
+     it any earlier made the browser scroll to #work-<slug> itself and put
+     the card back at the top, undoing all of this. */
+  const RETURN_KEY = 'workReturn';
+
+  document.querySelectorAll('a.project-card[id^="work-"]').forEach((card) => {
+    card.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem(RETURN_KEY, JSON.stringify({
+          slug: card.id.slice('work-'.length),
+          top: card.getBoundingClientRect().top,
+        }));
+      } catch (e) { /* the fallback below still lands on the card */ }
+    });
+  });
+
+  const returning = /^#return-([\w-]+)$/.exec(window.location.hash);
+  const returnCard = returning && document.getElementById('work-' + returning[1]);
+
+  if (returnCard) {
+    let remembered = null;
+    try { remembered = JSON.parse(sessionStorage.getItem(RETURN_KEY) || 'null'); } catch (e) { /* none */ }
+    const headerBottom = siteHeader ? siteHeader.getBoundingClientRect().height : 0;
+    const wanted = remembered && remembered.slug === returning[1]
+      ? remembered.top
+      : headerBottom + 24; // #work-<slug>'s own scroll-margin-top, style.css
+    // Never above the header, never pushed off the bottom of the screen.
+    const top = Math.min(Math.max(wanted, headerBottom), window.innerHeight - 48);
+    window.scrollTo({ top: returnCard.getBoundingClientRect().top + window.scrollY - top, behavior: 'instant' });
+    const renameHash = () => history.replaceState(history.state, '', '#' + returnCard.id);
+    if (document.readyState === 'complete') renameHash();
+    else window.addEventListener('load', () => setTimeout(renameHash, 0), { once: true });
   }
 
   /* ---------- Card <-> hero page transition ----------
