@@ -283,6 +283,22 @@
   animation: none;
 }
 
+/* The breathing and the arrow's bob are the only things on the site that
+   never stop, and they kept running after the reader had scrolled away
+   from the hero (checked: still "running" with CONTACT on screen). Cheap
+   per frame, but a looping animation keeps the phone compositing a new
+   frame at every refresh — up to 120 a second on a ProMotion iPhone — for
+   as long as the page is open, where nobody can see it. main.js marks the
+   section .is-offscreen with an IntersectionObserver; pausing all three in
+   the same style pass keeps them in phase, which is the one thing the note
+   above asks of them. Specificity (0,2,0) beats both the arrow's own rule
+   in style.css and the breathing rule above. */
+.spin-section.is-offscreen .spin-title,
+.spin-section.is-offscreen .spin-subtitle,
+.spin-section.is-offscreen .spin-arrow {
+  animation-play-state: paused;
+}
+
 .spin-rested .spin-title {
   transition: transform 0.4s ease-out, scale var(--press-out);
 }

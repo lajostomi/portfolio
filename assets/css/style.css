@@ -733,7 +733,19 @@ section {
   box-shadow: 0 20px 40px rgba(0,0,0,0.35);
   opacity: var(--op, 1);
   filter: blur(var(--blur, 0px));
-  will-change: left, top, transform, filter;
+}
+
+/* Compositor layers only while the wheel is moving. This used to be on
+   .wheel-card itself — all six cards held a layer (with its box-shadow)
+   permanently, for the whole time the wheel sits still, which is nearly
+   always. `left`/`top` were never worth a hint: measured, moving the
+   cards costs ~0.3ms of style+layout a frame either way, because the page
+   is small and the stage has a fixed aspect ratio. What a layer does buy
+   is the per-frame transform and motion-blur filter, so that is all it
+   asks for, and only between main.js adding .is-spinning and taking it
+   off. */
+.wheel-container.is-spinning .wheel-card {
+  will-change: transform, filter;
 }
 
 .wheel-card img {
