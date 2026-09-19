@@ -1004,6 +1004,33 @@
       if (spinSubtitle && !spinning) spinSubtitle.textContent = 'land on a random project';
     });
 
+    /* SPIN (and its subtitle) breathe to invite the first press, and stop
+       for good once pressed — see .spin-rested in microinteractions.css.
+       Remembered for the browser session, so coming back from a project
+       doesn't start inviting again. main.js is render-blocking, so on
+       those later loads the class is on before the first paint and the
+       breathing is never seen at all. */
+    const REST_KEY = 'spinRested';
+    const root = document.documentElement;
+    const breathers = [spinTrigger, spinSubtitle].filter(Boolean);
+
+    try { if (sessionStorage.getItem(REST_KEY)) root.classList.add('spin-rested'); } catch (e) { /* keeps breathing */ }
+
+    function stopBreathing() {
+      if (root.classList.contains('spin-rested')) return;
+      // Pin each element at its current mid-breath size, drop the loop,
+      // commit that (reading computed style forces the style pass), then
+      // release the pin: the CSS transition eases from the pinned size to
+      // rest instead of the loop's removal snapping it there.
+      breathers.forEach((el) => { el.style.transform = getComputedStyle(el).transform; });
+      root.classList.add('spin-rested');
+      breathers.forEach((el) => getComputedStyle(el).transform);
+      breathers.forEach((el) => { el.style.transform = ''; });
+      try { sessionStorage.setItem(REST_KEY, '1'); } catch (e) { /* this visit only */ }
+    }
+
+    spinTrigger.addEventListener('click', stopBreathing);
+
     spinTrigger.addEventListener('click', function () {
       // Spinning again during the delay means "not that one" — drop the
       // pending navigation or it fires mid-sweep and opens the old result.
