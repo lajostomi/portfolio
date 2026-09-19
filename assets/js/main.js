@@ -608,9 +608,25 @@
   }
 
   /* ---------- Returning to a WORK card lands exactly where you left ----------
-     CLOSE goes back in history when it can (above), and that restores the
-     scroll position by itself. Where it can't — no Navigation API, which is
-     Safari on most iPhones — it follows its link instead. That link used to
+     Two ways back, and the page positions the card itself on both.
+
+     1. History (CLOSE uses navigation.back() where the Navigation API
+        exists — iOS 26.2+, Chrome — and the browser's own Back button).
+        This used to be left to the browser's scroll restoration, and on an
+        iPhone that is what jumped: the restore can land AFTER the page has
+        first appeared, and then it is animated, because html has
+        scroll-behavior: smooth — the page visibly scrolled down from the
+        top to the card (logged: scrollY 0 at first paint, then 2, 9, 24 ...
+        414). iOS also has no scroll anchoring at all, so anything above the
+        card that settles late (the webfont swapping in) shifts it on screen,
+        where Chrome silently compensates. So tapping a WORK card switches
+        the browser's restoration off for this page (scrollRestoration
+        'manual') and remembers where the card was; coming back through
+        history, main.js — render-blocking, so before the first frame —
+        puts it there instantly and then pins it (below). Leaving the page
+        any other way hands restoration back to the browser.
+
+     2. CLOSE's link, where there is no Navigation API. That link used to
      be index.html#work-<slug>, and a fragment makes the browser put the card
      at the top of the screen: 81px down on a phone, when it had been at
      321px. The whole page visibly jumped 240px, and the hero shrank into a
@@ -630,10 +646,14 @@
      it any earlier made the browser scroll to #work-<slug> itself and put
      the card back at the top, undoing all of this. */
   const RETURN_KEY = 'workReturn';
+  const workCards = document.querySelectorAll('a.project-card[id^="work-"]');
+  let leavingViaCard = false;
 
-  document.querySelectorAll('a.project-card[id^="work-"]').forEach((card) => {
+  workCards.forEach((card) => {
     card.addEventListener('click', () => {
+      leavingViaCard = true;
       try {
+        history.scrollRestoration = 'manual';
         sessionStorage.setItem(RETURN_KEY, JSON.stringify({
           slug: card.id.slice('work-'.length),
           top: card.getBoundingClientRect().top,
@@ -642,22 +662,79 @@
     });
   });
 
-  const returning = /^#return-([\w-]+)$/.exec(window.location.hash);
-  const returnCard = returning && document.getElementById('work-' + returning[1]);
+  if (workCards.length) {
+    // Left some other way (ABOUT, CONTACT, an outside link): the next return
+    // is the browser's to restore, and what was remembered no longer applies.
+    window.addEventListener('pagehide', () => {
+      if (leavingViaCard) return;
+      try {
+        history.scrollRestoration = 'auto';
+        sessionStorage.removeItem(RETURN_KEY);
+      } catch (e) { /* nothing to undo */ }
+    });
+    window.addEventListener('pageshow', (event) => { if (event.persisted) leavingViaCard = false; });
+  }
 
-  if (returnCard) {
-    let remembered = null;
-    try { remembered = JSON.parse(sessionStorage.getItem(RETURN_KEY) || 'null'); } catch (e) { /* none */ }
-    const headerBottom = siteHeader ? siteHeader.getBoundingClientRect().height : 0;
-    const wanted = remembered && remembered.slug === returning[1]
+  let remembered = null;
+  try { remembered = JSON.parse(sessionStorage.getItem(RETURN_KEY) || 'null'); } catch (e) { /* none */ }
+  const navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+  const cameBack = navEntry && navEntry.type === 'back_forward';
+  const returning = /^#return-([\w-]+)$/.exec(window.location.hash);
+  const headerBottom = siteHeader ? siteHeader.getBoundingClientRect().height : 0;
+
+  let returnSlug = null;
+  let wanted = null;
+  if (returning) {
+    returnSlug = returning[1];
+    wanted = remembered && remembered.slug === returnSlug
       ? remembered.top
       : headerBottom + 24; // #work-<slug>'s own scroll-margin-top, style.css
+  } else if (cameBack && remembered) {
+    returnSlug = remembered.slug;
+    wanted = remembered.top;
+  }
+  const returnCard = returnSlug && document.getElementById('work-' + returnSlug);
+
+  if (returnCard) {
     // Never above the header, never pushed off the bottom of the screen.
     const top = Math.min(Math.max(wanted, headerBottom), window.innerHeight - 48);
-    window.scrollTo({ top: returnCard.getBoundingClientRect().top + window.scrollY - top, behavior: 'instant' });
-    const renameHash = () => history.replaceState(history.state, '', '#' + returnCard.id);
-    if (document.readyState === 'complete') renameHash();
-    else window.addEventListener('load', () => setTimeout(renameHash, 0), { once: true });
+    // behavior 'instant' overrides html's scroll-behavior: smooth.
+    const place = () => {
+      const off = returnCard.getBoundingClientRect().top - top;
+      if (Math.abs(off) >= 1) window.scrollTo({ top: window.scrollY + off, behavior: 'instant' });
+    };
+    place();
+
+    /* Pinned until the page has settled. iOS has no scroll anchoring, so a
+       late change above the card (the webfont swapping in, an image) would
+       otherwise move it on screen. A ResizeObserver runs after layout but
+       before paint, so each correction lands in the same frame as the
+       change and is never seen. The reader's first touch, wheel or key
+       ends it, and so does the page settling: load and fonts both done,
+       then a dozen painted frames for the layout that follows them. Frames,
+       not milliseconds: a correction can only happen in a frame, and a
+       slow phone (or a background tab) may not paint for a while — a
+       timer measured the wait in the wrong unit and let a late shift
+       through untouched. */
+    let pinned = true;
+    const ro = window.ResizeObserver ? new ResizeObserver(() => { if (pinned) place(); }) : null;
+    if (ro) ro.observe(document.body);
+    const unpin = () => { pinned = false; if (ro) ro.disconnect(); };
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((type) =>
+      window.addEventListener(type, unpin, { passive: true, once: true }));
+    const loaded = document.readyState === 'complete'
+      ? Promise.resolve()
+      : new Promise((resolve) => window.addEventListener('load', resolve, { once: true }));
+    const afterFrames = (n, done) => (n <= 0 ? done() : requestAnimationFrame(() => afterFrames(n - 1, done)));
+    Promise.all([loaded, document.fonts ? document.fonts.ready : null]).then(() => {
+      if (pinned) place();
+      afterFrames(12, unpin);
+    });
+
+    if (returning) {
+      const renameHash = () => history.replaceState(history.state, '', '#' + returnCard.id);
+      loaded.then(() => setTimeout(renameHash, 0));
+    }
   }
 
   /* ---------- Card <-> hero page transition ----------
