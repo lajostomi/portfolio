@@ -200,9 +200,10 @@
    subtitle and arrow read as one gesture pointing at the wheel. Same
    duration and easing as style.css's `bob` on .spin-arrow — change one,
    change both. All three start on the same style pass at page load, so
-   they stay in phase; for that reason the loop is never
-   paused or restarted (not while spinning, not on hover), since a
-   restarted animation would drift out of step with the arrow for good.
+   they stay in phase; for that reason the loop is never paused or
+   restarted (not on hover), since a restarted animation would drift out
+   of step with the arrow for good. It only ever stops, once, at the first
+   press — see .spin-rested below.
 
    `transform`, not `scale`: the press state below animates `scale`, and
    the two properties compose, so a press still dips mid-breath. */
@@ -218,6 +219,25 @@
 
 .spin-title {
   transition: scale var(--press-out);
+}
+
+/* The breathing is an invitation, so it ends once accepted: the first
+   press of SPIN puts .spin-rested on <html> (main.js) and it stays for the
+   rest of the browser session. main.js freezes each element at its
+   mid-breath size first, so the transform transition below eases it back
+   to rest instead of snapping. The arrow keeps its bob — it predates the
+   breathing and only points at the wheel. */
+.spin-rested .spin-title,
+.spin-rested .spin-subtitle {
+  animation: none;
+}
+
+.spin-rested .spin-title {
+  transition: transform 0.4s ease-out, scale var(--press-out);
+}
+
+.spin-rested .spin-subtitle {
+  transition: transform 0.4s ease-out;
 }
 
 .spin-title:not(:disabled):active {
