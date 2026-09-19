@@ -1,0 +1,286 @@
+/* =========================================================
+   Microinteractions
+   ---------------------------------------------------------
+   Loaded LAST on every page, on purpose: the press states below have to
+   beat same-specificity :hover rules that live in project.css and
+   about.css (e.g. .footer-pill:hover's translateY), and a later sheet is
+   the only way to win that without inflating selectors.
+
+   Two things live here:
+     1. Card-to-hero page transition (cross-document View Transitions)
+     2. Press feedback on everything tappable
+   ========================================================= */
+
+:root {
+  /* One shared vocabulary so every press/release feels like the same hand. */
+  --press-in: 70ms ease-out;
+  --press-out: 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); /* small overshoot */
+  --morph-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* =========================
+   1. Card -> hero page transition
+   =========================
+   Clicking a project (a SPIN wheel card or a WORK grid card) grows that
+   card's image into the project page's hero image; CLOSE plays it back
+   into the WORK card. Same-origin page loads cross-fade everywhere else.
+
+   Who carries the shared name, `project-hero`:
+     - project pages: .hero-image img, statically (below) — it must already be
+       named on the very first frame of the incoming page.
+     - index.html: nothing by default. main.js names the clicked card's img on
+       `pageswap` (leaving) and the card to land in on `pagereveal`
+       (arriving) — main.js is render-blocking, so it is always in time.
+   Only one element per page may hold the name, or the browser skips the
+   transition altogether — hence nothing on index.html is named statically.
+
+   Browsers without cross-document view transitions (Firefox today) just
+   navigate as before; nothing here changes their behaviour. */
+
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* The image, not its rounded frame — see the radius note below. */
+.hero-image img {
+  view-transition-name: project-hero;
+}
+
+::view-transition-group(root) {
+  animation-duration: 0.3s;
+}
+
+::view-transition-group(project-hero) {
+  animation-duration: 0.6s;
+  animation-timing-function: var(--morph-ease);
+}
+
+/* Corner radius. What is captured is the square <img>, not its rounded
+   frame: a frame's snapshot has its corners baked into the bitmap, which
+   is then stretched with it — the hero's 16px corners shrank to ~8px on
+   the way into a card and the card's own snapped back on the last frame.
+   Instead the image pair (which fills the moving box) is clipped here and
+   its radius animated from the old frame's value to the new one's, over
+   the same duration and easing as the box itself. main.js measures both
+   and sets --vt-radius-from / --vt-radius-to on <html> at `pagereveal`. */
+@keyframes hero-radius {
+  from { border-radius: var(--vt-radius-from, var(--radius-lg)); }
+  to { border-radius: var(--vt-radius-to, var(--radius-lg)); }
+}
+
+::view-transition-image-pair(project-hero) {
+  overflow: clip;
+  animation: hero-radius 0.6s var(--morph-ease) both;
+}
+
+/* Both images are ~16:9 (wheel 306:172, WORK 580:326, hero 1194:670), so
+   filling the group is a near-invisible stretch rather than a squash. */
+::view-transition-old(project-hero),
+::view-transition-new(project-hero) {
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: normal;
+}
+
+/* The card thumbnail and the hero are different compositions (text placed
+   and sized differently), so any stretch of time with both visible reads
+   as a doubled, colour-fringed ghost. The incoming image therefore takes
+   over within the first 0.18s and the rest of the morph shows it alone.
+   The outgoing image stays fully opaque underneath rather than fading out
+   too: a two-way fade has both at half strength mid-way, and the dark page
+   showing through them reads as a flicker. It also covers for an incoming
+   image still loading, which is transparent until it arrives. */
+@keyframes hero-take-over {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+::view-transition-old(project-hero) {
+  animation: none;
+}
+
+::view-transition-new(project-hero) {
+  animation: hero-take-over 0.18s ease-out both;
+}
+
+/* body's own page-enter fade (style.css) must not run on a page reached
+   through a transition, which already fades it in. main.js sets the class
+   on `pagereveal` and never removes it — an opt-out tied to the transition
+   being active (:active-view-transition) ended with the transition, and the
+   fade then restarted from zero: a pulse right after every morph. */
+.vt-arrived body {
+  animation: none;
+}
+
+/* =========================
+   2. Press feedback
+   =========================
+   Touch has no hover, so on a phone every card and pill used to feel
+   inert under the finger. Each tappable thing now dips on press and
+   springs back on release — mouse clicks get it too.
+
+   `scale` (the individual property), not `transform`, wherever possible:
+   it composes with the transforms these elements already use for hover
+   (the pills' translateY lift, .video-play's scale(1.06)) instead of
+   replacing them. Each `transition` below restates the element's existing
+   list, since the shorthand replaces it wholesale; :active swaps in a
+   fast press-in, and leaving :active falls back to the springy release. */
+
+.project-card,
+.wheel-card,
+.footer-pill,
+.pill-button,
+.contact-method,
+.spin-title,
+.video-play,
+.nav-toggle,
+.nav-link,
+.logo {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* WORK grid: the image dips, the caption under it stays put. */
+.project-image {
+  transition: scale var(--press-out);
+}
+
+.project-card:active .project-image {
+  scale: 0.97;
+  transition: scale var(--press-in);
+}
+
+/* SPIN wheel cards: their transform is rewritten every frame by main.js
+   (via --x/--y/--rot), and `scale` would pivot around the untranslated box
+   — off-centre by translate(-50%). So the press rides inside the card's
+   own transform as a registered, animatable custom property. */
+@property --press {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+.wheel-card {
+  transform: translate(-50%, 0) rotate(var(--rot, 0deg)) scale(var(--press));
+  transition: --press var(--press-out);
+}
+
+.wheel-card:active {
+  --press: 0.96;
+  transition: --press var(--press-in);
+}
+
+/* Pills: landing 404, project footers, about's resume button. */
+.footer-pill,
+.pill-button {
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, scale var(--press-out);
+}
+
+.footer-pill:active,
+.pill-button:active {
+  scale: 0.94;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, scale var(--press-in);
+}
+
+/* Contact tiles: the icon square dips, matching its hover lift. */
+.contact-icon {
+  transition: transform 0.25s ease, scale var(--press-out);
+}
+
+.contact-method:active .contact-icon {
+  scale: 0.92;
+  transition: transform 0.25s ease, scale var(--press-in);
+}
+
+/* SPIN heading — the one button that starts the wheel.
+
+   It breathes, together with the subtitle under it: a slow swell in step
+   with the arrow below, peaking as the arrow dips lowest, so heading,
+   subtitle and arrow read as one gesture pointing at the wheel. Same
+   duration and easing as style.css's `bob` on .spin-arrow — change one,
+   change both. All three start on the same style pass at page load, so
+   they stay in phase; for that reason the loop is never
+   paused or restarted (not while spinning, not on hover), since a
+   restarted animation would drift out of step with the arrow for good.
+
+   `transform`, not `scale`: the press state below animates `scale`, and
+   the two properties compose, so a press still dips mid-breath. */
+@keyframes spin-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.spin-title,
+.spin-subtitle {
+  animation: spin-breathe 2s ease-in-out infinite;
+}
+
+.spin-title {
+  transition: scale var(--press-out);
+}
+
+.spin-title:not(:disabled):active {
+  scale: 0.95;
+  transition: scale var(--press-in);
+}
+
+/* Video play/pause: keeps its visibility fade and hover growth. */
+.video-play {
+  transition: opacity 0.25s ease, transform 0.2s ease, scale var(--press-out);
+}
+
+.video-play:active {
+  scale: 0.88;
+  transition: opacity 0.25s ease, transform 0.2s ease, scale var(--press-in);
+}
+
+.nav-toggle {
+  transition: scale var(--press-out);
+}
+
+.nav-toggle:active {
+  scale: 0.88;
+  transition: scale var(--press-in);
+}
+
+/* Text links are inline, where `scale` does nothing — they dim instead,
+   one step past their hover opacity. */
+.nav-link:not(.spin-title):active,
+.logo:active {
+  opacity: 0.45;
+  transition: opacity var(--press-in);
+}
+
+/* Reduced motion: no size change at all, just a brief dim, so a press is
+   still acknowledged. */
+@media (prefers-reduced-motion: reduce) {
+  /* project.css turns this transition off under reduced motion; the
+     restated list above would otherwise switch it back on. */
+  .video-play {
+    transition: none;
+  }
+
+  /* An endless loop is exactly what style.css already stops on the arrow. */
+  .spin-title,
+  .spin-subtitle {
+    animation: none;
+  }
+
+  .project-card:active .project-image,
+  .footer-pill:active,
+  .pill-button:active,
+  .contact-method:active .contact-icon,
+  .spin-title:not(:disabled):active,
+  .video-play:active,
+  .nav-toggle:active {
+    scale: none;
+    opacity: 0.7;
+  }
+
+  .wheel-card:active {
+    --press: 1;
+    opacity: 0.7;
+  }
+}
+
