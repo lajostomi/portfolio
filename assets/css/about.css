@@ -13,7 +13,10 @@
      zero gap — matches .project-page's own top padding for the same
      breathing room other pages already get below their header/hero. */
   padding-top: clamp(24px, 4vw, 40px);
-  padding-bottom: clamp(96px, 14vw, 160px);
+  /* The site-wide end space (style.css). Was clamp(96px, 14vw, 160px),
+     which left about 161px under the last photo on a wide screen against
+     index's 115px and a project page's 138px. */
+  padding-bottom: var(--page-end);
 }
 
 .about-container {
