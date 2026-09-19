@@ -672,7 +672,20 @@
         sessionStorage.removeItem(RETURN_KEY);
       } catch (e) { /* nothing to undo */ }
     });
-    window.addEventListener('pageshow', (event) => { if (event.persisted) leavingViaCard = false; });
+    /* Restored from the back/forward cache — which is how an iPhone comes
+       back (measured on iOS 26.6: persisted=true). No script re-runs, and
+       with scrollRestoration 'manual' WebKit brings the page back at the
+       TOP (scrollY 0, the tapped card 1303px down), so the card has to be
+       placed here too. pageshow fires before the restored page's first
+       frame, so this lands before anything is seen. */
+    window.addEventListener('pageshow', (event) => {
+      if (!event.persisted) return;
+      leavingViaCard = false;
+      let saved = null;
+      try { saved = JSON.parse(sessionStorage.getItem(RETURN_KEY) || 'null'); } catch (e) { /* none */ }
+      const card = saved && document.getElementById('work-' + saved.slug);
+      if (card) holdCard(card, saved.top);
+    });
   }
 
   let remembered = null;
@@ -695,45 +708,80 @@
   }
   const returnCard = returnSlug && document.getElementById('work-' + returnSlug);
 
-  if (returnCard) {
+  const pageLoaded = () => (document.readyState === 'complete'
+    ? Promise.resolve()
+    : new Promise((resolve) => window.addEventListener('load', resolve, { once: true })));
+
+  /* Put the card `wanted` px from the top of the screen and hold it there.
+
+     Held until the reader touches, scrolls or presses something, or the
+     page has gone quiet: load and fonts done, then 20 painted frames in a
+     row that needed no correction (capped at ~3s so it can never trap
+     anyone). Frames, not milliseconds: a correction can only happen in a
+     frame, and a slow phone may not paint for a while.
+
+     While held it undoes two kinds of movement nobody asked for:
+     - layout changes above the card (the webfont swapping in). iOS has no
+       scroll anchoring, so these moved the card on screen; a
+       ResizeObserver runs after layout and before paint, so the correction
+       lands in the same frame and is never seen.
+     - scrolls the page itself didn't make — measured on iOS 26.6, right
+       after a back/forward-cache restore at the top the browser
+       smooth-scrolled the page 58px with no script involved: <main>, which
+       starts 58px down under the header, held focus when the page was left,
+       and WebKit scrolled it into view. With the card placed first there is
+       nothing left to scroll into view (round 2 on the phone: no such
+       scroll), but a scroll listener, which also runs before paint, stays
+       as the guard.
+     behavior 'instant' throughout: it overrides html's scroll-behavior:
+     smooth, and interrupts any smooth scroll already under way. */
+  function holdCard(card, wanted) {
     // Never above the header, never pushed off the bottom of the screen.
     const top = Math.min(Math.max(wanted, headerBottom), window.innerHeight - 48);
-    // behavior 'instant' overrides html's scroll-behavior: smooth.
+    let corrected = false;
     const place = () => {
-      const off = returnCard.getBoundingClientRect().top - top;
-      if (Math.abs(off) >= 1) window.scrollTo({ top: window.scrollY + off, behavior: 'instant' });
+      const off = card.getBoundingClientRect().top - top;
+      if (Math.abs(off) >= 1) {
+        corrected = true;
+        window.scrollTo({ top: window.scrollY + off, behavior: 'instant' });
+      }
     };
     place();
 
-    /* Pinned until the page has settled. iOS has no scroll anchoring, so a
-       late change above the card (the webfont swapping in, an image) would
-       otherwise move it on screen. A ResizeObserver runs after layout but
-       before paint, so each correction lands in the same frame as the
-       change and is never seen. The reader's first touch, wheel or key
-       ends it, and so does the page settling: load and fonts both done,
-       then a dozen painted frames for the layout that follows them. Frames,
-       not milliseconds: a correction can only happen in a frame, and a
-       slow phone (or a background tab) may not paint for a while — a
-       timer measured the wait in the wrong unit and let a late shift
-       through untouched. */
-    let pinned = true;
-    const ro = window.ResizeObserver ? new ResizeObserver(() => { if (pinned) place(); }) : null;
+    let held = true;
+    const ro = window.ResizeObserver ? new ResizeObserver(() => { if (held) place(); }) : null;
     if (ro) ro.observe(document.body);
-    const unpin = () => { pinned = false; if (ro) ro.disconnect(); };
+    const onScroll = () => { if (held) place(); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    const release = () => {
+      if (!held) return;
+      held = false;
+      if (ro) ro.disconnect();
+      window.removeEventListener('scroll', onScroll);
+    };
     ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach((type) =>
-      window.addEventListener(type, unpin, { passive: true, once: true }));
-    const loaded = document.readyState === 'complete'
-      ? Promise.resolve()
-      : new Promise((resolve) => window.addEventListener('load', resolve, { once: true }));
-    const afterFrames = (n, done) => (n <= 0 ? done() : requestAnimationFrame(() => afterFrames(n - 1, done)));
-    Promise.all([loaded, document.fonts ? document.fonts.ready : null]).then(() => {
-      if (pinned) place();
-      afterFrames(12, unpin);
-    });
+      window.addEventListener(type, release, { passive: true, once: true }));
 
+    Promise.all([pageLoaded(), document.fonts ? document.fonts.ready : null]).then(() => {
+      if (!held) return;
+      place();
+      let quiet = 0;
+      let frames = 0;
+      (function frame() {
+        if (!held) return;
+        quiet = corrected ? 0 : quiet + 1;
+        corrected = false;
+        if (quiet >= 20 || ++frames >= 180) release();
+        else requestAnimationFrame(frame);
+      })();
+    });
+  }
+
+  if (returnCard) {
+    holdCard(returnCard, wanted);
     if (returning) {
       const renameHash = () => history.replaceState(history.state, '', '#' + returnCard.id);
-      loaded.then(() => setTimeout(renameHash, 0));
+      pageLoaded().then(() => setTimeout(renameHash, 0));
     }
   }
 
