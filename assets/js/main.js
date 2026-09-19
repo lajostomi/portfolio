@@ -331,42 +331,11 @@
     else if (reduceMotion.addListener) reduceMotion.addListener(apply); // Safari < 14
   }
 
-  /* ---------- Sticky project-footer height ----------
-     .project-footer is position:sticky over the content, so .project-page
-     needs bottom padding at least as tall as the footer or the pills sit
-     on top of the last section. That padding used to be hand-tuned
-     numbers (a clamp, plus a flat 180px below 600px) measured against a
-     footer that happened to be 90px on one line and 147px on two.
-
-     Those numbers do not survive an edit. Temporarily relabelling this
-     pill during the header work made the group wider and pushed it to
-     three lines on small phones (205px, overrunning the 180px padding by
-     25px) and to two lines around 700px (147px against ~98px, a 50px
-     overrun) — a caption change silently reintroducing the exact overlap
-     bug the padding existed to prevent. The label is back to CLOSE, but
-     the lesson stands and the measurement stays.
-
-     Measuring the real height instead means the padding tracks whatever
-     the footer actually does, at any width, after any future label or
-     breakpoint change. Same approach as --header-height above, including
-     the fonts.ready re-measure: the pills are text, so their wrap point
-     moves once the webfont replaces the fallback. */
+  /* The CLOSE / NEXT PROJECT footer, used by the scroll-direction auto-hide
+     below. (This block used to also measure the footer's height into
+     --footer-height for .project-page's bottom padding; that padding is now
+     the site-wide --page-end instead, so the measurement had no consumer.) */
   const projectFooter = document.querySelector(".project-footer");
-
-  if (projectFooter) {
-    const updateFooterHeight = () => {
-      document.documentElement.style.setProperty(
-        "--footer-height",
-        projectFooter.getBoundingClientRect().height + "px"
-      );
-    };
-
-    updateFooterHeight();
-    window.addEventListener("resize", updateFooterHeight);
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(updateFooterHeight);
-    }
-  }
 
   /* ---------- Auto-hide the sticky bars by scroll direction ----------
      Both persistent bars — the header at the top, the CLOSE / NEXT PROJECT

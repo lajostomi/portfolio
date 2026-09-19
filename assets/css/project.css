@@ -22,19 +22,26 @@
      scrim this tall, and the padding below has to clear it. */
   --footer-scrim: 64px;
 
-  /* Derived from the footer’s measured height (main.js sets
-     --footer-height), not a hand-tuned clamp. .project-footer is sticky
-     over the content, so this padding has to be at least as tall as the
-     footer really is — and “really is” changes with the viewport, the
-     webfont, and any edit to a pill’s label. The fallback covers the
-     no-JS case at the tallest the footer gets.
+  /* How far the pills float above the viewport's bottom edge while the
+     footer is stuck. .project-footer's own padding-block, named because the
+     padding below is computed from it. */
+  --footer-pad: 24px;
 
-     Note what this padding does and does not do. It sits BELOW the footer
-     — footer and main are adjacent siblings, so it never separates them —
-     which is what gives the sticky footer somewhere to unstick to at the
-     end of the scroll. Keeping the last section clear of the footer is a
-     different job, done by .project-container's own padding-bottom. */
-  padding-bottom: calc(var(--footer-height, 205px) + 24px);
+  /* Makes the pills end the site-wide --page-end (style.css) above the
+     bottom of the page: this padding plus the footer's own bottom padding
+     add up to exactly that.
+
+     It used to be the footer's MEASURED height plus 24px (main.js wrote
+     --footer-height), on the theory that the sticky footer would otherwise
+     sit on top of the last section. It cannot: the footer is in normal flow
+     after <main>, so at the end of the scroll it lands below the content,
+     never over it, and the gap between the two is .project-container's own
+     padding-bottom (unchanged at 120px, measured before and after on every
+     project page). What the old padding actually did was park a
+     footer-sized void under the pills — 138px on desktop, 195px on a
+     phone — and make the page's end space depend on how the pill labels
+     happened to wrap. */
+  padding-bottom: calc(var(--page-end) - var(--footer-pad));
 }
 
 .project-page > .project-container {
@@ -871,7 +878,7 @@
      already uses, so the pills, the logo and the content now share one
      edge at every width. */
   padding-inline: max(var(--gutter), calc((100% - var(--container-max)) / 2));
-  padding-block: 24px;
+  padding-block: var(--footer-pad, 24px);
   pointer-events: none;
   isolation: isolate;
 
