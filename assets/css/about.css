@@ -8,15 +8,24 @@
    ========================================================= */
 
 .about-page {
-  /* Without this, .about-container's first child (the DOWNLOAD RESUME
-     button) sits flush against the sticky header's bottom edge with
-     zero gap — matches .project-page's own top padding for the same
-     breathing room other pages already get below their header/hero. */
-  padding-top: clamp(24px, 4vw, 40px);
   /* The site-wide end space (style.css). Was clamp(96px, 14vw, 160px),
      which left about 161px under the last photo on a wide screen against
      index's 115px and a project page's 138px. */
   padding-bottom: var(--page-end);
+}
+
+.about-page > .about-container {
+  /* Without this, the first child (the DOWNLOAD RESUME button) sits flush
+     against the header's bottom edge — same breathing room as a project
+     page's .project-container.
+     The header's own position must not depend on the page: this padding
+     used to sit on the page class, which is on <body>, and <body> is the
+     header's parent — so it pushed the HEADER down 40px on about and every
+     project page, while index and the 404 (no such padding) had it at 0.
+     Navigating between them made the nav jump. On <main> the same space
+     lands below the header instead, so the content stays exactly where it
+     was and the header sits at 0 on every page. */
+  padding-top: clamp(24px, 4vw, 40px);
 }
 
 .about-container {
@@ -345,7 +354,7 @@
 
   /* The frame starts the download button at y=57, i.e. flush under the
      header — same as the project frames. */
-  .about-page {
+  .about-page > .about-container {
     padding-top: 0;
   }
 
