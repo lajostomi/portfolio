@@ -105,6 +105,57 @@
   animation: hero-take-over 0.18s ease-out both;
 }
 
+/* The CLOSE / NEXT PROJECT pills, scrim included, get a layer of their own.
+
+   Unnamed, the footer is part of the page-wide root snapshot, and every
+   named group paints ABOVE the root — so the growing hero covered the
+   pills for the whole morph, and when the transition ended the live page
+   took over and they popped to the front in a single frame (their usual
+   z-index is 30, over everything). Named, they are a group of their own,
+   and the z-index below puts that group over the hero's.
+
+   Only project pages are named: there is exactly one footer on each, and
+   the 404 reuses the class for a static, untransitioned bar. The scrim is
+   the footer's ::before, so it is part of the same snapshot and moves with
+   the pills. */
+.project-page .project-footer {
+  view-transition-name: project-footer;
+}
+
+::view-transition-group(project-footer) {
+  z-index: 1;
+}
+
+/* Arriving on a project page (from the landing page or the WORK grid) the
+   footer exists only on the new side. It stays out of the way while the
+   hero does most of its growing, then rises 12px and fades in over the
+   morph's second half, finishing on the same 0.6s beat as the hero — so
+   the pills are never under the image and never pop; they settle with it.
+
+   Leaving (CLOSE, or any link off the page) the footer exists only on the
+   old side and simply fades out, quickly, above the shrinking image.
+
+   Project to project (NEXT PROJECT) both sides have it in the same place,
+   and the old and new snapshots are identical, so the pair stays still.
+   The rules below only take effect on the side that exists alone:
+   :only-child matches a snapshot with no partner. */
+@keyframes footer-arrive {
+  from { opacity: 0; translate: 0 12px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes footer-leave {
+  to { opacity: 0; }
+}
+
+::view-transition-new(project-footer):only-child {
+  animation: footer-arrive 0.35s var(--morph-ease) 0.25s both;
+}
+
+::view-transition-old(project-footer):only-child {
+  animation: footer-leave 0.15s ease-out both;
+}
+
 /* body's own page-enter fade (style.css) must not run on a page reached
    through a transition, which already fades it in. main.js sets the class
    on `pagereveal` and never removes it — an opt-out tied to the transition
