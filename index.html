@@ -15,9 +15,19 @@
      happens as soon as the target element and layout are ready -- a
      deferred script cannot be guaranteed to win that race. main.js turns
      smooth scrolling back on after load, once this one jump is done, so
-     in-page anchor clicks (WORK/CONTACT nav, footer pills) keep it. -->
+     in-page anchor clicks (WORK/CONTACT nav, footer pills) keep it.
+     Coming BACK to this page (the browser's Back button, or CLOSE going
+     back in history) gets the same treatment: the browser's scroll
+     restoration obeys scroll-behavior too, and when it lands after the
+     page has first appeared — which it does on iPhones — it animated the
+     page from the top down to where the reader had been. -->
 <script>
-  if (location.hash) { document.documentElement.style.scrollBehavior = 'auto'; }
+  (function () {
+    var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (location.hash || (nav && nav.type === 'back_forward')) {
+      document.documentElement.style.scrollBehavior = 'auto';
+    }
+  })();
 </script>
 <title>Lajos Tamás Jakab — Portfolio</title>
 <meta name="description" content="UX/UI portfolio of Lajos Tamás Jakab — product design, research and vibe coding projects.">
@@ -55,7 +65,7 @@
 <!-- Deferred (runs after parsing, as before) but render-blocking: nothing
      paints until main.js has run, so the first frame — including the one a
      page transition animates into — is already laid out. -->
-<script src="assets/js/main.js?v=146a7a3d" defer blocking="render"></script>
+<script src="assets/js/main.js?v=d2f7871c" defer blocking="render"></script>
 </head>
 <body class="bg-dark">
 
