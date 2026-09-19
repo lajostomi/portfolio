@@ -14,7 +14,6 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding-top: clamp(24px, 4vw, 40px);
 
   /* How far the footer's scrim reaches ABOVE the pills. Declared here
      rather than written into the gradient, because two rules depend on
@@ -45,6 +44,16 @@
 }
 
 .project-page > .project-container {
+  /* Breathing room between the header and the page's first content.
+     The header's own position must not depend on the page: this padding
+     used to sit on the page class, which is on <body>, and <body> is the
+     header's parent — so it pushed the HEADER down 40px on about and every
+     project page, while index and the 404 (no such padding) had it at 0.
+     Navigating between them made the nav jump. On <main> the same space
+     lands below the header instead, so the content stays exactly where it
+     was and the header sits at 0 on every page. */
+  padding-top: clamp(24px, 4vw, 40px);
+
   /* width:100% is load-bearing, not decorative: .project-container already
      centers itself with margin-inline:auto (below). Once .project-page is
      a flex column, a flex item with auto cross-margins and an auto cross
@@ -2466,7 +2475,7 @@
   /* The frame puts the content at y=58 against a 57px header, i.e. flush.
      The clamp's 24px floor is a landing-page convention the project frame
      does not follow. */
-  .project-page {
+  .project-page > .project-container {
     padding-top: 0;
   }
 
