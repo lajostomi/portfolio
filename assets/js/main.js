@@ -973,6 +973,17 @@
   const wheelStage = wheel ? wheel.closest('.wheel-stage') : null;
   const spinSubtitle = document.getElementById('spinSubtitle');
 
+  /* Pause the hero's endless animations (SPIN's breathing, the arrow's bob)
+     while the hero is scrolled out of view — see .is-offscreen in
+     microinteractions.css. Without IntersectionObserver they simply keep
+     running, as before. */
+  const spinSection = spinTrigger && spinTrigger.closest('.spin-section');
+  if (spinSection && window.IntersectionObserver) {
+    new IntersectionObserver(([entry]) => {
+      spinSection.classList.toggle('is-offscreen', !entry.isIntersecting);
+    }).observe(spinSection);
+  }
+
   if (spinTrigger && wheel && wheelContainer) {
     const cards = Array.from(wheel.querySelectorAll('.wheel-card'));
     const baseAngle = cards.map((card) => Number(card.dataset.angle) || 0);
