@@ -733,18 +733,25 @@ section {
   box-shadow: 0 20px 40px rgba(0,0,0,0.35);
   opacity: var(--op, 1);
   filter: blur(var(--blur, 0px));
-}
 
-/* Compositor layers only while the wheel is moving. This used to be on
-   .wheel-card itself — all six cards held a layer (with its box-shadow)
-   permanently, for the whole time the wheel sits still, which is nearly
-   always. `left`/`top` were never worth a hint: measured, moving the
-   cards costs ~0.3ms of style+layout a frame either way, because the page
-   is small and the stage has a fixed aspect ratio. What a layer does buy
-   is the per-frame transform and motion-blur filter, so that is all it
-   asks for, and only between main.js adding .is-spinning and taking it
-   off. */
-.wheel-container.is-spinning .wheel-card {
+  /* Each card keeps a compositor layer, at rest too, and that is
+     deliberate — it is what makes the shadow above rasterise correctly.
+
+     This was briefly narrowed to .wheel-container.is-spinning .wheel-card,
+     on the reasoning that a layer only buys something while the cards
+     actually move (measured: moving them costs ~0.3ms of style+layout a
+     frame either way, so the layer was not paying for the movement). It
+     cost a visible bug instead: painted into the shared layer, at a
+     fractionally scaled hero, with .wheel-fade composited above them,
+     Edge drew a faint diagonal hairline beside the resting cards — there
+     on load and on every frame after (a repaint did not clear it), gone
+     only once the wheel spun. Bisected on the reporter's machine: the
+     line needed the cards, this box-shadow, the fade and a scaled hero all
+     at once, and restoring these layers removed it.
+
+     `left`/`top` are not listed, unlike the original: they were never
+     worth a hint. What the layer is for is the transform, the motion-blur
+     filter, and this shadow. */
   will-change: transform, filter;
 }
 
