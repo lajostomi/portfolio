@@ -1044,10 +1044,15 @@
     const RY = 95; // vertical radius, in % of the stage's height
 
     /* The wheel remembers the last project opened from it (by spinning or
-       by clicking a card), for the rest of the browser session. Coming back
-       then finds that project still in the front slot, which is what lets
-       the page transition shrink its hero back into the card — a wheel
-       reset to Hachi on every return had nothing to land in. */
+       by clicking a card) for exactly one purpose: coming BACK from that
+       project finds it still in the front slot, which is what lets the page
+       transition shrink its hero into the card — a wheel reset to Hachi on
+       a return would have nothing to land in.
+
+       Any other arrival starts over with Hachi at the top, the wheel as
+       drawn: a refresh, or opening the page fresh. It used to keep the
+       remembered angle there too, for the rest of the browser session, so
+       a reload showed whatever had last been spun to. */
     const WHEEL_KEY = 'wheelRotation';
 
     function rememberRotation(rotation) {
@@ -1055,6 +1060,15 @@
     }
 
     function recalledRotation() {
+      const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      // Back/forward covers CLOSE going back in history and the browser's own
+      // Back button; the #return- hash is CLOSE where the Navigation API is
+      // missing (see the WORK-card return above).
+      const returning = (nav && nav.type === 'back_forward') || /^#return-/.test(window.location.hash);
+      if (!returning) {
+        try { sessionStorage.removeItem(WHEEL_KEY); } catch (e) { /* nothing to forget */ }
+        return 0;
+      }
       try { return Number(sessionStorage.getItem(WHEEL_KEY)) || 0; } catch (e) { return 0; }
     }
 
