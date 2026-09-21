@@ -1230,19 +1230,22 @@
       if (!event.persisted) return;
       clearPendingOpen();
       if (spinSubtitle && !spinning) spinSubtitle.textContent = 'land on a random project';
+      restartBreathing();
     });
 
-    /* SPIN (and its subtitle) breathe to invite the first press, and stop
-       for good once pressed — see .spin-rested in microinteractions.css.
-       Remembered for the browser session, so coming back from a project
-       doesn't start inviting again. main.js is render-blocking, so on
-       those later loads the class is on before the first paint and the
-       breathing is never seen at all. */
-    const REST_KEY = 'spinRested';
+    /* SPIN (and its subtitle) breathe to invite a press, and stop the
+       moment one comes — see .spin-rested in microinteractions.css.
+
+       Per page view, remembering nothing: every fresh load invites again,
+       and the press ends it for that view only. It used to be stored in
+       sessionStorage, so one press anywhere silenced the invitation for
+       the rest of the browser session (and the class was on before the
+       first paint, so later loads never breathed at all). The invitation
+       is cheap and the press is what earns the quiet, so it is now the
+       press alone that does it. */
     const root = document.documentElement;
     const breathers = [spinTrigger, spinSubtitle].filter(Boolean);
-
-    try { if (sessionStorage.getItem(REST_KEY)) root.classList.add('spin-rested'); } catch (e) { /* keeps breathing */ }
+    const spinArrow = document.querySelector('.spin-arrow');
 
     function stopBreathing() {
       if (root.classList.contains('spin-rested')) return;
@@ -1254,7 +1257,23 @@
       root.classList.add('spin-rested');
       breathers.forEach((el) => getComputedStyle(el).transform);
       breathers.forEach((el) => { el.style.transform = ''; });
-      try { sessionStorage.setItem(REST_KEY, '1'); } catch (e) { /* this visit only */ }
+    }
+
+    /* A page restored from the back/forward cache (CLOSE returning from a
+       project, and how iPhones come back) never reloads, so it would still
+       be wearing the .spin-rested from before it left, next to a subtitle
+       that has just been reset to its idle invitation. Breathe again — and
+       restart the arrow's bob in the same style pass, since SPIN, the
+       subtitle and the arrow are only in step because they started
+       together (see microinteractions.css); restarting one alone would
+       leave it drifting against the other two for good. */
+    function restartBreathing() {
+      if (!root.classList.contains('spin-rested')) return;
+      root.classList.remove('spin-rested');
+      const all = breathers.concat(spinArrow ? [spinArrow] : []);
+      all.forEach((el) => { el.style.animation = 'none'; });
+      all.forEach((el) => getComputedStyle(el).animationName); // commit the stop
+      all.forEach((el) => { el.style.animation = ''; });
     }
 
     spinTrigger.addEventListener('click', stopBreathing);
