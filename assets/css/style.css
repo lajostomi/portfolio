@@ -439,6 +439,19 @@ section {
 .logo {
   margin: 0;
   font-size: clamp(20px, 2.2vw, 32px);
+  /* Pinned, not `normal`: the logo is the tallest thing in the header, so
+     its line box IS the header height — and `normal` is whatever metrics
+     the font in use happens to have. With display=swap the first paint
+     uses the fallback, whose line box is 1.6px taller (90.4 vs 88.8 at
+     32px). That height feeds --fit-u, which scales the whole SPIN hero:
+     when the webfont swapped in, the wheel rescaled ~2.3px and every card
+     shifted ~1px. Chromium/Edge does not always erase the old antialiased
+     edge of a rotated, clipped, shadowed card, so the leftover showed as a
+     faint hairline beside the yellow card until the next repaint — a spin
+     cleared it (user-reported on Edge). 1.275 is exactly what Plus Jakarta
+     Sans renders at `normal` (40.8/32), so nothing moves; the fallback now
+     matches it, and the hero no longer rescales mid-load. */
+  line-height: 1.275;
   font-weight: 500;
   white-space: nowrap;
   transition: opacity 0.2s ease;
